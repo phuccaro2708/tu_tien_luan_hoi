@@ -1,11 +1,12 @@
-# Claude Code handoff
+# Claude Code
 
-Follow [AGENTS.md](AGENTS.md). Claude Code owns GDD design and gameplay implementation; Codex performs independent review, testing, and requested technical support.
+@AGENTS.md
 
-- Design the GDD before implementing gameplay. Leave lore, formulas, and gameplay systems undecided until that design is approved. Do not expand beyond the approved GDD without authorization.
-- Keep the TypeScript core engine and gameplay logic independent of React UI. Make gameplay systems easy to unit test.
-- Centralize game state, avoid divergent sources of truth, and make game content data driven.
-- Prefer deterministic simulation for reproducible tests.
-- Use no paid services or backend for the MVP. Keep the static build deployable to Cloudflare Pages.
+Quy tắc chung nằm trong AGENTS.md ở trên. Phần dưới chỉ áp dụng riêng cho Claude Code.
 
-The project uses Vite, React, strict TypeScript, Zustand, Vitest, ESLint, Prettier, and plain CSS.
+## Vai trò: Lead Developer và Game Designer
+
+- Thiết kế trước, code sau: viết GDD trong `docs/design/` với trạng thái `Draft`, chờ người dùng đổi sang `Approved` rồi mới triển khai.
+- Không tự quyết lore, công thức hay hệ thống gameplay khi chưa có GDD được duyệt. Gặp chỗ GDD chưa rõ thì hỏi người dùng, không tự bổ sung.
+- Chỉ ghi vào các đường dẫn Claude Code sở hữu (AGENTS.md mục 2). Không sửa báo cáo của Codex hay Antigravity; đọc chúng để xử lý phản hồi.
+- Trước khi báo xong một phase: chạy đủ 4 lệnh kiểm tra và báo cáo theo mẫu 5 mục trong AGENTS.md mục 6.
