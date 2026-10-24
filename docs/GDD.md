@@ -1,10 +1,10 @@
 # Tu Tiên Luân Hồi – Game Design Document
 
-> **Trạng thái: Approved – 2026-10-23** · Phiên bản thiết kế v0.1 (số liệu chưa qua playtest)
+> **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt D17–D26). Bản v0.1 đã Approved 2026-10-23; D01–D16 giữ nguyên hiệu lực trừ chỗ ghi rõ. Đối chiếu từng finding: `reports/GDD_REVIEW_RESOLUTION.md`.
 >
-> Ký hiệu: `[GIẢ ĐỊNH]` = điều tôi tự giả định, có thể sai, sẽ kiểm bằng playtest. `[ĐÃ DUYỆT Dxx]` = quyết định thiết kế đã được người dùng phê duyệt; mã `Dxx` tra ở bảng cuối file.
+> Ký hiệu: `[GIẢ ĐỊNH]` = điều tôi tự giả định, có thể sai, sẽ kiểm bằng playtest. `[ĐÃ DUYỆT Dxx]` = quyết định thiết kế đã được người dùng phê duyệt. `[CẦN DUYỆT Dxx]` = thay đổi v0.2 đang chờ duyệt. Mã `Dxx` tra ở bảng cuối file.
 >
-> Duyệt GDD nghĩa là duyệt hướng thiết kế và giá trị khởi điểm. Số liệu cân bằng vẫn là v0.1 và được chỉnh qua harness (Phase 7) và playtest mà không cần duyệt lại toàn bộ.
+> Duyệt GDD nghĩa là duyệt hướng thiết kế và giá trị khởi điểm. Số liệu cân bằng là v0.2 (mô phỏng Monte Carlo, BALANCE §10) và được chỉnh qua harness (dựng từ P0) và playtest mà không cần duyệt lại toàn bộ.
 
 ## 1. High concept
 
@@ -85,13 +85,13 @@ MVP hoàn chỉnh khi người chơi có thể: sống một đời phàm nhân 
 
 ## 9. Rủi ro chính
 
-| Rủi ro                                                            | Mức        | Giảm thiểu                                                                                                             |
-| ----------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Khối lượng nội dung (≈70 sự kiện, 14 NPC entry) lớn cho một người | Cao        | Dữ liệu hóa sự kiện; viết theo chuỗi, ưu tiên 3 con đường nhập đạo; có thể cắt chợ đêm & Hắc Phong trại xuống Post-MVP |
-| Pacing sai khi chơi thật                                          | Trung bình | Số liệu v0.1 được mô phỏng sơ bộ; IMPLEMENTATION_PLAN có harness mô phỏng headless để kiểm pacing tự động              |
-| Luân hồi "thế giới tiếp diễn" phức tạp                            | Trung bình | Chỉ lưu cờ thế giới + bảng NPC kế thừa; không mô phỏng thế giới trong 30 năm vắng mặt                                  |
-| Người chơi thấy chậm ở phần phàm nhân                             | Trung bình | Phàm nhân chỉ ~30 phút đầu, có mục tiêu ngắn (trả nợ) và tin đồn tiên nhân sớm (phút 4–6)                              |
-| Save-scum phá hậu quả                                             | Thấp       | RNG có seed lưu trong state: tải lại cho cùng kết quả                                                                  |
+| Rủi ro                                                            | Mức        | Giảm thiểu                                                                                                 |
+| ----------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------- |
+| Khối lượng nội dung (≈70 sự kiện, 14 NPC entry) lớn cho một người | Cao        | Đề xuất thu gọn còn 30–40 sự kiện, 5 địa điểm (D24); dữ liệu hóa; lát cắt dọc hai kiếp ở P4                |
+| Pacing sai khi chơi thật                                          | Trung bình | v0.2 mô phỏng Monte Carlo có Thổ Nạp, đan, phí (BALANCE §10); harness headless từ P0 kiểm ngưỡng mỗi phase |
+| Luân hồi "thế giới tiếp diễn" phức tạp                            | Trung bình | Chỉ lưu cờ thế giới + bảng NPC kế thừa; không mô phỏng thế giới trong 30 năm vắng mặt                      |
+| Người chơi thấy chậm ở phần phàm nhân                             | Trung bình | Phàm nhân chỉ ~30 phút đầu, có mục tiêu ngắn (trả nợ) và tin đồn tiên nhân sớm (phút 4–6)                  |
+| Save-scum phá hậu quả                                             | Thấp       | RNG có seed lưu trong state: tải lại cho cùng kết quả                                                      |
 
 ## 10. Quyết định đã duyệt (2026-10-23)
 
@@ -113,3 +113,20 @@ MVP hoàn chỉnh khi người chơi có thể: sống một đời phàm nhân 
 | D14 | Tăng tốc trò chơi (mới)                                         | 1× / 2× / 3× / 5× (2/4/6/10 tick/giây), miễn phí, có từ đầu; điểm dừng vẫn tạm dừng; 3×/5× sự kiện nhỏ chỉ ghi nhật ký                                     | Tôn trọng thời gian người chơi; không đổi logic nên không ảnh hưởng cân bằng                          |
 | D15 | Thiên phú nâng cấp qua luân hồi (mới)                           | 2 ô thiên phú (bẩm sinh + hồn ấn); khắc vào hồn khi sống ≥ 40 tuổi hoặc đạt LK1; nâng bậc I→II→III bằng 6/12 Tàn Niệm; bậc III cần từng đạt LK4            | Tiến triển dài hạn qua linh hồn, cạnh tranh Tàn Niệm với ký ức nên không thành power creep            |
 | D16 | Tự vẫn (mới)                                                    | Ô "Tự vẫn" kết thúc kiếp sớm, xác nhận 2 bước, không dùng khi đang sự kiện/chiến đấu; Tàn Niệm ×0,5, không khắc thiên phú, cờ `tu_van`                     | Thoát kiếp "hỏng" mà không phải chờ; hình phạt + Hồn dưỡng căn chặn chiến lược reroll                 |
+
+## 11. Quyết định chờ duyệt – v0.2 (2026-10-23)
+
+Phát sinh từ review Codex (báo cáo được dán trong phiên, không có trong repo). Lý do và bằng chứng: `reports/GDD_REVIEW_RESOLUTION.md`.
+
+| Mã  | Quyết định đề xuất                                                                                                                                                             | Sửa finding | Tài liệu                                       |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- | ---------------------------------------------- |
+| D17 | Ngưỡng tu vi `100 × 1.85^(n−1)` (LK1→2 = 100 … LK8→9 = 7 417); tầng 9 → Trúc Cơ cần 3 000; Thổ Nạp +0,5%/cấp; công thức tu vi có đủ hệ số C (công pháp) và M (Bế quan/Bồ đoàn) | F01, F09    | PROGRESSION §2, BALANCE §5, §10                |
+| D18 | Năm thế giới 0 = năm nhân vật kiếp 1 tròn 14 tuổi; tuổi và thọ nguyên NPC là dữ liệu (`namSinh`, `thoNguyen`); Mộc bá 52, Bà Từ 60                                             | F02         | WORLD_LORE §3.1, SYSTEMS S7                    |
+| D19 | Mốc then chốt có ≥ 2 nguồn, ≥ 1 nguồn không phụ thuộc cờ; thêm Thư xá ở trấn (12 văn/ngày); di thư của Đỗ; kiểm thử khả đạt                                                    | F03         | SYSTEMS S4, WORLD_LORE §3.2                    |
+| D20 | Tụ Khí Đan 120 cống hiến; ngoại môn chiếm 55% thời gian                                                                                                                        | F07         | BALANCE §4, SYSTEMS S11                        |
+| D21 | `chinhSachSuKienNho` (`hoi`/`tuDong`) nằm trong GameState, chỉ đổi qua lệnh có ghi log; engine không đọc tốc độ                                                                | F04         | SYSTEMS S1, S6, CORE_LOOP §3                   |
+| D22 | "Liều mạng" chỉ có trong trận của sự kiện lớn gắn `quanTrong`/`motLan`; trận thường luôn rút lui được                                                                          | F06         | SYSTEMS S8, PROGRESSION §6                     |
+| D23 | Thu nhập cộng trước phí sinh hoạt; không đủ → Đói, không ghi nợ; Làm thuê ròng > 0 ở mọi khu dân cư                                                                            | F05         | SYSTEMS S2, BALANCE §3, IMPLEMENTATION_PLAN §1 |
+| D24 | Thu gọn MVP: 30–40 sự kiện, 5 địa điểm + 2 điểm con; giữ 3 công pháp và thiên phú 3 bậc                                                                                        | F13         | MVP_SCOPE §2.1                                 |
+| D25 | Quy tắc phân xử: thứ tự lượt, hết 20 lượt = rút lui, hồi phục, thứ tự dùng đan, đột phá cộng thọ trước kiểm tra chết                                                           | F10         | SYSTEMS S8–S10                                 |
+| D26 | Kế hoạch phase mới: harness từ P0, lát cắt dọc hai kiếp ở P4, tiêu chí thoát kiểm thử được                                                                                     | F13, F11    | IMPLEMENTATION_PLAN §2                         |

@@ -1,6 +1,6 @@
 # Progression – Tu luyện, Kỹ năng, Thọ nguyên, Luân hồi
 
-> **Trạng thái: Approved – 2026-10-23** · v0.1 – trước playtest. Mọi con số là giả thuyết để kiểm chứng bằng mô phỏng và playtest.
+> **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt). Bản v0.1 đã Approved 2026-10-23; phần không gắn `[CẦN DUYỆT D17–D26]` giữ nguyên giá trị đã duyệt. Mọi con số là giả thuyết để kiểm chứng bằng mô phỏng và playtest. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
 
 ## 1. Thang cảnh giới
 
@@ -17,38 +17,45 @@ Cảnh giới được thể hiện bằng **tu vi** (một con số tích lũy 
 
 ### Ngưỡng tu vi
 
-Công thức: `Ngưỡng(n → n+1) = 100 × 1.75^(n−1)`; nhập đạo (Phàm → LK1) cần 60; Trúc Cơ cần đầy tầng 9.
+Công thức: `Ngưỡng(n → n+1) = 100 × 1.85^(n−1)`; nhập đạo (Phàm → LK1) cần 60; Trúc Cơ cần tích **3 000 tu vi ở tầng 9** ("tầng 9 viên mãn") `[CẦN DUYỆT D17]`.
 
-| Chuyển    | Phàm→1 | 1→2 | 2→3 | 3→4 | 4→5 | 5→6 | 6→7   | 7→8   | 8→9   | 9→Trúc Cơ          |
-| --------- | ------ | --- | --- | --- | --- | --- | ----- | ----- | ----- | ------------------ |
-| Tu vi cần | 60     | 100 | 175 | 306 | 536 | 938 | 1 641 | 2 872 | 5 027 | 8 000 `[GIẢ ĐỊNH]` |
+| Chuyển    | Phàm→1 | 1→2 | 2→3 | 3→4 | 4→5 | 5→6   | 6→7   | 7→8   | 8→9   | 9→Trúc Cơ |
+| --------- | ------ | --- | --- | --- | --- | ----- | ----- | ----- | ----- | --------- |
+| Tu vi cần | 60     | 100 | 185 | 342 | 633 | 1 171 | 2 167 | 4 009 | 7 417 | 3 000     |
+| v0.1 cũ   | 60     | 100 | 175 | 306 | 536 | 938   | 1 641 | 2 872 | 5 027 | 8 000     |
 
-Tầng đầu 100, tầng giữa 536, tầng cuối 5 027 – tăng ×50 trên 8 tầng; tốc độ tu vi tăng nhờ linh địa, công pháp, kỹ năng nhưng không theo kịp, nên tầng cao chậm dần (có chủ đích: thọ nguyên trở thành áp lực ở hậu kỳ).
+Tầng đầu 100, tầng giữa 633, tầng 8→9 là 7 417, tăng ×74 trên 8 tầng. Tốc độ tu vi có tăng nhờ linh địa, công pháp và kỹ năng nhưng không theo kịp, nên tầng cao chậm dần. Đây là chủ đích: thọ nguyên trở thành áp lực ở hậu kỳ.
+
+**Vì sao 9→Trúc Cơ nhỏ hơn 8→9:** Trúc Cơ bị chặn bởi xác suất (pGốc 0,10) và chuẩn bị (đan, tâm cảnh, linh địa), không bởi khối lượng tu vi. Ngưỡng 8 000 của v0.1 khiến Tam linh căn kiếp 2 lên LK9 khi chỉ còn vài năm thọ, tức không bao giờ thử được (finding F01). Với 3 000, mô phỏng v0.2 cho thấy Tam linh căn kiếp 2 thử được trung bình 1,0–1,3 lần (BALANCE §10).
 
 ### Tốc độ tu vi
 
 ```
-tuVi/ngày = 0.5 × D × R × P × (1 + 0.01 × ThổNạp) × E × Q × B
+tuVi/ngày = 0.5 × D × R × C × P × (1 + 0.005 × ThổNạp) × E × Q × B × M
 ```
 
-| Ký hiệu | Ý nghĩa                      | Giá trị                                                                            |
-| ------- | ---------------------------- | ---------------------------------------------------------------------------------- |
-| D       | Mật độ linh khí nơi tu luyện | Làng/Trấn 0.2 · Rừng 0.4 · Hắc Thạch Cốc 1.0 · Thanh Vân ngoại môn 1.5             |
-| R       | Hệ số linh căn               | §3                                                                                 |
-| P       | Độ thuần thục công pháp      | Sơ học 1.0 · Thuần thục 1.15 · Tinh thông 1.3 · Viên mãn 1.5                       |
-| ThổNạp  | Cấp kỹ năng Thổ Nạp          | 0–50                                                                               |
-| E       | Hợp hệ công pháp             | Công pháp có hệ trùng linh căn ×1.25; công pháp có hệ không trùng ×0.8; vô hệ ×1.0 |
-| Q       | Trạng thái                   | Khỏe 1.0 · Đói 0.5 · Nội thương 0.5 · Hàn độc 0.6                                  |
-| B       | Đan dược                     | Tụ Khí Đan ×(1 + 1.0 × (1 − ĐanĐộc/100)) trong 60 ngày                             |
+Đây là **toàn bộ** các hệ số. Hệ số nào không có trong bảng dưới thì không được nhân vào tu vi (sửa F09).
 
-Ví dụ (kiếp 1 seed chuẩn, Tứ linh căn R = 0.8):
+| Ký hiệu | Ý nghĩa                      | Giá trị                                                                                                 |
+| ------- | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
+| D       | Mật độ linh khí nơi tu luyện | Làng/Trấn 0.2 · Rừng 0.4 · Hắc Thạch Cốc 1.0 · Thanh Vân ngoại môn 1.5 · động phủ Lục 0.8               |
+| R       | Hệ số linh căn               | §3                                                                                                      |
+| C       | Hệ số gốc công pháp          | Cột "C" ở §4: Dẫn Khí Quyết 1.0 · Thanh Vân Dưỡng Khí Quyết 1.1 · Hàn Thủy Quyết 1.0                    |
+| P       | Độ thuần thục công pháp      | Sơ học 1.0 · Thuần thục 1.15 · Tinh thông 1.3 · Viên mãn 1.5                                            |
+| ThổNạp  | Cấp kỹ năng Thổ Nạp          | 0–50; **+0,5%/cấp** (v0.1: +1%/cấp) `[CẦN DUYỆT D17]`                                                   |
+| E       | Hợp hệ công pháp             | Công pháp có hệ trùng linh căn ×1.25; có hệ nhưng không trùng ×0.8; vô hệ ×1.0                          |
+| Q       | Trạng thái                   | Khỏe 1.0 · Đói 0.5 · Nội thương 0.5 · Hàn độc 0.6. Nhiều trạng thái cùng lúc → lấy **giá trị nhỏ nhất** |
+| B       | Đan dược                     | Tụ Khí Đan ×(1 + 1.0 × (1 − ĐanĐộc/100)) trong 60 ngày                                                  |
+| M       | Phụ trợ                      | Bế quan ×1.10 · Bồ đoàn tĩnh tâm ×1.05; nhân với nhau (tối đa ×1.155)                                   |
 
-| Tình huống                                        | tuVi/ngày                              |
-| ------------------------------------------------- | -------------------------------------- |
-| Ở làng, Sơ học, Thổ Nạp 0                         | 0.5 × 0.2 × 0.8 = **0.08**             |
-| Hắc Thạch Cốc, Sơ học, Thổ Nạp 0                  | **0.40**                               |
-| Hắc Thạch Cốc, Tinh thông, Thổ Nạp 20             | 0.5 × 1.0 × 0.8 × 1.3 × 1.2 = **0.62** |
-| Ngoại môn, Tinh thông, Thổ Nạp 30 (khi được rảnh) | 0.5 × 1.5 × 0.8 × 1.3 × 1.3 = **1.01** |
+Ví dụ (kiếp 1 seed chuẩn, Tứ linh căn R = 0.8; C, E, Q, B, M = 1 trừ khi ghi):
+
+| Tình huống                                                          | tuVi/ngày                                     |
+| ------------------------------------------------------------------- | --------------------------------------------- |
+| Ở làng, Dẫn Khí Quyết Sơ học, Thổ Nạp 0                             | 0.5 × 0.2 × 0.8 = **0.08**                    |
+| Hắc Thạch Cốc, Sơ học, Thổ Nạp 0                                    | **0.40**                                      |
+| Hắc Thạch Cốc, Tinh thông, Thổ Nạp 20                               | 0.5 × 1.0 × 0.8 × 1.3 × 1.10 = **0.57**       |
+| Ngoại môn, Thanh Vân Dưỡng Khí Quyết (C 1.1) Tinh thông, Thổ Nạp 30 | 0.5 × 1.5 × 0.8 × 1.1 × 1.3 × 1.15 = **0.99** |
 
 ## 2. Đột phá
 
@@ -165,24 +172,24 @@ Thiên phú là dấu vết trên hồn phách (WORLD_LORE R6), đổi một đi
 
 ### Công pháp tu luyện (MVP: 3)
 
-| Công pháp                 | Hệ   | Hệ số gốc | Trần        | Văn Tự cần               | Nguồn (≥ 2 con đường cho mỗi mốc then chốt)                                                                                      |
-| ------------------------- | ---- | --------- | ----------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| Dẫn Khí Quyết             | Vô   | ×1.0      | Luyện Khí 6 | 8 (dưới 8: kẹt ở Sơ học) | Lục Thanh Phong · Thanh Vân Môn (tạp dịch) · Mộc bá (thiện cảm ≥ 60)                                                             |
-| Thanh Vân Dưỡng Khí Quyết | Vô   | ×1.1      | Luyện Khí 9 | 15                       | Thanh Vân Môn: lên ngoại môn (LK4 + 200 cống hiến) · chợ đêm bản chép tay (12 linh thạch, 30% bản lỗi nếu Thảo Dược/Văn Tự < 15) |
-| Hàn Thủy Quyết            | Thủy | ×1.0 × E  | Luyện Khí 9 | 20 (cổ văn)              | Lục (thiện cảm ≥ 70, sau chuỗi Hắc Phong) · động phủ của Lục (kiếp sau, nếu nhớ địa điểm)                                        |
+| Công pháp                 | Hệ   | C    | Trần        | Văn Tự cần               | Nguồn (≥ 2 con đường cho mỗi mốc then chốt)                                                                                      |
+| ------------------------- | ---- | ---- | ----------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| Dẫn Khí Quyết             | Vô   | ×1.0 | Luyện Khí 6 | 8 (dưới 8: kẹt ở Sơ học) | Lục Thanh Phong · Thanh Vân Môn (tạp dịch) · Mộc bá (thiện cảm ≥ 60)                                                             |
+| Thanh Vân Dưỡng Khí Quyết | Vô   | ×1.1 | Luyện Khí 9 | 15                       | Thanh Vân Môn: lên ngoại môn (LK4 + 200 cống hiến) · chợ đêm bản chép tay (12 linh thạch, 30% bản lỗi nếu Thảo Dược/Văn Tự < 15) |
+| Hàn Thủy Quyết            | Thủy | ×1.0 | Luyện Khí 9 | 20 (cổ văn)              | Lục (thiện cảm ≥ 70, sau chuỗi Hắc Phong) · động phủ của Lục (kiếp sau, nếu nhớ địa điểm)                                        |
 
 - **Trần LK6 của Dẫn Khí Quyết** buộc người chơi chọn con đường trung hạn `[ĐÃ DUYỆT D12]`.
-- Hàn Thủy Quyết với linh căn có Thủy: ×1.25 → mạnh nhất cho kiếp 1. Đánh đổi: thất bại đột phá gây **Hàn độc** (Q 0.6, kéo dài 120 ngày thay vì 60).
+- Hàn Thủy Quyết với linh căn có Thủy: E ×1.25 → mạnh nhất (C × E = 1.25 so với 1.1 của Thanh Vân), không có Thủy: ×0.8. Đánh đổi: thất bại đột phá gây **Hàn độc** (Q 0.6, kéo dài 120 ngày thay vì 60). Ngũ linh căn luôn có Thủy nên luôn được ×1.25; đây là bù đắp có chủ đích cho R 0.5.
 - Thuần thục: Sơ học → Thuần thục 100 điểm → Tinh thông 600 → Viên mãn 2 000 (cộng dồn). Mỗi ngày tu luyện: `1 × Ngộ × (1 + 0.01 × VănTự)` điểm. Văn Tự 15, Ngộ 1.0 → Tinh thông sau ≈ 1,4 năm tu luyện, Viên mãn sau ≈ 4,8 năm.
 - Đổi công pháp: 30 ngày "chuyển công", mất 10% tu vi tầng hiện tại; thuần thục công pháp mới bắt đầu từ Sơ học.
 
 ### Pháp thuật (MVP: 3, dùng trong chiến đấu)
 
-| Pháp thuật     | Hệ  | Yêu cầu        | Hiệu ứng                                                                   |
-| -------------- | --- | -------------- | -------------------------------------------------------------------------- |
-| Linh Đạn Thuật | Vô  | LK2, Văn Tự 10 | Sát thương = 10 + 4 × tầng, bỏ qua 50% phòng thủ                           |
-| Mộc Lao Thuật  | Mộc | LK3, Văn Tự 12 | Khóa đối thủ 2 lượt; bỏ chạy chắc chắn thành công                          |
-| Hỏa Cầu Thuật  | Hỏa | LK3, Văn Tự 12 | Sát thương 20 + 6 × tầng. Kiếp 1 không dùng được (thiếu Hỏa) – có chủ đích |
+| Pháp thuật     | Hệ  | Yêu cầu                         | Hiệu ứng                                                                                                          |
+| -------------- | --- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Linh Đạn Thuật | Vô  | LK2, Văn Tự 10                  | Sát thương = 10 + 4 × tầng, bỏ qua 50% phòng thủ                                                                  |
+| Mộc Lao Thuật  | Mộc | LK3, Văn Tự 12                  | Khóa đối thủ 2 lượt; bỏ chạy chắc chắn thành công                                                                 |
+| Hỏa Cầu Thuật  | Hỏa | LK3, Văn Tự 12, linh căn có Hỏa | Sát thương 20 + 6 × tầng. Chỉ dùng được khi linh căn có Hỏa (≈ 84% nhân vật kiếp 1: Ngũ luôn có, Tứ 4/5, Tam 3/5) |
 
 ### Công cụ & Pháp khí (MVP tối giản)
 
@@ -222,7 +229,7 @@ Ký ức = 3 nếu cấp hiện tại < cấp cao nhất kiếp trước và đ�
 | Thảo Dược  | Trí  | Giá trị thảo dược +1,5 văn/ngày; hồi phục bị thương +2%                                                | 3: Hái thuốc · 5: tự đắp thuốc · 8: cỏ Xú Long · 10: linh thảo · 15: nhận ra đan giả            |
 | Quyền Cước | Thân | Công +1; tỉ lệ bỏ chạy +1%                                                                             | 5: Tự luyện quyền · 10: lựa chọn "khống chế" thay vì giết                                       |
 | Giao Tế    | Trí* | Giá mua −0,5% (trần −15%); thiện cảm nhận được +2%                                                     | 5: hỏi tin đồn · 10: thuyết phục · 15: mặc cả chợ đêm                                           |
-| Thổ Nạp    | Trí  | Tu vi +1%                                                                                              | Mở khi cảm ứng linh khí · 20: Tâm cảnh Bình tĩnh nhanh hơn 30%                                  |
+| Thổ Nạp    | Trí  | Tu vi +0,5%                                                                                            | Mở khi cảm ứng linh khí · 20: Tâm cảnh Bình tĩnh nhanh hơn 30%                                  |
 
 \* Giao Tế không nhân Ngộ tính.
 
@@ -235,12 +242,13 @@ ThọNguyên = 60 + min(6, floor(ThểPhách / 5)) + ThiênPhú + 3 × tầngLuy
 | Nhân vật                               | Thọ nguyên                                                            |
 | -------------------------------------- | --------------------------------------------------------------------- |
 | Phàm nhân, Thể Phách 10                | 62                                                                    |
-| Kiếp 1 điển hình: LK7, Thể Phách 25    | 60 + 5 + 21 = 86 (trừ đi các lần thất bại nút thắt, thường còn 83–85) |
+| Kiếp 1 Tứ linh căn: LK8, Thể Phách 25  | 60 + 5 + 24 = 89 (trừ đi các lần thất bại nút thắt, thường còn 87–88) |
 | Kiếp 2: LK9, Thể Phách 30, Cường tráng | 60 + 6 + 3 + 27 = 96                                                  |
 
 - **Lão hóa:** khi tuổi > 80% thọ nguyên, Tinh lực tối đa −2 mỗi năm; chiến lực −1% mỗi năm.
 - **Cảnh báo:** tự động dừng khi còn 10, 5, 1 năm.
-- **Cái chết:** khi tuổi ≥ thọ nguyên (tất định, không ngẫu nhiên); hoặc chiến đấu "liều mạng" thua; hoặc tẩu hỏa nhập ma. Không có cái chết ngẫu nhiên không báo trước.
+- **Cái chết:** khi tuổi ≥ thọ nguyên (tất định, không ngẫu nhiên); hoặc thua khi chọn "Liều mạng" — chiến thuật này **chỉ có trong trận chiến của sự kiện lớn** (`quanTrong`, `motLan`), không có ở chạm trán ngẫu nhiên `[CẦN DUYỆT D22]`; hoặc tẩu hỏa nhập ma. Không có cái chết ngẫu nhiên không báo trước, và không có cách chết lặp lại được theo ý muốn ngoài Tự vẫn (§8.7).
+- **Công thức trên chỉ dành cho người chơi.** NPC có tuổi và thọ nguyên khai báo trong dữ liệu theo dòng thời gian thế giới (`WORLD_LORE.md` §3.1) `[CẦN DUYỆT D18]`.
 - **Kéo dài thọ nguyên:** Diên Thọ Quả (+2 năm, tối đa một lần mỗi kiếp, chuỗi sự kiện Hắc Thạch Cốc). Không có cách mua thọ nguyên trong MVP.
 - **Chôn giấu di vật:** khi còn ≤ 5 năm, người chơi có thể chôn tối đa 3 vật phẩm và 5 linh thạch ở một địa điểm đã biết.
 
@@ -274,7 +282,7 @@ Nguyên tắc:
 TànNiệm = 3 + 2 × tầngLuyệnKhíCaoNhất + Σ floor(cấpCaoNhấtKỹNăng / 10) + số NPC thiện cảm ≥ 60 + số chuỗi sự kiện lớn đã hoàn thành
 ```
 
-Ví dụ kiếp 1 điển hình (LK7; kỹ năng cao nhất 24/16/21/12/9/33; 3 NPC thân; 3 chuỗi): 3 + 14 + 9 + 3 + 3 = **32**.
+Ví dụ một kiếp 1 dừng ở LK7 ( kỹ năng cao nhất 24/16/21/12/9/33; 3 NPC thân; 3 chuỗi): 3 + 14 + 9 + 3 + 3 = **32**.
 
 Kiếp kết thúc bằng Tự vẫn: `TànNiệm = floor(công thức trên × 0,5)` `[ĐÃ DUYỆT D16]`.
 
@@ -290,7 +298,7 @@ Kiếp kết thúc bằng Tự vẫn: `TànNiệm = floor(công thức trên × 
 | Chỗ chôn di vật    | 2                    | Biết chỗ chôn, lấy lại vật phẩm đã chôn (nếu chưa bị người khác đào – có xác suất theo cờ thế giới)                           |
 | Nâng bậc thiên phú | I→II: 6 · II→III: 12 | Thiên phú đã khắc lên bậc mới, vĩnh viễn cho mọi kiếp sau (§3); bậc III cần từng đạt LK4 `[ĐÃ DUYỆT D15]`                     |
 
-Mua tất cả ký ức của kiếp 1 điển hình tốn ≈ 64 điểm, gấp đôi 32 → người chơi phải chọn. Nâng bậc thiên phú cạnh tranh cùng quỹ điểm: "mạnh lâu dài" ↔ "biết nhiều cho kiếp sau".
+Mua tất cả ký ức của kiếp ví dụ trên tốn ≈ 64 điểm, gấp đôi 32 → người chơi phải chọn. Nâng bậc thiên phú cạnh tranh cùng quỹ điểm: "mạnh lâu dài" ↔ "biết nhiều cho kiếp sau".
 
 ### 8.4 Hồn dưỡng căn – linh căn kiếp sau
 
@@ -314,7 +322,8 @@ Linh căn được tung một lần mỗi kiếp bằng RNG có seed, ẩn cho t
 - Kiếp mới bắt đầu **30 năm sau** cái chết `[ĐÃ DUYỆT D03]`.
 - Cờ thế giới giữ lại: VD Hắc Phong trại bị diệt hay lớn mạnh, Mộc bá có truyền nghề cho cháu không, động phủ Lục còn hay đã bị cướp.
 - NPC phàm nhân đã chết được thay bằng **người kế thừa** (bảng trong `WORLD_LORE.md`), mang theo thái độ dòng họ dựa trên cờ.
-- NPC tu sĩ còn sống theo thọ nguyên của họ (Chấp sự Đỗ của Thanh Vân Môn vẫn còn).
+- NPC sống/chết theo **năm thế giới** và thọ nguyên khai báo trong dữ liệu (`WORLD_LORE.md` §3.1). Kiếp sau bắt đầu ở `nămThếGiới = nămChếtKiếpTrước + 30`, nên NPC tu sĩ còn sống hay không tùy kiếp trước dài bao lâu; mọi chuỗi phụ thuộc một NPC phải có nhánh "đã mất" `[CẦN DUYỆT D18]`.
+- **Nguồn bảo đảm xuyên kiếp:** mỗi mốc then chốt có ít nhất một nguồn không phụ thuộc cờ thế giới ở mọi kiếp (`SYSTEMS.md` S4, bảng khả đạt) `[CẦN DUYỆT D19]`.
 
 ### 8.7 Tự vẫn `[ĐÃ DUYỆT D16]`
 
@@ -322,5 +331,6 @@ Linh căn được tung một lần mỗi kiếp bằng RNG có seed, ẩn cho t
 
 - **Xác nhận hai bước:** hộp thoại nêu rõ hậu quả, rồi xác nhận lần hai; không có phím tắt.
 - **Không dùng được** khi đang ở màn sự kiện hoặc chiến đấu, để không thoát khỏi hậu quả của lựa chọn đang diễn ra.
+- **Không có đường vòng không bị phạt:** Liều mạng chỉ có trong trận của sự kiện lớn (một lần), nên người chơi không thể tự tìm cái chết "sạch" bằng chiến đấu để né hình phạt Tự vẫn (finding F06) `[CẦN DUYỆT D22]`.
 - **Hậu quả:** Tàn Niệm ×0,5 (§8.2); không khắc thiên phú mới (§3); thế giới vẫn +30 năm; đặt cờ `tu_van` để người thân/người kế thừa phản ứng ở kiếp sau (WORLD_LORE §3).
 - **Chống reroll:** kiếp chưa nhập đạo → Hồn dưỡng căn cho 100% Ngũ linh căn (§8.4). Tự vẫn sớm để đổi linh căn luôn cho kết quả không tốt hơn, cộng thêm mất một nửa Tàn Niệm.

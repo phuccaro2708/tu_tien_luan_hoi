@@ -1,6 +1,6 @@
 # World & Lore
 
-> **Trạng thái: Approved – 2026-10-23** · Tên riêng là tạm `[ĐÃ DUYỆT D10]`; mọi tên đều nằm trong dữ liệu nên đổi được.
+> **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt). Bản v0.1 đã Approved 2026-10-23; phần không gắn `[CẦN DUYỆT D17–D26]` giữ nguyên. Tên riêng là tạm `[ĐÃ DUYỆT D10]`; mọi tên đều nằm trong dữ liệu nên đổi được. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
 
 ## 1. Quy luật thế giới
 
@@ -23,15 +23,15 @@ Các quy luật dưới đây là "hiến pháp" của thế giới. Mọi sự 
 
 **Vạn Hà Giới** › **Tề Quốc** (vương quốc phàm nhân) › **quận Lạc Thủy**, thuộc vùng bảo hộ của **Thanh Vân Môn** (môn phái nhỏ, do các Trúc Cơ quản lý, một lão tổ Kết Đan bế quan).
 
-| Địa điểm                  | D   | Đặc trưng                                                                     | Mở khi                                                                          |
-| ------------------------- | --- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Làng Thạch Khê            | 0.2 | Nhà, miếu Thổ Địa (Tàn Bia), lớp học Tô tiên sinh, hiệu thuốc Mộc bá          | Khởi đầu                                                                        |
-| Rừng Thanh Mộc            | 0.4 | Đốn củi sâu, hái thuốc, sói, hang Lục                                         | Khởi đầu (bìa rừng); vào sâu cần Thể Phách 10 hoặc sự kiện                      |
-| Trấn Lạc Thủy             | 0.2 | Quán trà, bến sông, võ quán, chợ, hội tuyển đệ tử, chợ đêm                    | Khởi đầu (đi 2 ngày)                                                            |
-| Hắc Thạch Cốc             | 1.0 | Mạch linh khí yếu, linh thạch vụn, linh thảo, Thiết Bối Lang, hài cốt Lý Viễn | Tri thức "Đường tới Hắc Thạch Cốc" (Mộc bá / bút ký Lý Viễn / ký ức kiếp trước) |
-| Thanh Vân Môn – ngoại môn | 1.5 | Tạp dịch, Tàng Kinh Các, cửa hàng cống hiến                                   | Được nhận làm tạp dịch hoặc đệ tử                                               |
-| Hắc Phong trại            | 0.3 | Sào huyệt thổ phỉ trong núi                                                   | Chuỗi Hắc Phong                                                                 |
-| Động phủ Lục Thanh Phong  | 0.8 | Có từ kiếp 2 nếu cờ "Lục để lại động phủ"                                     | Ký ức địa điểm hoặc thư của Lục                                                 |
+| Địa điểm                  | D   | Đặc trưng                                                                                | Mở khi                                                                          |
+| ------------------------- | --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Làng Thạch Khê            | 0.2 | Nhà, miếu Thổ Địa (Tàn Bia), lớp học Tô tiên sinh, hiệu thuốc Mộc bá                     | Khởi đầu                                                                        |
+| Rừng Thanh Mộc            | 0.4 | Đốn củi sâu, hái thuốc, sói, hang Lục                                                    | Khởi đầu (bìa rừng); vào sâu cần Thể Phách 10 hoặc sự kiện                      |
+| Trấn Lạc Thủy             | 0.2 | Quán trà, bến sông, võ quán, chợ, **Thư xá** (lớp chữ luôn mở), hội tuyển đệ tử, chợ đêm | Khởi đầu (đi 2 ngày)                                                            |
+| Hắc Thạch Cốc             | 1.0 | Mạch linh khí yếu, linh thạch vụn, linh thảo, Thiết Bối Lang, hài cốt Lý Viễn            | Tri thức "Đường tới Hắc Thạch Cốc" (Mộc bá / bút ký Lý Viễn / ký ức kiếp trước) |
+| Thanh Vân Môn – ngoại môn | 1.5 | Tạp dịch, Tàng Kinh Các, cửa hàng cống hiến                                              | Được nhận làm tạp dịch hoặc đệ tử                                               |
+| Hắc Phong trại            | 0.3 | Sào huyệt thổ phỉ trong núi                                                              | Chuỗi Hắc Phong                                                                 |
+| Động phủ Lục Thanh Phong  | 0.8 | Có từ kiếp 2 nếu cờ "Lục để lại động phủ"                                                | Ký ức địa điểm hoặc thư của Lục                                                 |
 
 Thời gian đi lại: Làng↔Rừng 1 ngày · Làng↔Trấn 2 · Rừng↔Hắc Thạch Cốc 3 · Trấn↔Thanh Vân Môn 5 · Rừng↔Hắc Phong trại 2.
 
@@ -39,29 +39,46 @@ Thời gian đi lại: Làng↔Rừng 1 ngày · Làng↔Trấn 2 · Rừng↔H�
 
 Mỗi NPC có: **muốn gì**, **sợ gì**, **bí mật**, **điều làm họ thay đổi thái độ**. Thiện cảm −100…100.
 
-| NPC                             | Tuổi / cảnh giới       | Muốn                                   | Sợ                           | Bí mật                                                                                                                            | Vai trò                                                                            |
-| ------------------------------- | ---------------------- | -------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| **Lý Tam Nương** (mẹ)           | 38, phàm               | Con bình an, trả hết nợ                | Mất con như mất em trai      | Em trai bà, **Lý Viễn**, bỏ đi tìm tiên 20 năm trước; bà giấu lá thư cuối của ông                                                 | Neo cảm xúc; chi phí của việc rời làng                                             |
-| **Mộc bá** (Mộc Đức)            | 62, phàm               | Sống yên, được minh oan                | Tu sĩ                        | Từng là tạp dịch Thanh Vân Môn, bị đuổi vì vụ cháy dược viên **do Đỗ Hoành gây ra** mà ông gánh tội; biết đường tới Hắc Thạch Cốc | Thầy thảo dược, nguồn tri thức, con đường dự phòng nhập đạo                        |
-| **Tô tiên sinh** (Tô Văn Khiêm) | 35, phàm               | Đủ tiền lên tỉnh thi                   | Mất thể diện                 | Nợ Hồ chưởng quỹ                                                                                                                  | Cổng Văn Tự; chuỗi "Lên tỉnh"                                                      |
-| **Hồ chưởng quỹ** (Hồ Quý)      | 45, phàm               | Lợi nhuận, giữ ghế quản sự             | Chủ nhà Vương gia, tu sĩ     | Bán tin và nộp tiền cho Hắc Phong trại                                                                                            | Đối thủ nhỏ; nguồn việc và áp lực nợ                                               |
-| **Bà Từ**                       | 70, phàm               | Giữ miếu                               | Miếu bị bỏ hoang             | Biết truyền thuyết "đá trời rơi" dưới miếu                                                                                        | Người gieo hạt giống luân hồi; mất khoảng năm thứ 10                               |
-| **Lục Thanh Phong**             | 45, LK5, Thủy linh căn | **Đột phá Trúc Cơ trước khi hết thọ**  | Bị Đoạn Ngạc tìm thấy        | Giữ nửa tấm bản đồ động phủ của một Trúc Cơ đã chết; không nhận đệ tử vì "tự lo còn chưa xong"                                    | Cơ duyên nhập đạo; tấm gương phản chiếu người chơi                                 |
-| **Chấp sự Đỗ** (Đỗ Hoành)       | 40, Trúc Cơ sơ kỳ      | Giữ thành tích tuyển đệ tử, thăng chức | Vụ cháy dược viên bị lật lại | Gây ra vụ cháy, để Mộc bá gánh tội                                                                                                | Người gác cổng môn phái; Trúc Cơ Đan; còn sống ở kiếp 2, già yếu và muốn chuộc lỗi |
-| **Đoạn Ngạc**                   | 40, LK3                | Tài nguyên để lên Trúc Cơ              | Thanh Vân Môn truy cứu       | Đệ tử ngoại môn bị trục xuất; cần nửa bản đồ của Lục                                                                              | Phản diện của Act 2–3                                                              |
+| NPC                             | Tuổi / cảnh giới       | Muốn                                   | Sợ                           | Bí mật                                                                                                                            | Vai trò                                                                           |
+| ------------------------------- | ---------------------- | -------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Lý Tam Nương** (mẹ)           | 38, phàm               | Con bình an, trả hết nợ                | Mất con như mất em trai      | Em trai bà, **Lý Viễn**, bỏ đi tìm tiên 20 năm trước; bà giấu lá thư cuối của ông                                                 | Neo cảm xúc; chi phí của việc rời làng                                            |
+| **Mộc bá** (Mộc Đức)            | 52, phàm               | Sống yên, được minh oan                | Tu sĩ                        | Từng là tạp dịch Thanh Vân Môn, bị đuổi vì vụ cháy dược viên **do Đỗ Hoành gây ra** mà ông gánh tội; biết đường tới Hắc Thạch Cốc | Thầy thảo dược, nguồn tri thức, con đường dự phòng nhập đạo                       |
+| **Tô tiên sinh** (Tô Văn Khiêm) | 35, phàm               | Đủ tiền lên tỉnh thi                   | Mất thể diện                 | Nợ Hồ chưởng quỹ                                                                                                                  | Cổng Văn Tự; chuỗi "Lên tỉnh"                                                     |
+| **Hồ chưởng quỹ** (Hồ Quý)      | 45, phàm               | Lợi nhuận, giữ ghế quản sự             | Chủ nhà Vương gia, tu sĩ     | Bán tin và nộp tiền cho Hắc Phong trại                                                                                            | Đối thủ nhỏ; nguồn việc và áp lực nợ                                              |
+| **Bà Từ**                       | 60, phàm               | Giữ miếu                               | Miếu bị bỏ hoang             | Biết truyền thuyết "đá trời rơi" dưới miếu                                                                                        | Người gieo hạt giống luân hồi; mất năm thế giới 10                                |
+| **Lục Thanh Phong**             | 45, LK5, Thủy linh căn | **Đột phá Trúc Cơ trước khi hết thọ**  | Bị Đoạn Ngạc tìm thấy        | Giữ nửa tấm bản đồ động phủ của một Trúc Cơ đã chết; không nhận đệ tử vì "tự lo còn chưa xong"                                    | Cơ duyên nhập đạo; tấm gương phản chiếu người chơi                                |
+| **Chấp sự Đỗ** (Đỗ Hoành)       | 40, Trúc Cơ sơ kỳ      | Giữ thành tích tuyển đệ tử, thăng chức | Vụ cháy dược viên bị lật lại | Gây ra vụ cháy, để Mộc bá gánh tội                                                                                                | Người gác cổng môn phái; Trúc Cơ Đan; đầu kiếp 2 già yếu, sắp mất, muốn chuộc lỗi |
+| **Đoạn Ngạc**                   | 40, LK3                | Tài nguyên để lên Trúc Cơ              | Thanh Vân Môn truy cứu       | Đệ tử ngoại môn bị trục xuất; cần nửa bản đồ của Lục                                                                              | Phản diện của Act 2–3                                                             |
 
-### Người kế thừa (kiếp 2+, sau 30 năm)
+### 3.1 Dòng thời gian NPC `[CẦN DUYỆT D18]`
 
-| Gốc             | Người kế thừa                                              | Trạng thái phụ thuộc cờ                                           |
-| --------------- | ---------------------------------------------------------- | ----------------------------------------------------------------- |
-| Lý Tam Nương    | Mộ mẹ, ngôi nhà cũ                                         | Có lá thư Lý Viễn trong nhà nếu kiếp trước không lấy              |
-| Mộc bá          | Cháu **Mộc Tiểu Hà** (hiệu thuốc) hoặc hiệu thuốc đóng cửa | `moc_truyen_nghe`: kiếp trước giúp ông dạy cháu                   |
-| Tô tiên sinh    | Trường **Tô thị** do con ông dạy, hoặc không có lớp học    | `to_do_dat`: kiếp trước cho ông vay tiền thi                      |
-| Hồ chưởng quỹ   | **Hồ Bảo**, cháu, quản sự mới                              | `ho_bi_vach_tran`: Hồ gia bị đuổi, Vương gia thuê người tử tế hơn |
-| Bà Từ           | Miếu do dân làng giữ, hoặc miếu hoang                      | `mieu_duoc_tu_sua`: kiếp trước góp tiền sửa miếu                  |
-| Lục Thanh Phong | Động phủ và di thư                                         | `luc_than_thiet` + `luc_chet_tu_nhien`                            |
-| Đoạn Ngạc       | Không còn (bị diệt) / **Hắc Phong bang** chiếm chợ đêm     | `doan_bi_diet`                                                    |
-| Chấp sự Đỗ      | Vẫn còn, 140 tuổi                                          | `biet_bi_mat_vu_chay` (ký ức nhân duyên) mở chuỗi chuộc lỗi       |
+Sửa F02. **Năm thế giới 0** là năm nhân vật kiếp 1 tròn 14 tuổi. Kiếp sau bắt đầu ở năm chết của kiếp trước + 30, nên kiếp 2 thường bắt đầu khoảng năm 100–107 (kiếp 1 chết ở 85–91 tuổi). Tuổi và thọ nguyên NPC là **dữ liệu**, không dùng công thức của người chơi. NPC bị giết trong sự kiện thì mất sớm hơn.
+
+| NPC           | Sinh (năm TG) | Thọ nguyên | Mất (năm TG) | Tuổi người chơi kiếp 1 khi NPC mất | Ghi chú                                                    |
+| ------------- | ------------- | ---------- | ------------ | ---------------------------------- | ---------------------------------------------------------- |
+| Bà Từ         | −60           | 70         | 10           | 24                                 | Kích hoạt chuỗi Tàn Bia                                    |
+| Mộc bá        | −52           | 70         | 18           | 32                                 | v0.1 ghi 62 tuổi: chết trước khi walkthrough cần ông       |
+| Hồ chưởng quỹ | −45           | 68         | 23           | 37                                 |                                                            |
+| Lục           | −45           | 76         | 31           | 45                                 | Thử Trúc Cơ thất bại năm 31 → chuỗi Di sản Lục             |
+| Đoạn Ngạc     | −40           | 72         | 32           | 46                                 | Thường bị diệt sớm hơn trong chuỗi Hắc Phong               |
+| Lý Tam Nương  | −38           | 72         | 34           | 48                                 |                                                            |
+| Tô tiên sinh  | −35           | 70         | 35           | 49                                 |                                                            |
+| Chấp sự Đỗ    | −40           | 150        | 110          | – (kiếp 2, tuổi ~17–24)            | Trúc Cơ; còn sống đầu kiếp 2 nếu kiếp 1 chết trước 94 tuổi |
+
+Validator (SYSTEMS S7) kiểm tra: mọi chuỗi trong §6 chỉ dùng NPC còn sống ở khoảng năm của chuỗi, hoặc có nhánh "đã mất".
+
+### 3.2 Người kế thừa (kiếp 2+, sau 30 năm)
+
+| Gốc             | Người kế thừa                                                                  | Trạng thái phụ thuộc cờ                                                                                                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lý Tam Nương    | Mộ mẹ, ngôi nhà cũ                                                             | Có lá thư Lý Viễn trong nhà nếu kiếp trước không lấy                                                                                                                                                       |
+| Mộc bá          | Cháu **Mộc Tiểu Hà** (hiệu thuốc) hoặc hiệu thuốc đóng cửa                     | `moc_truyen_nghe`: kiếp trước giúp ông dạy cháu. Không có cờ: hiệu thuốc trấn vẫn nhận học việc (Thảo Dược)                                                                                                |
+| Tô tiên sinh    | Trường **Tô thị** do con ông dạy, hoặc không có lớp ở làng                     | `to_do_dat`: kiếp trước cho ông vay tiền thi. Không có cờ: Thư xá trấn Lạc Thủy vẫn dạy chữ `[CẦN DUYỆT D19]`                                                                                              |
+| Hồ chưởng quỹ   | **Hồ Bảo**, cháu, quản sự mới                                                  | `ho_bi_vach_tran`: Hồ gia bị đuổi, Vương gia thuê người tử tế hơn                                                                                                                                          |
+| Bà Từ           | Miếu do dân làng giữ, hoặc miếu hoang                                          | `mieu_duoc_tu_sua`: kiếp trước góp tiền sửa miếu                                                                                                                                                           |
+| Lục Thanh Phong | Động phủ và di thư                                                             | `luc_than_thiet` + `luc_chet_tu_nhien`                                                                                                                                                                     |
+| Đoạn Ngạc       | Không còn (bị diệt) / **Hắc Phong bang** chiếm chợ đêm                         | `doan_bi_diet`                                                                                                                                                                                             |
+| Chấp sự Đỗ      | Còn sống tới năm 110 (§3.1), già yếu; sau đó để lại **di thư** ở Tàng Kinh Các | `biet_bi_mat_vu_chay` (ký ức nhân duyên) mở chuỗi chuộc lỗi: gặp Đỗ khi ông còn sống, **hoặc** đọc di thư nếu ông đã mất. Cả hai nhánh cùng kết quả: một Trúc Cơ Đan gửi ở Tàng Kinh Các, nhận khi đạt LK9 |
 
 **Cờ `tu_van`** `[ĐÃ DUYỆT D16]`: kiếp trước kết thúc bằng Tự vẫn. Ở kiếp sau, người kế thừa của các NPC từng thân (thiện cảm ≥ 60) kể lại "chuyện người ấy tự tìm đến cái chết" bằng một dòng hội thoại riêng: Mộc Tiểu Hà nhắc ông Mộc bá đến già vẫn tiếc; mộ mẹ có thêm tấm bia nhỏ không đề tên. Cờ chỉ đổi văn bản, không đổi cơ chế.
 
@@ -118,7 +135,7 @@ Mỗi đoạn văn trong game được gắn yêu cầu tri thức; nếu chưa 
 
 ### Hồi 4 – Chuẩn bị (tuổi 19–22)
 
-- Văn Tự lên 8 để đọc trọn công pháp.
+- Văn Tự lên 8 để đọc trọn công pháp: lớp Tô tiên sinh ở làng (10 văn/ngày), hoặc lớp Thư xá ở trấn (12 văn/ngày, luôn mở, không phụ thuộc NPC nào) `[CẦN DUYỆT D19]`.
 - Tìm linh khí: Mộc bá chỉ Hắc Thạch Cốc khi được xem công pháp (nhận ra chữ của Thanh Vân), hoặc người chơi đi tạp dịch.
 - **Lời mẹ:** nói thật (mẹ khóc, đưa lá thư của Lý Viễn – manh mối hài cốt ở Hắc Thạch Cốc), nói dối (không có lá thư, thiện cảm không giảm ngay nhưng sau này lộ ra thì −30), hoặc lặng lẽ đi (−20, mẹ gửi người đi tìm).
 
@@ -130,11 +147,11 @@ Mỗi đoạn văn trong game được gắn yêu cầu tri thức; nếu chưa 
 
 ### Sau Luyện Khí (tóm tắt các chuỗi trung hạn)
 
-| Chuỗi                 | Kích hoạt                                                                         | Hậu quả chính                                                                          |
-| --------------------- | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Hắc Phong trại        | Lục quay lại nhờ giúp, hoặc Hồ ép nộp tiền bảo kê, LK2+                           | Diệt trại (cờ thế giới), Thanh Phong Kiếm, thiện cảm Lục, có thể vạch trần Hồ          |
-| Vụ cháy dược viên     | Tạp dịch đọc sổ cũ trong Tàng Kinh Các (Văn Tự 15), hoặc Mộc bá kể (thiện cảm 80) | Minh oan cho Mộc bá ↔ giữ bí mật để Đỗ nợ ân tình (Trúc Cơ Đan rẻ hơn)                 |
-| Tô tiên sinh lên tỉnh | Tô hỏi vay 1 500 văn                                                              | Tô đỗ đạt → trường học kiếp sau, thiện cảm                                             |
-| Tàn Bia               | Bà Từ mất (khoảng năm thứ 10), miếu cần tu sửa                                    | Cờ miếu, manh mối luân hồi                                                             |
-| Di sản Lục            | Lục thử Trúc Cơ và thất bại/hết thọ (khoảng tuổi 45–50 của người chơi)            | Thư để lại động phủ, Hàn Thủy Quyết                                                    |
-| Trúc Cơ Đan           | LK9                                                                               | 600 cống hiến · chuộc lỗi của Đỗ (kiếp 2+) · động phủ Lục có 1 viên (chỉ một trong ba) |
+| Chuỗi                 | Kích hoạt                                                                         | Hậu quả chính                                                                                               |
+| --------------------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Hắc Phong trại        | Lục quay lại nhờ giúp, hoặc Hồ ép nộp tiền bảo kê, LK2+                           | Diệt trại (cờ thế giới), Thanh Phong Kiếm, thiện cảm Lục, có thể vạch trần Hồ                               |
+| Vụ cháy dược viên     | Tạp dịch đọc sổ cũ trong Tàng Kinh Các (Văn Tự 15), hoặc Mộc bá kể (thiện cảm 80) | Minh oan cho Mộc bá ↔ giữ bí mật để Đỗ nợ ân tình (Trúc Cơ Đan rẻ hơn)                                      |
+| Tô tiên sinh lên tỉnh | Tô hỏi vay 1 500 văn                                                              | Tô đỗ đạt → trường học kiếp sau, thiện cảm                                                                  |
+| Tàn Bia               | Bà Từ mất (năm thế giới 10), miếu cần tu sửa                                      | Cờ miếu, manh mối luân hồi                                                                                  |
+| Di sản Lục            | Lục thử Trúc Cơ và thất bại/hết thọ (năm thế giới 31, người chơi ~45 tuổi)        | Thư để lại động phủ, Hàn Thủy Quyết                                                                         |
+| Trúc Cơ Đan           | LK9                                                                               | 600 cống hiến · chuộc lỗi của Đỗ (kiếp 2+, gặp ông hoặc di thư) · động phủ Lục có 1 viên (chỉ một trong ba) |

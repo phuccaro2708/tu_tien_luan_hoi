@@ -1,6 +1,6 @@
 # Core Loop
 
-> **Trạng thái: Approved – 2026-10-23** · v0.1 – trước playtest. Số liệu tham chiếu `BALANCE.md`.
+> **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt). Bản v0.1 đã Approved 2026-10-23; phần không gắn `[CẦN DUYỆT D17–D26]` giữ nguyên. Số liệu tham chiếu `BALANCE.md`. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
 
 ## 1. Ba phương án core loop
 
@@ -87,18 +87,19 @@ Thọ nguyên cạn ─► chết ─► Vong Xuyên: chọn ký ức giữ lạ
        └─────── kiếp mới: thế giới +30 năm, hậu quả kiếp trước, học lại nhanh ◄─────┘
 ```
 
-- Mục tiêu dài hạn MVP: đột phá Trúc Cơ (dự kiến ở kiếp 2–3).
+- Mục tiêu dài hạn MVP: đột phá Trúc Cơ (dự kiến ở kiếp 2–3; ~70% seed thử được ở kiếp 2, BALANCE §10).
+- Nhịp quyết định: playtest đo **≥ 1 quyết định có ý nghĩa mỗi 30 phút** ở hậu kỳ (sau LK6). Nguồn quyết định đã có: đổi công pháp ở trần LK6, chuẩn bị ở nút thắt 6→7, nguồn Trúc Cơ Đan (chọn một trong ba), cảnh báo thọ nguyên, chôn di vật, chọn ký ức. Không thêm hệ mới cho mục tiêu này.
 
 ## 3. Active vs Idle
 
-| Khía cạnh           | Khi chơi chủ động                                | Khi idle / offline                                                     |
-| ------------------- | ------------------------------------------------ | ---------------------------------------------------------------------- |
-| Hành động           | Đổi hành động theo mục tiêu, đi lại giữa các nơi | Hành động hiện tại lặp lại theo lịch trình                             |
-| Nghỉ ngơi           | Tự quyết                                         | Quy tắc tự nghỉ (mặc định nghỉ khi Tinh lực < 20, làm lại khi ≥ 90)    |
-| Sự kiện nhỏ         | Chọn trực tiếp                                   | Lấy lựa chọn mặc định an toàn đã đánh dấu trong dữ liệu                |
-| Sự kiện lớn         | Chọn trực tiếp                                   | **Tạm dừng** game, chờ người chơi                                      |
-| Đột phá             | Người chơi chủ động bắt đầu                      | Không bao giờ tự đột phá                                               |
-| Tiền/lương thực cạn | Người chơi xử lý                                 | Tự chuyển sang "Làm thuê" nếu được bật quy tắc; nếu không thì tạm dừng |
+| Khía cạnh           | Khi chơi chủ động                                  | Khi idle / offline                                                     |
+| ------------------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
+| Hành động           | Đổi hành động theo mục tiêu, đi lại giữa các nơi   | Hành động hiện tại lặp lại theo lịch trình                             |
+| Nghỉ ngơi           | Tự quyết                                           | Quy tắc tự nghỉ (mặc định nghỉ khi Tinh lực < 20, làm lại khi ≥ 90)    |
+| Sự kiện nhỏ         | Theo `chinhSachSuKienNho` (`hoi` → chọn trực tiếp) | Theo `chinhSachSuKienNho` (`tuDong` → mặc định an toàn, ghi Nhật ký)   |
+| Sự kiện lớn         | Chọn trực tiếp                                     | **Tạm dừng** game, chờ người chơi                                      |
+| Đột phá             | Người chơi chủ động bắt đầu                        | Không bao giờ tự đột phá                                               |
+| Tiền/lương thực cạn | Người chơi xử lý                                   | Tự chuyển sang "Làm thuê" nếu được bật quy tắc; nếu không thì tạm dừng |
 
 Nguyên tắc: **không có cơ chế thưởng cho việc click**. Chơi chủ động mạnh hơn vì quyết định tốt hơn, không phải vì thao tác nhiều hơn. Idle không bị phạt hiệu suất; giới hạn duy nhất là các điểm dừng để người chơi không mất quyền quyết định.
 
@@ -107,7 +108,7 @@ Nguyên tắc: **không có cơ chế thưởng cho việc click**. Chơi chủ 
 **Tăng tốc** `[ĐÃ DUYỆT D14]`: người chơi chọn 1× / 2× / 3× / 5× bất cứ lúc nào (chi tiết `BALANCE.md` §1, `SYSTEMS.md` §S1).
 
 - Điểm dừng vẫn tạm dừng ở mọi tốc độ; sau điểm dừng, tốc độ giữ nguyên mức đã chọn.
-- Ở 3× và 5×, sự kiện nhỏ chỉ ghi vào nhật ký và lấy lựa chọn mặc định an toàn như khi idle; ở 1× và 2× vẫn bật hộp chọn.
+- Cách xử lý sự kiện nhỏ là trường `chinhSachSuKienNho` trong state, chỉ đổi bằng lệnh có ghi log, không suy ra từ tốc độ `[CẦN DUYỆT D21]`. Mặc định UI: khi người chơi chuyển lên 3×/5×, UI gửi lệnh `tuDong`; khi về 1×/2×, gửi lệnh `hoi`. Người chơi có thể tắt hành vi tự động này. Engine không đọc tốc độ, nên replay chỉ cần seed + nhật ký lệnh (SYSTEMS S1).
 - Khi đứng lại ở điểm dừng sau khi chạy 3×/5×, hiện bản tóm tắt "trong năm qua" để người chơi không bỏ lỡ diễn biến.
 
 ## 4. Lựa chọn có ý nghĩa
@@ -140,7 +141,7 @@ Giả định: người chơi chủ động vừa phải, theo con đường "C�
 Kiếp 1 ngẫu nhiên (D04, `PROGRESSION.md` §3). Walkthrough dưới đây dùng seed chuẩn: **xuất thân nhà tiều phu + Tứ linh căn**. Với seed khác, mạch chính giữ nguyên; chỉ khác:
 
 - **Xuất thân:** đồ và kỹ năng khởi đầu, lý do mắc nợ (nhà bán hàng rong nợ 600 văn nên trả xong sớm hơn ~1 phút).
-- **Linh căn:** đoạn tu luyện trong cốc (24:00–29:00) cần ≈ 165 ngày × 0,8 / R ngày tu luyện. Tam linh căn ≈ 102 ngày (sớm hơn ~0,5 phút); Ngũ linh căn ≈ 264 ngày (muộn hơn ~1 phút). Khác biệt lớn nằm ở hậu kỳ, không ở 30 phút đầu (`BALANCE.md` §2).
+- **Linh căn:** đoạn tu luyện trong cốc (19:35–21:10) cần ≈ 165 ngày × 0,8 / R ngày tu luyện. Tam linh căn ≈ 102 ngày (sớm hơn ~0,5 phút); Ngũ linh căn ≈ 264 ngày (muộn hơn ~1 phút). Khác biệt lớn nằm ở hậu kỳ, không ở 30 phút đầu (`BALANCE.md` §2).
 
 | Thời gian thực | Tuổi (năm·ngày) | Diễn biến                                                                                                                                                                                                                                                                                 | Hệ thống được giới thiệu                            |
 | -------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
@@ -155,14 +156,29 @@ Kiếp 1 ngẫu nhiên (D04, `PROGRESSION.md` §3). Walkthrough dưới đây d�
 | 10:00 – 13:00  | 17·120–18·120   | Chuỗi "Kẻ lạ trong hang": chọn mang thuốc (cần Thảo Dược ≥ 5 để tự đắp thuốc, hoặc mua thuốc của Mộc bá – Mộc bá sinh nghi). Người của Hắc Phong trại dò hỏi trong làng, treo thưởng 500 văn. Người chơi chọn giữ bí mật.                                                                 | Lựa chọn có hậu quả, NPC có động cơ                 |
 | ~12:00         | 18·0            | Hội tuyển đệ tử ở Lạc Thủy diễn ra (người chơi có thể đi hoặc không). Ở nhánh này người chơi ở lại chăm Lục.                                                                                                                                                                              | Sự kiện có lịch cố định                             |
 | 15:00          | 19·0            | Lục bình phục, dùng **Trắc Linh Thạch** đo cho nhân vật: **Tứ linh căn (Kim, Mộc, Thủy, Thổ – thiếu Hỏa)**, "tạp nhưng không phải phế". Tri thức mới: Linh căn, Linh khí, Luyện Khí. Ông trả ơn bằng bản chép **Dẫn Khí Quyết** và dặn: "Ở làng này linh khí mỏng như sương." Rồi rời đi. | Linh căn được tiết lộ, công pháp, giới hạn tri thức |
-| 15:00 – 19:00  | 19·0–20·120     | Văn Tự 6 chưa đủ đọc trọn (cần 8): công pháp bị giới hạn ở Sơ học. Người chơi học chữ thêm; thử tu luyện ở làng: cảm ứng linh khí rất chậm (mật độ 0,2).                                                                                                                                  | Gating bằng kỹ năng, mật độ linh khí                |
-| 19:00 – 21:00  | 20·120–21·0     | Đưa Mộc bá xem công pháp (thiện cảm ≥ 40): ông nhận ra chữ của Thanh Vân Môn và kể về **Hắc Thạch Cốc**, khe núi có mạch linh khí yếu nơi ông từng hái linh thảo. Tri thức + địa điểm mới.                                                                                                | Cơ duyên có nguyên nhân                             |
-| 21:00 – 23:00  | 21·0–21·240     | **Sự kiện "Lời mẹ"**: mẹ phản đối chuyện tiên nhân (em trai bà bỏ đi tìm tiên và không về). Chọn: nói thật / nói dối là đi làm thuê xa / để lại tiền rồi đi. Mua lương khô 90 ngày (540 văn).                                                                                             | Quan hệ gia đình, chuẩn bị                          |
-| 23:00 – 24:00  | 21·240–22·0     | Đi 4 ngày tới Hắc Thạch Cốc. Gặp **Thiết Bối Lang**: dùng cỏ Xú Long (Thảo Dược ≥ 8) để xua, hoặc chiến đấu, hoặc lùi lại.                                                                                                                                                                | Kỹ năng thay thế chiến đấu                          |
-| 24:00 – 29:00  | 22·0–23·240     | Tu luyện trong cốc (mật độ 1,0): cảm ứng linh khí sau 10 ngày; tu vi 0 → 60 trong ≈ 165 ngày tu luyện (0,4 tu vi/ngày × 91% thời gian không nghỉ); hai lần về làng mua lương khô, gửi tiền cho mẹ. Thổ Nạp lên 8.                                                                         | Tu vi, lương thực, đi lại                           |
-| ~29:30         | 23·300          | **Đột phá "Dẫn khí nhập thể"** (90%). Thành công: **Luyện Khí tầng 1**, thọ nguyên +3 năm, mở bảng Tu luyện đầy đủ.                                                                                                                                                                       | Đột phá, mốc 30 phút                                |
+| 15:00 – 19:00  | 19·0–20·120     | Văn Tự 6 chưa đủ đọc trọn (cần 8): công pháp bị giới hạn ở Sơ học. Người chơi học chữ (~150 ngày để lên 8) xen hái thuốc để dành tiền lương khô; thử tu luyện ở làng: cảm ứng linh khí rất chậm (mật độ 0,2).                                                                             | Gating bằng kỹ năng, mật độ linh khí                |
+| 19:00 – 19:30  | 20·120–20·180   | Đưa Mộc bá xem công pháp (thiện cảm ≥ 40): ông nhận ra chữ của Thanh Vân Môn và kể về **Hắc Thạch Cốc**. **Sự kiện "Lời mẹ"**: nói thật / nói dối / để lại tiền rồi đi. Mua lương khô 90 ngày (540 văn).                                                                                  | Cơ duyên có nguyên nhân, quan hệ gia đình           |
+| 19:30 – 19:35  | 20·180–20·190   | Đi 4 ngày tới Hắc Thạch Cốc. Gặp **Thiết Bối Lang**: dùng cỏ Xú Long (Thảo Dược ≥ 8) để xua, hoặc chiến đấu, hoặc đi vòng (+20 ngày).                                                                                                                                                     | Kỹ năng thay thế chiến đấu                          |
+| 19:35 – 21:10  | 20·190–21·15    | Tu luyện trong cốc (mật độ 1,0): cảm ứng linh khí sau 10 ngày; tu vi 0 → 60 trong ≈ 165 ngày (0,40 tu vi/ngày × 91% thời gian không nghỉ); một chuyến về làng mua lương khô (~10 ngày). Thổ Nạp lên 8.                                                                                    | Tu vi, lương thực, đi lại                           |
+| ~21:15         | 21·25           | **Đột phá "Dẫn khí nhập thể"** (90%). Thành công: **Luyện Khí tầng 1**, thọ nguyên +3 năm, mở bảng Tu luyện đầy đủ.                                                                                                                                                                       | Đột phá                                             |
+| 21:15 – 30:00  | 21·25–24·0      | Tu luyện LK1 → LK2 (~22,3 tuổi) trong cốc, xen hái linh thảo; lần đầu ghé chợ đêm ở trấn bán linh thảo. Tìm thấy hài cốt Lý Viễn và bút ký.                                                                                                                                               | Chu kỳ tu luyện–kiếm tiền, chợ đêm                  |
+| ~30:00         | 24·0            | **Bà Từ mất** (năm thế giới 10, WORLD_LORE §3.1): miếu Thổ Địa không người giữ → mở chuỗi Tàn Bia. Mốc 30 phút: LK2, đang hướng tới nút thắt 3→4.                                                                                                                                         | Hậu quả theo thời gian thế giới                     |
 
-Các nhánh khác trong 30 phút đầu (đều tới Luyện Khí 1 trong khoảng 28–45 phút):
+**Ngân sách ngày khép kín** (sửa F11; bản v0.1 để ~600 ngày cho đoạn chỉ cần ~185 ngày):
 
-- **Nhánh môn phái**: đi hội tuyển ở tuổi 18 → bị chê tạp linh căn → nhận làm tạp dịch 3 năm → học Dẫn Khí Quyết bản chuẩn trong môn → Luyện Khí 1 khoảng phút 32–35, nhưng thời gian rảnh ít hơn.
-- **Nhánh báo quan**: báo cho Hồ chưởng quỹ → +500 văn, Lục bị phục kích và trốn thoát, ghi hận → con đường duy nhất còn lại là hội tuyển kế tiếp (tuổi 21) hoặc Mộc bá (thiện cảm ≥ 60, ông trao lệnh bài tạp dịch cũ và bản Dẫn Khí Quyết ông thuộc lòng). Luyện Khí 1 khoảng phút 40–45.
+| Đoạn                                   | Ngày  | Phút thực (1×) |
+| -------------------------------------- | ----- | -------------- |
+| 14·0 → 19·0 (phàm nhân, gặp Lục)       | 1 800 | 15:00          |
+| Học chữ + hái thuốc                    | 480   | 4:00           |
+| Mộc bá, Lời mẹ, mua lương khô          | 60    | 0:30           |
+| Đi đường + Thiết Bối Lang              | 10    | 0:05           |
+| Cảm ứng 10 + tu luyện 165 + về làng 10 | 185   | 1:32           |
+| Đột phá                                | 10    | 0:05           |
+| **Tổng tới LK1**                       | 2 545 | **~21:12**     |
+
+Người chơi không tối ưu (học chữ chậm, ở làng lâu hơn) đạt LK1 ở khoảng 22–24 phút. Harness P3 kiểm tra mốc này với chính sách "nhánh Lục".
+
+Các nhánh khác (đều tới Luyện Khí 1 trong khoảng 21–40 phút):
+
+- **Nhánh môn phái**: đi hội tuyển ở tuổi 18 → bị chê tạp linh căn → nhận làm tạp dịch 3 năm → học Dẫn Khí Quyết bản chuẩn trong môn → Luyện Khí 1 khoảng phút 32, nhưng thời gian rảnh ít hơn.
+- **Nhánh báo quan**: báo cho Hồ chưởng quỹ → +500 văn, Lục bị phục kích và trốn thoát, ghi hận → con đường duy nhất còn lại là hội tuyển kế tiếp (tuổi 21) hoặc Mộc bá (thiện cảm ≥ 60, ông trao lệnh bài tạp dịch cũ và bản Dẫn Khí Quyết ông thuộc lòng). Luyện Khí 1 khoảng phút 38–40 (Mộc bá còn sống tới năm thế giới 18, tức tuổi 32).

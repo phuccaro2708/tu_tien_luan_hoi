@@ -1,6 +1,6 @@
 # Implementation Plan
 
-> **Trạng thái: Approved – 2026-10-23** · GDD đã Approved ngày 2026-10-23; triển khai theo thứ tự phase dưới đây. Tài liệu này không chứa code gameplay.
+> **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt `[CẦN DUYỆT D26]`). Bản v0.1 đã Approved 2026-10-23. Tài liệu này không chứa code gameplay. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
 
 ## 1. Kiến trúc
 
@@ -28,39 +28,44 @@ src/
 
 ### Pipeline một tick (thứ tự cố định)
 
-1. Thời gian: ngày +1, tuổi, hết hạn trạng thái.
-2. Sinh hoạt phí / lương khô.
-3. Hành động hiện tại (gồm quy tắc nghỉ và tự làm thuê).
-4. Tu luyện / đột phá đang diễn ra.
-5. Đan Độc, hồi phục thương.
-6. NPC (tuổi, chết theo lịch).
-7. Sự kiện (lịch cố định → ngẫu nhiên có seed).
-8. Kiểm tra điểm dừng; chết → chuyển sang trạng thái Vong Xuyên.
+1. Thời gian: ngày +1, tuổi, năm thế giới, hết hạn trạng thái.
+2. Hành động hiện tại (gồm quy tắc nghỉ và tự làm thuê): **cộng thu nhập trước**.
+3. Sinh hoạt phí / lương khô: trừ sau thu nhập; không đủ → trạng thái Đói, không ghi nợ `[CẦN DUYỆT D23]`.
+4. Tu luyện / đột phá đang diễn ra; đột phá xong → cộng thọ nguyên ngay `[CẦN DUYỆT D25]`.
+5. Đan Độc, hồi phục thương, hồi Khí huyết ngoài trận.
+6. NPC (tuổi, chết theo `namSinh + thoNguyen` trong dữ liệu, D18).
+7. Sự kiện (lịch cố định → ngẫu nhiên có seed); sự kiện nhỏ xử lý theo `chinhSachSuKienNho` (D21).
+8. Kiểm tra điểm dừng; chết (thọ nguyên đã gồm phần cộng ở bước 4) → chuyển sang trạng thái Vong Xuyên.
 
 Các bước đọc state đầu vào của bước trước; thứ tự được ghi trong test để không đổi ngầm.
 
 ## 2. Các phase
 
-Mỗi phase kết thúc bằng 4 lệnh kiểm tra và báo cáo 5 mục (AGENTS.md). Codex review sau mỗi phase; Antigravity QA từ P3.
+Mỗi phase kết thúc bằng 4 lệnh kiểm tra và báo cáo 5 mục (AGENTS.md). Codex review sau mỗi phase; Antigravity QA từ P2 (phase đầu tiên có thứ chơi được trên trình duyệt).
 
-| Phase                                        | Nội dung                                                                                                                                                      | Tiêu chí thoát                                                                                                                                                             |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **P0 – Khung engine**                        | `GameState` tối thiểu, clock bước cố định, RNG có seed, engine tick rỗng, store, trang hiển thị ngày/tuổi, nút tốc độ 1×/2×/3×/5×, save/load v1               | Test: chia frame khác nhau → cùng số tick; cùng thời gian thực ở 5× = 5 lần số tick ở 1×; RNG cùng seed cùng chuỗi; round-trip save; ESLint chặn import React trong engine |
-| **P1 – Vòng phàm nhân**                      | S1 thời gian/thọ nguyên + khởi tạo kiếp 1 ngẫu nhiên (D04), S2 hành động (nhóm phàm), S3 kỹ năng, sinh hoạt phí, nợ theo xuất thân                            | Test theo SYSTEMS S1–S3; mô phỏng 360 ngày đốn củi trả được nợ trong ±10% BALANCE §3                                                                                       |
-| **P2 – Thế giới & tri thức**                 | S4 tri thức + biến thể văn bản, S5 địa điểm/đi đường/thám hiểm, S6 sự kiện + validator dữ liệu, Nhật ký                                                       | Test S4–S6; kiểm thử tĩnh cờ mồ côi và ≥ 2 nguồn tri thức; snapshot giao diện ban đầu không lộ từ khóa                                                                     |
-| **P3 – NPC & chiến đấu**                     | S7 NPC/thiện cảm, S8 chiến đấu tự động, chuỗi Hồi 0–3 (WORLD_LORE §6)                                                                                         | Test S7–S8; bảng TTK tái hiện ±1 lượt; có thể chơi tới hội tuyển/gặp Lục                                                                                                   |
-| **P4 – Tu luyện**                            | S9: công pháp, tu vi, thuần thục, đột phá, Tâm cảnh, Bế quan, Hắc Thạch Cốc                                                                                   | Test S9; walkthrough 30 phút (CORE_LOOP §5) đạt LK1 bằng harness với chính sách "nhánh Lục"                                                                                |
-| **P5 – Môn phái, vật phẩm, chuỗi trung hạn** | S10, S11, chợ đêm, chuỗi Hắc Phong / vụ cháy / Tô / Tàn Bia / di sản Lục                                                                                      | Test S10–S11; mọi chuỗi trong WORLD_LORE §6 hoàn thành được                                                                                                                |
-| **P6 – Luân hồi**                            | S12: Vong Xuyên, Tàn Niệm, ký ức, Hồn dưỡng căn, xuất thân, thế giới +30 năm, người kế thừa, thiên phú khắc/nâng bậc, Tự vẫn                                  | Test S12; replay hai kiếp tất định; kiếp 2 phản ánh cờ kiếp 1                                                                                                              |
-| **P7 – Offline, cân bằng, nội dung**         | S13 offline + Tích Thời (tua nhanh tức thì); harness headless (`tests/integration/pacing`) chạy engine với chính sách chơi cố định; bổ sung sự kiện tới 60–80 | Test S13; harness: mốc tuổi trong ±15% BALANCE §10; 8 giờ offline < 1 giây                                                                                                 |
-| **P8 – QA & hoàn thiện**                     | Sửa lỗi từ Codex/Antigravity, kiểm tra tiêu chí MVP_SCOPE §4, build preview Cloudflare Pages                                                                  | Toàn bộ checklist MVP_SCOPE §4                                                                                                                                             |
+Sửa F13 `[CẦN DUYỆT D26]`: harness headless dựng **từ P0** và lớn dần theo phase (bản v0.1 để tới P7); lát cắt dọc hai kiếp ở **P4** (bản v0.1 chỉ có luân hồi ở P6). Mỗi phase nhỏ, chạy được, có tiêu chí thoát kiểm thử được.
+
+| Phase                                        | Nội dung                                                                                                                                                                                                             | Tiêu chí thoát (kiểm thử được)                                                                                                                                                                                                                                                                               |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **P0 – Khung engine + harness**              | `GameState` tối thiểu, clock bước cố định, RNG có seed, engine tick rỗng, store, trang hiển thị ngày/tuổi, nút tốc độ, save/load v1, **harness headless** `tests/integration/harness` chạy engine với danh sách lệnh | (1) Chia frame khác nhau → cùng số tick. (2) Cùng thời gian thực, 5× = 5 lần số tick 1×. (3) RNG cùng seed → cùng chuỗi 1 000 số. (4) Save round-trip bằng nhau sâu; save hỏng bị từ chối, save cũ còn nguyên. (5) ESLint báo lỗi khi `src/core` import `react`. (6) Harness chạy 10 000 tick rỗng < 1 giây. |
+| **P1 – Vòng phàm nhân**                      | S1 thời gian/thọ nguyên + khởi tạo kiếp 1 (D04), S2 hành động nhóm phàm, S3 kỹ năng, thanh toán thu nhập trước phí (D23), Đói, nợ theo xuất thân                                                                     | (1) Test S1–S3. (2) Harness: 360 ngày đốn củi trả nợ 800 văn trong ±10% BALANCE §3. (3) Kiểm thử hồi phục: từ 0 văn, 0 lương khô thoát Đói ở mọi khu dân cư. (4) Validator: Làm thuê ròng > 0 ở mọi khu dân cư. (5) Cùng seed → cùng kiếp 1.                                                                 |
+| **P2 – Thế giới, tri thức, sự kiện**         | S4 tri thức + biến thể văn bản, S5 địa điểm (5 + điểm con nếu D24 được duyệt), S6 sự kiện + `chinhSachSuKienNho` (D21), Nhật ký; chuỗi Hồi 0–1                                                                       | (1) Test S4–S6. (2) Validator: không cờ mồ côi; mọi sự kiện lớn có lựa chọn không yêu cầu. (3) Replay: đổi tốc độ giữa chừng (UI gửi lệnh chính sách) → cùng hash state với cùng nhật ký lệnh. (4) Snapshot giao diện ban đầu không lộ từ khóa tu tiên.                                                      |
+| **P3 – NPC, chiến đấu, tới LK1**             | S7 NPC/thiện cảm + dòng thời gian (D18), S8 chiến đấu + quy tắc phân xử (D25), S9 phần Dẫn Khí Quyết + đột phá LK1, Hắc Thạch Cốc; chuỗi Hồi 2–3                                                                     | (1) Test S7–S9 phần LK1. (2) Bảng TTK BALANCE §6 tái hiện ±1 lượt. (3) Harness "nhánh Lục": LK1 ở 21–24 phút (CORE_LOOP §6); "nhánh môn phái" ~32; "nhánh Mộc bá" ≤ 40. (4) Validator: NPC còn sống trong khoảng năm của chuỗi dùng họ.                                                                      |
+| **P4 – Lát cắt dọc hai kiếp**                | S9 đủ tới LK6 (công pháp, thuần thục, Tâm cảnh, Bế quan), S12 tối thiểu: chết vì thọ nguyên → Vong Xuyên (Tàn Niệm, chọn ký ức) → kiếp 2 thế giới +30 năm; ~10 sự kiện lõi, ≥ 1 cờ kiếp 1 hiện ở kiếp 2              | (1) Replay hai kiếp tất định (cùng hash). (2) Harness: kiếp 1 Tứ chết ở 85–91 tuổi, đạt LK6–8. (3) Kiếp 2 thấy ≥ 1 hậu quả từ cờ kiếp 1. (4) **Playtest đầu tiên của người dùng/Antigravity trên vòng luân hồi** – điểm quyết định có tiếp tục hướng thiết kế không.                                         |
+| **P5 – Môn phái, vật phẩm, chuỗi trung hạn** | S10, S11 (ngoại môn 55%, D20), chợ đêm, LK7–9, chuỗi Hắc Phong / vụ cháy / Tô / Tàn Bia / di sản Lục                                                                                                                 | (1) Test S10–S11. (2) Harness: tỉ lệ tốc độ môn phái/tán tu trong 1,0–1,25×. (3) Mọi chuỗi trong WORLD_LORE §6 hoàn thành được bằng harness.                                                                                                                                                                 |
+| **P6 – Luân hồi đầy đủ + Trúc Cơ**           | S12 đủ: Hồn dưỡng căn, xuất thân, người kế thừa, thiên phú khắc/nâng bậc, Tự vẫn; nguồn Trúc Cơ Đan; màn kết MVP                                                                                                     | (1) Test S12. (2) Kiểm thử khả đạt (SYSTEMS S4) cho kiếp 1, 2, 3 xấu nhất; replay ba kiếp (chết sớm, chết tự nhiên, Tự vẫn). (3) Harness N seed: kiếp 1 Tam thành Trúc Cơ ≤ 15%; ≥ 60% seed thử Trúc Cơ ở kiếp 2.                                                                                            |
+| **P7 – Offline, cân bằng, nội dung**         | S13 offline + Tích Thời; bổ sung sự kiện tới 30–40 (hoặc 60–80 nếu D24 bị từ chối)                                                                                                                                   | (1) Test S13. (2) 8 giờ offline < 1 giây. (3) Harness: mốc tuổi ±15% BALANCE §10.2; trung vị thử Trúc Cơ ≤ 10 giờ ở 1×.                                                                                                                                                                                      |
+| **P8 – QA & hoàn thiện**                     | Sửa lỗi từ Codex/Antigravity, kiểm tra MVP_SCOPE §4, build preview Cloudflare Pages                                                                                                                                  | Toàn bộ checklist MVP_SCOPE §4                                                                                                                                                                                                                                                                               |
+
+**Phụ thuộc vào phần Draft:** P0 không dùng con số hay quy tắc nào đang chờ duyệt (D17–D26), nên có thể bắt đầu ngay khi kế hoạch phase được duyệt. P1 cần D23; P2 cần D21, D24; P3 cần D18, D25; P5 cần D20; P6 cần D17, D19.
 
 ## 3. Chiến lược kiểm thử
 
 - **Unit:** mỗi hệ một file test trong `tests/unit/`, theo tiêu chí "Tiêu chí kiểm thử" của SYSTEMS.md.
 - **Dữ liệu:** validator chạy trên toàn bộ `src/data` (ID trùng, tham chiếu hỏng, cờ mồ côi, sự kiện lớn thiếu lựa chọn tự do).
 - **Replay:** ghi `{ seed, danh sách lệnh theo tick }` → chạy lại → so sánh hash state.
-- **Pacing:** harness headless dùng engine thật, không dùng React; chạy trong Vitest với timeout rộng.
+- **Pacing:** harness headless dùng engine thật, không dùng React; chạy trong Vitest với timeout rộng. Dựng từ P0, mỗi phase thêm chính sách chơi và ngưỡng của mình.
+- **Khả đạt:** đồ thị nguồn → mốc (SYSTEMS S4), chạy lại mỗi khi dữ liệu sự kiện/NPC đổi.
 - **Không test UI chi tiết trong MVP:** chỉ smoke test render và snapshot từ khóa bị khóa.
 
 ## 4. Giả định kỹ thuật
