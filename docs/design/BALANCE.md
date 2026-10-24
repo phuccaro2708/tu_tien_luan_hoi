@@ -235,7 +235,7 @@ TíchThời  = min(8 giờ, TíchThời + phầnVắngMặtChưaDùng)
 | Đan Độc đầy                                   | Tan 0,5/ngày; chỉ chặn đan, không chặn tu luyện                                                                                                                                  |
 | Chết trước khi nhập đạo                       | Luân hồi vẫn xảy ra (R8 không cần tu vi); Tàn Niệm thấp nhưng có                                                                                                                 |
 | Mọi NPC then chốt đã chết                     | Bảng kế thừa; mỗi mốc then chốt có ≥ 2 nguồn, trong đó ≥ 1 nguồn không phụ thuộc cờ thế giới, kiểm cho kiếp 1, kiếp 2 và kiếp 3 xấu nhất (kiểm thử khả đạt S4) `[CẦN DUYỆT D19]` |
-| Chọn Liều mạng để chết "sạch" thay cho Tự vẫn | Liều mạng chỉ có trong trận của sự kiện lớn `motLan` (SYSTEMS S8) `[CẦN DUYỆT D22]`                                                                                              |
+| Chọn Liều mạng để chết "sạch" thay cho Tự vẫn | Liều mạng chỉ có trong trận của sự kiện lớn `quanTrong` + `motLan`, một lần mỗi save, không trước LK3 (SYSTEMS S8) `[CẦN DUYỆT D22]`                                             |
 
 ### Chiến lược thống trị và cách chặn
 

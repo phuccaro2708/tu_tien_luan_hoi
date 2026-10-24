@@ -247,7 +247,7 @@ ThọNguyên = 60 + min(6, floor(ThểPhách / 5)) + ThiênPhú + 3 × tầngLuy
 
 - **Lão hóa:** khi tuổi > 80% thọ nguyên, Tinh lực tối đa −2 mỗi năm; chiến lực −1% mỗi năm.
 - **Cảnh báo:** tự động dừng khi còn 10, 5, 1 năm.
-- **Cái chết:** khi tuổi ≥ thọ nguyên (tất định, không ngẫu nhiên); hoặc thua khi chọn "Liều mạng" — chiến thuật này **chỉ có trong trận chiến của sự kiện lớn** (`quanTrong`, `motLan`), không có ở chạm trán ngẫu nhiên `[CẦN DUYỆT D22]`; hoặc tẩu hỏa nhập ma. Không có cái chết ngẫu nhiên không báo trước, và không có cách chết lặp lại được theo ý muốn ngoài Tự vẫn (§8.7).
+- **Cái chết:** khi tuổi ≥ thọ nguyên (tất định, không ngẫu nhiên); hoặc thua khi chọn "Liều mạng" — chiến thuật này **chỉ có trong trận chiến của sự kiện lớn gắn cả `quanTrong` và `motLan`** (một lần mỗi save), không có ở chạm trán ngẫu nhiên `[CẦN DUYỆT D22]`; hoặc tẩu hỏa nhập ma. Không có cái chết ngẫu nhiên không báo trước, và không có cách chết lặp lại được theo ý muốn ở mỗi kiếp ngoài Tự vẫn (§8.7).
 - **Công thức trên chỉ dành cho người chơi.** NPC có tuổi và thọ nguyên khai báo trong dữ liệu theo dòng thời gian thế giới (`WORLD_LORE.md` §3.1) `[CẦN DUYỆT D18]`.
 - **Kéo dài thọ nguyên:** Diên Thọ Quả (+2 năm, tối đa một lần mỗi kiếp, chuỗi sự kiện Hắc Thạch Cốc). Không có cách mua thọ nguyên trong MVP.
 - **Chôn giấu di vật:** khi còn ≤ 5 năm, người chơi có thể chôn tối đa 3 vật phẩm và 5 linh thạch ở một địa điểm đã biết.
@@ -331,6 +331,6 @@ Linh căn được tung một lần mỗi kiếp bằng RNG có seed, ẩn cho t
 
 - **Xác nhận hai bước:** hộp thoại nêu rõ hậu quả, rồi xác nhận lần hai; không có phím tắt.
 - **Không dùng được** khi đang ở màn sự kiện hoặc chiến đấu, để không thoát khỏi hậu quả của lựa chọn đang diễn ra.
-- **Không có đường vòng không bị phạt:** Liều mạng chỉ có trong trận của sự kiện lớn (một lần), nên người chơi không thể tự tìm cái chết "sạch" bằng chiến đấu để né hình phạt Tự vẫn (finding F06) `[CẦN DUYỆT D22]`.
+- **Không có đường vòng lặp lại được:** Liều mạng chỉ có trong vài trận của sự kiện lớn, mỗi trận một lần mỗi save, và không trận nào mở trước LK3. Người chơi không thể tự tìm cái chết "sạch" bằng chiến đấu ở mỗi kiếp để né hình phạt Tự vẫn (finding F06) `[CẦN DUYỆT D22]`. Chết trong các trận cốt truyện đó vẫn được tính là cái chết thường.
 - **Hậu quả:** Tàn Niệm ×0,5 (§8.2); không khắc thiên phú mới (§3); thế giới vẫn +30 năm; đặt cờ `tu_van` để người thân/người kế thừa phản ứng ở kiếp sau (WORLD_LORE §3).
 - **Chống reroll:** kiếp chưa nhập đạo → Hồn dưỡng căn cho 100% Ngũ linh căn (§8.4). Tự vẫn sớm để đổi linh căn luôn cho kết quả không tốt hơn, cộng thêm mất một nửa Tàn Niệm.

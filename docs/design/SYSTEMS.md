@@ -6,18 +6,18 @@
 
 ## 0. Đánh giá sự cần thiết của các hệ RPG
 
-| Hệ                | Cần không?         | Lý do                                                                                   | Phạm vi                                                     |
-| ----------------- | ------------------ | --------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Actions & Jobs    | **Bắt buộc**       | Là core loop: cách người chơi tiêu thời gian                                            | MVP đầy đủ                                                  |
-| Exploration       | **Cần**            | Đưa cơ duyên vào không gian; gắn tri thức với nơi chốn                                  | MVP: bản đồ 7 địa điểm, tiến độ thám hiểm                   |
-| Combat            | Cần, tối giản      | Rủi ro của thám hiểm, giải quyết xung đột cốt truyện; không phải trọng tâm              | MVP: tự động, có chiến thuật; Post-MVP: pháp thuật sâu hơn  |
-| Equipment         | Tối giản           | Công cụ nghề có ý nghĩa; pháp khí là mốc cảm xúc; loot ngẫu nhiên sẽ kéo game sang ARPG | MVP: 2 ô, 7 vật phẩm cố định; Post-MVP: pháp bảo, luyện hóa |
-| Alchemy           | Chưa               | Hệ crafting riêng đủ lớn để thành một game con; MVP chỉ cần đan dược để mua/nhận        | Post-MVP (Thảo Dược đã chuẩn bị chỗ móc vào)                |
-| Events            | **Bắt buộc**       | Nơi lựa chọn có ý nghĩa và câu chuyện xảy ra                                            | MVP: 60–80 sự kiện; đề xuất 30–40 `[CẦN DUYỆT D24]`         |
-| NPC Relationships | **Cần**            | Động cơ NPC tạo nhân quả; hậu quả xuyên kiếp                                            | MVP: 8 NPC + 8 dòng kế thừa                                 |
-| Quests            | Không làm hệ riêng | Trùng chức năng với chuỗi sự kiện; Nhật ký hiển thị "manh mối đang theo" là đủ          | MVP: Nhật ký; Post-MVP nếu cần                              |
-| Sect Management   | Không              | Đổi thể loại sang quản lý; lệch tầm nhìn MVP                                            | Post-MVP xa; MVP chỉ có làm thành viên môn phái             |
-| Reincarnation     | **Bắt buộc**       | Thọ nguyên là đồng hồ chính; luân hồi là trụ cột (PROGRESSION §8)                       | MVP: vòng đầy đủ, nội dung kiếp 2 tối giản                  |
+| Hệ                | Cần không?         | Lý do                                                                                   | Phạm vi                                                                       |
+| ----------------- | ------------------ | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Actions & Jobs    | **Bắt buộc**       | Là core loop: cách người chơi tiêu thời gian                                            | MVP đầy đủ                                                                    |
+| Exploration       | **Cần**            | Đưa cơ duyên vào không gian; gắn tri thức với nơi chốn                                  | MVP: bản đồ 7 địa điểm (5 + 2 điểm con nếu D24 được duyệt), tiến độ thám hiểm |
+| Combat            | Cần, tối giản      | Rủi ro của thám hiểm, giải quyết xung đột cốt truyện; không phải trọng tâm              | MVP: tự động, có chiến thuật; Post-MVP: pháp thuật sâu hơn                    |
+| Equipment         | Tối giản           | Công cụ nghề có ý nghĩa; pháp khí là mốc cảm xúc; loot ngẫu nhiên sẽ kéo game sang ARPG | MVP: 2 ô, 7 vật phẩm cố định; Post-MVP: pháp bảo, luyện hóa                   |
+| Alchemy           | Chưa               | Hệ crafting riêng đủ lớn để thành một game con; MVP chỉ cần đan dược để mua/nhận        | Post-MVP (Thảo Dược đã chuẩn bị chỗ móc vào)                                  |
+| Events            | **Bắt buộc**       | Nơi lựa chọn có ý nghĩa và câu chuyện xảy ra                                            | MVP: 60–80 sự kiện; đề xuất 30–40 `[CẦN DUYỆT D24]`                           |
+| NPC Relationships | **Cần**            | Động cơ NPC tạo nhân quả; hậu quả xuyên kiếp                                            | MVP: 8 NPC + 8 dòng kế thừa                                                   |
+| Quests            | Không làm hệ riêng | Trùng chức năng với chuỗi sự kiện; Nhật ký hiển thị "manh mối đang theo" là đủ          | MVP: Nhật ký; Post-MVP nếu cần                                                |
+| Sect Management   | Không              | Đổi thể loại sang quản lý; lệch tầm nhìn MVP                                            | Post-MVP xa; MVP chỉ có làm thành viên môn phái                               |
+| Reincarnation     | **Bắt buộc**       | Thọ nguyên là đồng hồ chính; luân hồi là trụ cột (PROGRESSION §8)                       | MVP: vòng đầy đủ, nội dung kiếp 2 tối giản                                    |
 
 ---
 
@@ -52,7 +52,7 @@
   - Hành động thiếu yêu cầu không thể chọn và có lý do hiển thị (khi lý do đó là tri thức nhân vật đã biết).
   - Hết tiền + bật tự làm thuê → chuyển sang Làm thuê; không bật → tạm dừng.
   - Không tồn tại state nào mà danh sách hành động khả dụng rỗng (kiểm thử thuộc tính trên state ngẫu nhiên).
-  - **Hồi phục từ tay trắng:** từ tiền 0, Tinh lực 0, Đói, ở bất kỳ khu dân cư nào, chỉ Làm thuê với quy tắc nghỉ mặc định → sau 60 ngày tiền > 0 và không còn Đói ở ngày làm việc. Ở nơi hoang, chỉ Hái quả rừng → sau 10 ngày không còn Đói (kiểm thử thuộc tính trên mọi địa điểm trong dữ liệu).
+  - **Hồi phục từ tay trắng:** từ tiền 0, Tinh lực 0, Đói, ở bất kỳ khu dân cư nào, chỉ Làm thuê với quy tắc nghỉ mặc định (ở nơi hoang: Hái quả rừng, hoặc đi về khu dân cư gần nhất rồi Làm thuê) → sau 60 ngày tiền > 0 và không còn Đói ở ngày làm việc. Ở nơi hoang, chỉ Hái quả rừng → sau 10 ngày không còn Đói (kiểm thử thuộc tính trên mọi địa điểm trong dữ liệu).
   - Validator: với mọi khu dân cư, `thu Làm thuê × tỉ lệ làm − phí > 0`.
 
 ## S3. Kỹ năng
@@ -78,14 +78,15 @@
   - Snapshot giao diện ở state ban đầu không chứa từ khóa bị khóa (linh khí, linh căn, tu vi, Luyện Khí, linh thạch).
   - **Kiểm thử khả đạt** `[CẦN DUYỆT D19]` (sửa F03): mỗi mốc then chốt dưới đây có ≥ 2 nguồn trong dữ liệu, trong đó **≥ 1 nguồn không phụ thuộc cờ thế giới hay NPC còn sống**. Chạy cho ba cấu hình: kiếp 1; kiếp 2 xấu nhất (mọi cờ tùy chọn tắt, mọi NPC có thể chết đều đã chết, không giữ ký ức); kiếp 3 xấu nhất (năm thế giới ~200: mọi NPC gốc kể cả Đỗ đã mất, kiếp 2 chết sớm bằng Tự vẫn). Từ kiếp 3 trở đi không còn NPC gốc nào nên cấu hình kiếp 3 đại diện cho mọi kiếp sau.
 
-    | Mốc                    | Nguồn không phụ thuộc cờ                          | Nguồn khác                                      |
-    | ---------------------- | ------------------------------------------------- | ----------------------------------------------- |
-    | Văn Tự 8               | Lớp ở Thư xá trấn Lạc Thủy (học phí 12 văn/ngày)  | Tô tiên sinh / lớp của người kế thừa Tô         |
-    | `biet_linh_can`        | Hội tuyển Thanh Vân (mỗi 3 năm)                   | Lục, Mộc bá, ký ức                              |
-    | `cong_phap_dan_khi`    | Thanh Vân tạp dịch (Tàng Kinh Các tầng 1)         | Lục, chợ đêm, ký ức văn bản                     |
-    | Nơi có D ≥ 1.0         | Thanh Vân Môn (sau hội tuyển)                     | Hắc Thạch Cốc (bút ký, thám hiểm), động phủ Lục |
-    | Công pháp sau trần LK6 | Thanh Vân Dưỡng Khí Quyết (cống hiến)             | Chợ đêm, Hàn Thủy Quyết (Lục), ký ức            |
-    | Thử Trúc Cơ            | Luôn thử được khi đủ tu vi tầng 9 (không cần đan) | Trúc Cơ Đan: cống hiến, sự kiện                 |
+    | Mốc                    | Nguồn không phụ thuộc cờ                           | Nguồn khác                                                            |
+    | ---------------------- | -------------------------------------------------- | --------------------------------------------------------------------- |
+    | Văn Tự 8               | Lớp ở Thư xá trấn Lạc Thủy (học phí 12 văn/ngày)   | Tô tiên sinh / lớp của người kế thừa Tô                               |
+    | Văn Tự 12 / 15 / 20    | Lớp Thư xá (không giới hạn cấp; chỉ tốn thêm ngày) | Tô / người kế thừa; đọc sách ở Tàng Kinh Các (tạp dịch); ký ức Văn Tự |
+    | `biet_linh_can`        | Hội tuyển Thanh Vân (mỗi 3 năm)                    | Lục, Mộc bá, ký ức                                                    |
+    | `cong_phap_dan_khi`    | Thanh Vân tạp dịch (Tàng Kinh Các tầng 1)          | Lục, chợ đêm, ký ức văn bản                                           |
+    | Nơi có D ≥ 1.0         | Thanh Vân Môn (sau hội tuyển)                      | Hắc Thạch Cốc (bút ký, thám hiểm), động phủ Lục                       |
+    | Công pháp sau trần LK6 | Thanh Vân Dưỡng Khí Quyết (cống hiến)              | Chợ đêm, Hàn Thủy Quyết (Lục), ký ức                                  |
+    | Thử Trúc Cơ            | Luôn thử được khi đủ tu vi tầng 9 (không cần đan)  | Trúc Cơ Đan: cống hiến, sự kiện                                       |
 
   - Chết → tri thức `kiep` bị xóa, tri thức `linh_hon` còn lại.
 
@@ -134,11 +135,12 @@
 - **Input:** chỉ số người chơi (từ kỹ năng, cảnh giới, trang bị), địch (dữ liệu), chiến thuật (Thận trọng / Cân bằng / Liều mạng), pháp thuật đã học, RNG.
 - **Output:** thắng / bỏ chạy / thua; Khí huyết còn lại; bị thương; chiến lợi phẩm; (chỉ Liều mạng) chết.
 - **Điều kiện:** theo lượt, tối đa 20 lượt. Bỏ chạy khi Khí huyết < 50% (Thận trọng) / 30% (Cân bằng) / không bao giờ (Liều mạng). Thua khi không Liều mạng → Nội thương nặng 120 ngày, mất 30% văn mang theo, **không chết**. Thua khi Liều mạng → chết (Hộ thân phù cứu một lần). Công thức: `BALANCE.md` §6.
-- **Liều mạng chỉ có trong trận của sự kiện lớn** (`quanTrong` và `motLan`) `[CẦN DUYỆT D22]` (sửa F06). Chạm trán ngẫu nhiên chỉ cho Thận trọng / Cân bằng, nên không có cách chết lặp lại được theo ý muốn ngoài Tự vẫn.
+- **Liều mạng chỉ có trong trận của sự kiện lớn gắn cả `quanTrong` và `motLan`** `[CẦN DUYỆT D22]` (sửa F06). `motLan` = xảy ra tối đa **một lần mỗi save** (thế giới tiếp diễn, không lặp ở kiếp sau). Chạm trán ngẫu nhiên chỉ cho Thận trọng / Cân bằng. Vì vậy số lần có thể chết bằng Liều mạng bị chặn bởi số trận như vậy trong toàn thế giới (vài trận cho cả save), không lặp được theo ý muốn ở mỗi kiếp như Tự vẫn. Validator: không trận `quanTrong` nào mở được trước LK3.
 - **Quy tắc phân xử** `[CẦN DUYỆT D25]` (sửa F10):
   - Thứ tự một lượt: kiểm tra bỏ chạy → người chơi hành động (pháp thuật mạnh nhất nếu đủ Linh lực, nếu không thì đánh thường) → địch hành động.
   - Hết lượt 20 mà chưa phân thắng bại → **rút lui**: không tính thua, không chiến lợi phẩm, không bị thương.
   - Ngoài chiến đấu, Khí huyết hồi 10% tối đa mỗi ngày; vào trận với Khí huyết hiện tại.
+  - Linh lực luôn đầy khi bắt đầu trận (tu sĩ điều tức giữa các trận); trong trận không hồi.
 - **Tương tác:** S5, S6, S9 (tầng, pháp thuật, Linh lực), S10 (vũ khí, Hộ thân phù), S1 (thời gian hồi phục).
 - **Tiêu chí kiểm thử:**
   - Cùng seed → cùng kết quả từng lượt.
@@ -169,7 +171,7 @@
 - **Input:** mua/bán, sự kiện, chiến lợi phẩm, chôn/đào di vật.
 - **Output:** kho đồ (giới hạn 20 ô `[GIẢ ĐỊNH]`), 2 ô trang bị, buff đan dược, Đan Độc.
 - **Điều kiện:** danh sách cố định (PROGRESSION §4, BALANCE §4). Lương khô là vật phẩm tiêu hao theo ngày khi ở nơi không có chợ. Đan Độc ≥ 80 → không thể dùng đan.
-- **Quy tắc phân xử** `[CẦN DUYỆT D25]`: dùng đan theo thứ tự (1) kiểm tra Đan Độc < 80 → (2) tính hiệu lực với Đan Độc **trước** khi uống → (3) cộng Đan Độc. Dùng lại cùng loại đan khi buff còn hiệu lực → làm mới thời hạn, không cộng dồn hiệu lực.
+- **Quy tắc phân xử** `[CẦN DUYỆT D25]`: dùng đan theo thứ tự (1) kiểm tra Đan Độc < 80 → (2) tính hiệu lực với Đan Độc **trước** khi uống → (3) cộng Đan Độc. Thời hạn buff tính theo **ngày lịch** (mọi tick, kể cả nghỉ và đi đường). Dùng lại cùng loại đan khi buff còn hiệu lực → làm mới thời hạn, không cộng dồn hiệu lực.
 - **Tương tác:** S2, S8, S9, S11 (cửa hàng cống hiến), S12 (chôn di vật).
 - **Tiêu chí kiểm thử:** hiệu lực đan giảm tuyến tính theo Đan Độc trước khi uống; Đan Độc giảm 0,5/ngày; uống hai viên Tụ Khí Đan liên tiếp → một buff, thời hạn làm mới; mua khi thiếu tiền bị từ chối, không âm tiền.
 

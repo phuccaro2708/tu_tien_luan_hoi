@@ -21,13 +21,13 @@ Toàn bộ thay đổi được gắn thẻ `[CẦN DUYỆT D17–D26]`. Các fi
 ### F01 – P1 – Pacing Trúc Cơ bỏ qua phần tích tu vi LK9 → **Accepted**
 
 - **Xác minh:** đúng. Bảng v0.1 ghi Tam tán tu đạt LK9 ở 85,4 tuổi, trong khi LK9 còn phải tích 8 000 tu vi, mất khoảng 42 năm ở tốc độ của chính mô hình đó.
-- **Nguyên nhân gốc (Codex không nêu):** sim v0.1 bỏ sót Thổ Nạp (+1%/cấp, tới khoảng +30%) và Bế quan/Bồ đoàn. Khi thêm lại các hệ số này, **đường cong cũ lại quá nhanh**: kiếp 1 Tam linh căn đạt Trúc Cơ ở khoảng 70% số lượt chạy, trái với D07 ("kiếp 2–3").
+- **Nguyên nhân gốc (Codex không nêu):** sim v0.1 bỏ sót Thổ Nạp (+1%/cấp, tới +50%) và Bế quan/Bồ đoàn. Khi thêm lại các hệ số này, **đường cong cũ lại quá nhanh**: kiếp 1 Tam linh căn đạt Trúc Cơ ở khoảng 70% số lượt chạy, trái với D07 ("kiếp 2–3").
 - **Sửa (D17):**
   - Ngưỡng tu vi `100 × 1.85^(n−1)`.
   - Tầng 9 → Trúc Cơ cần 3 000, thay cho phần còn lại của 8 000.
   - Thổ Nạp giảm xuống +0,5%/cấp.
   - Mốc "đầy LK9 → lần thử đầu" có trong mọi bảng pacing.
-- **Mô phỏng:** Monte Carlo N = 300 mỗi kịch bản, tính cả kinh tế, đan, thất bại và thọ nguyên trên cùng lịch (BALANCE §10). Lưới tham số ở §10.3 cho thấy 1.85 / 0,5% là điểm duy nhất thỏa cả hai điều kiện:
+- **Mô phỏng:** Monte Carlo N = 300 mỗi kịch bản, tính cả kinh tế, đan, thất bại và thọ nguyên trên cùng lịch (BALANCE §10). Lưới tham số ở §10.3 cho thấy 1.85 / 0,5% là điểm duy nhất **trong lưới đã thử** (6 điểm) thỏa cả hai điều kiện:
 
   | Điều kiện                         | Kết quả                 |
   | --------------------------------- | ----------------------- |
@@ -91,9 +91,10 @@ Toàn bộ thay đổi được gắn thẻ `[CẦN DUYỆT D17–D26]`. Các fi
 ### F06 – P1 – Chết bằng Liều mạng né hình phạt Tự vẫn → **Accepted, cách sửa khác**
 
 - **Xác minh:** đúng. Đạt LK1 rồi chủ động Liều mạng để chết thì nhận đủ Tàn Niệm và vẫn khắc được thiên phú.
-- **Sửa (D22):** "Liều mạng" chỉ có trong trận của sự kiện lớn gắn `quanTrong` hoặc `motLan`. Trận thường luôn rút lui được.
-- **Bác bỏ hướng "phạt mọi cái chết trong chiến đấu":** cách này phạt cả thất bại hợp lệ, đúng điều Codex tự cảnh báo. Vì sự kiện `motLan` chỉ xảy ra một lần, không lặp lại được để làm chiến lược reset.
-- PROGRESSION §8.7 khẳng định không còn đường chết chủ động nào né được phạt.
+- **Sửa (D22):** "Liều mạng" chỉ có trong trận của sự kiện lớn gắn **cả** `quanTrong` và `motLan`. `motLan` nghĩa là một lần mỗi save, không lặp ở kiếp sau. Validator chặn mọi trận `quanTrong` mở trước LK3. Trận thường luôn rút lui được.
+- **Kết quả:** đường né phạt **không bị xóa hẳn mà bị chặn**. Mỗi trận cốt truyện chỉ cho tối đa một cái chết "sạch" cho cả save, và chỉ từ LK3. Không thể dùng ở mỗi kiếp như chiến lược reset. Mức này đủ chặn khai thác lặp; chiến lược "cày" mà Codex nêu sẽ được đo bằng harness ở P6.
+- **Bác bỏ hướng "phạt mọi cái chết trong chiến đấu":** cách này phạt cả thất bại hợp lệ, đúng điều Codex tự cảnh báo.
+- PROGRESSION §8.7 ghi rõ: không có đường chết chủ động **lặp lại được** ở mỗi kiếp ngoài Tự vẫn.
 - **Tài liệu:** SYSTEMS S8; PROGRESSION §6, §8.7; BALANCE §9.
 
 ### F07 – P2 – Sổ cái tán tu vượt ngân sách 360 ngày → **Accepted (chênh lệch thật lớn hơn)**
@@ -149,6 +150,9 @@ Toàn bộ thay đổi được gắn thẻ `[CẦN DUYỆT D17–D26]`. Các fi
   | Nhiều trạng thái cùng lúc (Q)  | Lấy giá trị nhỏ nhất                                            |
   | Đột phá xong cùng tick hết thọ | Cộng thọ nguyên trước bước kiểm tra chết                        |
   | Thiện cảm                      | Chỉ đổi qua dữ liệu sự kiện/hành động                           |
+  | Pháp thuật hay đánh thường     | Pháp thuật mạnh nhất nếu đủ Linh lực, nếu không thì đánh thường |
+  | Linh lực                       | Đầy khi bắt đầu trận, không hồi trong trận                      |
+  | Thời hạn buff                  | Tính theo ngày lịch (mọi tick, kể cả nghỉ và đi đường)          |
 
 - **Không chấp nhận:** yêu cầu một "bảng chuyển trạng thái" đầy đủ cho mọi tổ hợp. Phần lớn tổ hợp đã được quy tắc min của Q và thứ tự pipeline xác định. Bảng đầy đủ sẽ trùng với test ranh giới; test đó được liệt kê ở SYSTEMS S8–S10.
 - **Tài liệu:** SYSTEMS S5, S8, S9, S10; IMPLEMENTATION_PLAN §1.
@@ -181,6 +185,23 @@ Toàn bộ thay đổi được gắn thẻ `[CẦN DUYỆT D17–D26]`. Các fi
   - Hoãn thiên phú bậc II/III. D15 đã được duyệt, và chi phí chủ yếu nằm ở dữ liệu.
 - **Tài liệu:** MVP_SCOPE §2.1, §4, §5; IMPLEMENTATION_PLAN §2; GDD §9.
 
+### Mục D, E của báo cáo Codex (không mang mã F)
+
+- **§E "Top 10 Improvements":** mỗi mục ứng với một finding: 1→F01, 2→F02, 3→F03, 4→F07, 5→F04, 6→F05, 7→F06, 8→F08/F09, 9→F12, 10→F13. Không có việc nào ngoài các finding.
+- **§D "Các chiến lược cần đưa vào simulation":** **Accepted như danh sách chính sách cho harness**, không sửa thiết kế trước khi đo:
+
+  | Chiến lược Codex nêu                      | Xử lý                                                                                                                                         |
+  | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+  | Chết bằng Liều mạng thay Tự vẫn           | Đã chặn (F06, D22); harness P6 đo phần còn lại                                                                                                |
+  | Luôn Bế quan khi đủ lương                 | Harness P4 so policy có/không Bế quan                                                                                                         |
+  | Đào linh thạch rồi hấp thu                | Đã có trong sổ cái khép kín (F07); harness P5                                                                                                 |
+  | Dùng đan khi Đan Độc thấp                 | Thứ tự dùng đan đã chốt (D25); harness P5                                                                                                     |
+  | Vào môn phái lấy nguồn lực rồi rời đi     | Harness P5; phạt rời môn phái xem lại sau khi đo                                                                                              |
+  | Đổi hành động trước đột phá để đổi RNG    | **Ghi nhận là rủi ro mở**: đột phá cần dùng luồng RNG riêng tách khỏi sự kiện. Đề xuất đưa vào đặc tả S9 khi triển khai P3, chưa gắn mã duyệt |
+  | Chạy 5× và chấp nhận mọi lựa chọn an toàn | D21 tách chính sách khỏi tốc độ; harness P2 so `hoi`/`tuDong`                                                                                 |
+
+- **§D "Các điều kiện có thể gây softlock":** mục 1, 3, 4, 6 → F03/D19 (kiểm thử khả đạt 3 kiếp, Văn Tự 12/15/20 có nguồn không cờ); mục 2 → F05/D23; mục 5 → validator "mọi sự kiện lớn có lựa chọn không yêu cầu" đã có từ v0.1. Phần "lựa chọn miễn yêu cầu chỉ giúp đóng hộp thoại" được kiểm qua kiểm thử khả đạt chứ không qua validator.
+
 ## 3. Phát hiện thêm (không có trong báo cáo Codex)
 
 | #   | Phát hiện                                                                                                              | Xử lý                      |
@@ -193,18 +214,18 @@ Toàn bộ thay đổi được gắn thẻ `[CẦN DUYỆT D17–D26]`. Các fi
 
 ## 4. Quyết định cần người dùng duyệt
 
-| Mã  | Nội dung                                                                          | Finding  | Nếu từ chối                                        |
-| --- | --------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
-| D17 | Ngưỡng `100 × 1.85^(n−1)`; T9 → Trúc Cơ 3 000; Thổ Nạp +0,5%; công thức có C và M | F01, F09 | Kiếp 1 Tam đạt Trúc Cơ khoảng 70%, D07 mất ý nghĩa |
-| D18 | Năm thế giới; tuổi và thọ NPC là dữ liệu; Mộc bá 52, Bà Từ 60                     | F02      | NPC chết trước sự kiện cần họ                      |
-| D19 | ≥ 1 nguồn không phụ thuộc cờ; Thư xá; di thư Đỗ; kiểm thử khả đạt 3 kiếp          | F03      | Có thể kẹt progression ở kiếp sau                  |
-| D20 | Tụ Khí Đan 120 cống hiến; ngoại môn 55%                                           | F07      | Môn phái nhanh hơn tán tu 1,27×, lựa chọn bị lệch  |
-| D21 | `chinhSachSuKienNho` trong GameState, đổi qua lệnh                                | F04      | Replay không tất định                              |
-| D22 | Liều mạng chỉ có trong trận sự kiện lớn `quanTrong`/`motLan`                      | F06      | Có đường né phạt Tự vẫn                            |
-| D23 | Thu nhập trước phí; Đói không nợ; lương mới; Làm thuê ròng > 0                    | F05      | Có thể kẹt nghèo ở trấn                            |
-| D24 | 30–40 sự kiện, 5 địa điểm + 2 điểm con                                            | F13      | Giữ 60–80 sự kiện, 7 địa điểm; tăng rủi ro tiến độ |
-| D25 | Quy tắc phân xử chiến đấu/đan/đột phá                                             | F10      | Lập trình viên phải tự quyết luật                  |
-| D26 | Kế hoạch phase mới: harness từ P0, lát cắt hai kiếp ở P4                          | F13, F11 | Harness ở P7, rủi ro phát hiện lỗi cân bằng muộn   |
+| Mã  | Nội dung                                                                                          | Finding  | Nếu từ chối                                        |
+| --- | ------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
+| D17 | Ngưỡng `100 × 1.85^(n−1)`; T9 → Trúc Cơ 3 000; Thổ Nạp +0,5%; công thức có C và M                 | F01, F09 | Kiếp 1 Tam đạt Trúc Cơ khoảng 70%, D07 mất ý nghĩa |
+| D18 | Năm thế giới; tuổi và thọ NPC là dữ liệu; Mộc bá 52, Bà Từ 60                                     | F02      | NPC chết trước sự kiện cần họ                      |
+| D19 | ≥ 1 nguồn không phụ thuộc cờ; Thư xá; di thư Đỗ; kiểm thử khả đạt 3 kiếp                          | F03      | Có thể kẹt progression ở kiếp sau                  |
+| D20 | Tụ Khí Đan 120 cống hiến; ngoại môn 55%                                                           | F07      | Môn phái nhanh hơn tán tu 1,27×, lựa chọn bị lệch  |
+| D21 | `chinhSachSuKienNho` trong GameState, đổi qua lệnh                                                | F04      | Replay không tất định                              |
+| D22 | Liều mạng chỉ có trong trận sự kiện lớn `quanTrong` + `motLan`, một lần mỗi save, không trước LK3 | F06      | Có đường né phạt Tự vẫn                            |
+| D23 | Thu nhập trước phí; Đói không nợ; lương mới; Làm thuê ròng > 0                                    | F05      | Có thể kẹt nghèo ở trấn                            |
+| D24 | 30–40 sự kiện, 5 địa điểm + 2 điểm con                                                            | F13      | Giữ 60–80 sự kiện, 7 địa điểm; tăng rủi ro tiến độ |
+| D25 | Quy tắc phân xử chiến đấu/đan/đột phá                                                             | F10      | Lập trình viên phải tự quyết luật                  |
+| D26 | Kế hoạch phase mới: harness từ P0, lát cắt hai kiếp ở P4                                          | F13, F11 | Harness ở P7, rủi ro phát hiện lỗi cân bằng muộn   |
 
 **P0 không phụ thuộc vào phần Draft.** P0 (khung engine + harness) không dùng con số hay quy tắc nào trong D17–D25. Nếu D26 được duyệt, có thể bắt đầu P0 trong khi các quyết định khác còn đang xem xét.
 
@@ -214,3 +235,5 @@ Toàn bộ thay đổi được gắn thẻ `[CẦN DUYỆT D17–D26]`. Các fi
 - Thời gian đọc và chọn sự kiện của người thật chưa đo được (F11), chờ playtest P4.
 - Nhịp quyết định ở hậu kỳ (F12) chưa chứng minh được, chờ playtest P4.
 - Đề xuất cắt công pháp và thiên phú của Codex đã bị bác bỏ. Nếu người dùng muốn cắt mạnh hơn, cần mở lại D12/D15.
+- Thao túng RNG trước đột phá (Codex §D) mới chỉ ghi nhận, chưa có đặc tả.
+- `format:check` lỗi trên 15 file ngoài `docs/` (cấu hình, `src/`, `AGENTS.md`…). Nguyên nhân: repo dùng `core.autocrlf=true`, nên file được checkout dưới dạng CRLF, trong khi Prettier mong LF. Các file `docs/` qua kiểm tra chỉ vì vừa được ghi lại bằng LF; ở một bản checkout mới, chúng sẽ lỗi giống vậy. Đề xuất: thêm `.gitattributes` với `* text=auto eol=lf` (file cấu hình gốc, cần người dùng đồng ý).
