@@ -76,7 +76,7 @@ p = min(0.95, pGốc(n) + min(0.25, Σ chuẩn bị))        (Trúc Cơ: trần 
 | Tâm cảnh "Bình tĩnh"                 | +0.05                                   | 10 ngày liên tục không chiến đấu, không sự kiện xung đột (nghỉ hoặc tu luyện) |
 | Công pháp Tinh thông / Viên mãn      | +0.05 / +0.10                           | Thời gian tu luyện                                                            |
 | Linh địa D ≥ 1.5                     | +0.05                                   | Phải ở ngoại môn Thanh Vân (hoặc linh địa Post-MVP)                           |
-| Phá Cảnh Đan                         | +0.15 × (1 − ĐanĐộc/100)                | 6 linh thạch hoặc 120 cống hiến                                               |
+| Phá Cảnh Đan                         | +0.15 × (1 − ĐanĐộc/100)                | 6 linh thạch hoặc 300 cống hiến                                               |
 | Cảnh giới cảm ngộ (ký ức kiếp trước) | +0.10 cho đúng chuyển tầng đã từng vượt | Tàn Niệm (§8)                                                                 |
 | Trúc Cơ Đan (chỉ cho 9→TC)           | +0.25 × (1 − ĐanĐộc/100)                | 600 cống hiến hoặc chuỗi sự kiện đặc biệt                                     |
 

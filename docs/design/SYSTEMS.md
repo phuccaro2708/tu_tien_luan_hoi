@@ -146,7 +146,7 @@
 
 - **Mục đích:** con đường an toàn, có cấu trúc, đánh đổi tự do lấy tài nguyên; nguồn Trúc Cơ Đan.
 - **Input:** kết quả hội tuyển, hợp đồng tạp dịch, cấp bậc, cống hiến.
-- **Output:** địa điểm ngoại môn (D 1.5), thời gian bị chiếm (tạp dịch 60%, ngoại môn 30%), cống hiến, cửa hàng, Tàng Kinh Các.
+- **Output:** địa điểm ngoại môn (D 1.5), thời gian bị chiếm (tạp dịch 60%, ngoại môn 50%), cống hiến (tạp dịch 1/ngày làm, ngoại môn 0,5/ngày nhiệm vụ; không có linh thạch), cửa hàng, Tàng Kinh Các.
 - **Điều kiện:** tạp dịch: hợp đồng 3 năm, bỏ trước hạn → bị xóa tên, mất cống hiến, cấm quay lại 3 năm. Lên ngoại môn: LK4 + 200 cống hiến. Trúc Cơ Đan: LK9 + 600 cống hiến.
 - **Tương tác:** S2, S5, S6 (chuỗi Đỗ, vụ cháy), S9, S10.
 - **Tiêu chí kiểm thử:** thời gian bị chiếm đúng tỉ lệ trên 360 ngày; điều kiện thăng cấp; cấm quay lại được tôn trọng; tạp dịch nhận sinh hoạt phí 0.

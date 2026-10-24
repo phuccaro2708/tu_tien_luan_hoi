@@ -46,23 +46,23 @@ Tối đa 100 (+Thể Phách, thiên phú). Nghỉ ngơi +30/ngày. Quy tắc m�
 
 ### Bảng hành động (giá trị gốc, cấp kỹ năng 0)
 
-| Hành động             | Nơi            | Yêu cầu             | TL/ngày                 | Thu (văn/ngày)                | XP/ngày                       | Tỉ lệ làm | Ròng ở làng* |
-| --------------------- | -------------- | ------------------- | ----------------------- | ----------------------------- | ----------------------------- | --------- | ------------ |
-| Làm thuê              | Mọi khu dân cư | –                   | 10                      | 15                            | Thể Phách 1,5                 | 75%       | +3,3         |
-| Đốn củi               | Làng/Rừng      | Rìu                 | 12                      | 20 (+2%/Thể Phách)            | Thể Phách 2,5                 | 71%       | +6,3         |
-| Học việc hiệu thuốc   | Làng           | –                   | 6                       | 5                             | Thảo Dược 3                   | 83%       | −3,8         |
-| Hái thuốc             | Rừng           | Thảo Dược 3         | 9                       | 12 + 1,5 × Thảo Dược          | Thảo Dược 2                   | 77%       | —            |
-| Học chữ               | Làng           | Tô tiên sinh mở lớp | 4                       | −10 (học phí)                 | Văn Tự 3                      | 88%       | −16,8        |
-| Bổ củi đổi chữ        | Làng           | Thiện cảm Tô ≥ 10   | 12                      | 0                             | Văn Tự 1,5 + Thể Phách 1      | 71%       | −8           |
-| Tiểu nhị quán trà     | Trấn           | –                   | 7                       | 18 + 0,5 × Giao Tế            | Giao Tế 2,5                   | 81%       | —            |
-| Khuân vác bến sông    | Trấn           | Thể Phách 5         | 15                      | 26 (+2%/Thể Phách)            | Thể Phách 2                   | 67%       | —            |
-| Luyện quyền (võ quán) | Trấn           | –                   | 15                      | −20                           | Quyền Cước 3 + Thể Phách 1    | 67%       | —            |
-| Tự luyện quyền        | Mọi nơi        | Quyền Cước 5        | 15                      | 0                             | Quyền Cước 1,5                | 67%       | —            |
-| Thám hiểm             | Nơi hoang      | –                   | 10                      | 0                             | Thể Phách 0,5                 | 75%       | —            |
-| Tu luyện              | Mọi nơi        | Công pháp           | 3                       | 0                             | Thổ Nạp 2, thuần thục 1 × Ngộ | 91%       | —            |
-| Đào linh thạch vụn    | Hắc Thạch Cốc  | Tri thức mỏ         | 14                      | 0,04 linh thạch               | Thể Phách 1                   | 68%       | —            |
-| Hái linh thảo         | Hắc Thạch Cốc  | Thảo Dược 10        | 9                       | ≈ 0,03 linh thạch (bán)       | Thảo Dược 2,5                 | 77%       | —            |
-| Tạp dịch              | Thanh Vân      | Hợp đồng            | (60% thời gian cố định) | 1 cống hiến + 0,03 linh thạch | Thể Phách 1                   | —         | —            |
+| Hành động             | Nơi            | Yêu cầu             | TL/ngày                 | Thu (văn/ngày)          | XP/ngày                       | Tỉ lệ làm | Ròng ở làng* |
+| --------------------- | -------------- | ------------------- | ----------------------- | ----------------------- | ----------------------------- | --------- | ------------ |
+| Làm thuê              | Mọi khu dân cư | –                   | 10                      | 15                      | Thể Phách 1,5                 | 75%       | +3,3         |
+| Đốn củi               | Làng/Rừng      | Rìu                 | 12                      | 20 (+2%/Thể Phách)      | Thể Phách 2,5                 | 71%       | +6,3         |
+| Học việc hiệu thuốc   | Làng           | –                   | 6                       | 5                       | Thảo Dược 3                   | 83%       | −3,8         |
+| Hái thuốc             | Rừng           | Thảo Dược 3         | 9                       | 12 + 1,5 × Thảo Dược    | Thảo Dược 2                   | 77%       | —            |
+| Học chữ               | Làng           | Tô tiên sinh mở lớp | 4                       | −10 (học phí)           | Văn Tự 3                      | 88%       | −16,8        |
+| Bổ củi đổi chữ        | Làng           | Thiện cảm Tô ≥ 10   | 12                      | 0                       | Văn Tự 1,5 + Thể Phách 1      | 71%       | −8           |
+| Tiểu nhị quán trà     | Trấn           | –                   | 7                       | 18 + 0,5 × Giao Tế      | Giao Tế 2,5                   | 81%       | —            |
+| Khuân vác bến sông    | Trấn           | Thể Phách 5         | 15                      | 26 (+2%/Thể Phách)      | Thể Phách 2                   | 67%       | —            |
+| Luyện quyền (võ quán) | Trấn           | –                   | 15                      | −20                     | Quyền Cước 3 + Thể Phách 1    | 67%       | —            |
+| Tự luyện quyền        | Mọi nơi        | Quyền Cước 5        | 15                      | 0                       | Quyền Cước 1,5                | 67%       | —            |
+| Thám hiểm             | Nơi hoang      | –                   | 10                      | 0                       | Thể Phách 0,5                 | 75%       | —            |
+| Tu luyện              | Mọi nơi        | Công pháp           | 3                       | 0                       | Thổ Nạp 2, thuần thục 1 × Ngộ | 91%       | —            |
+| Đào linh thạch vụn    | Hắc Thạch Cốc  | Tri thức mỏ         | 14                      | 0,04 linh thạch         | Thể Phách 1                   | 68%       | —            |
+| Hái linh thảo         | Hắc Thạch Cốc  | Thảo Dược 10        | 9                       | ≈ 0,03 linh thạch (bán) | Thảo Dược 2,5                 | 77%       | —            |
+| Tạp dịch              | Thanh Vân      | Hợp đồng            | (60% thời gian cố định) | 1 cống hiến             | Thể Phách 1                   | —         | —            |
 
 \* Ròng = thu × tỉ lệ làm − sinh hoạt phí làng (8).
 
@@ -75,14 +75,14 @@ Tối đa 100 (+Thể Phách, thiên phú). Nghỉ ngơi +30/ngày. Quy tắc m�
 | Lương khô            | 6 văn/phần                    | 1 ngày ăn ở nơi hoang                                 | –       |
 | Hồi Xuân Tán         | 60 văn                        | Rút ngắn bị thương 50%                                | –       |
 | Linh thạch (chợ đêm) | Mua 1 200 văn · bán 800 văn   | Tiền tệ tu sĩ; hấp thu 1 viên = 15 tu vi trong 5 ngày | –       |
-| Tụ Khí Đan           | 1 linh thạch · 40 cống hiến   | Tu vi ×(1 + 1,0 × (1 − Độc/100)) trong 60 ngày        | +25     |
-| Phá Cảnh Đan         | 6 linh thạch · 120 cống hiến  | +0,15 × (1 − Độc/100) xác suất đột phá                | +30     |
+| Tụ Khí Đan           | 1 linh thạch · 80 cống hiến   | Tu vi ×(1 + 1,0 × (1 − Độc/100)) trong 60 ngày        | +25     |
+| Phá Cảnh Đan         | 6 linh thạch · 300 cống hiến  | +0,15 × (1 − Độc/100) xác suất đột phá                | +30     |
 | Trúc Cơ Đan          | 600 cống hiến (LK9) · sự kiện | +0,25 × (1 − Độc/100) cho Trúc Cơ                     | +40     |
 | Diên Thọ Quả         | Không bán                     | +2 năm thọ nguyên, 1 lần/kiếp                         | –       |
 
 Đan Độc giảm 0,5/ngày; ≥ 80 không thể dùng đan.
 
-**Giá trị đan tính bằng ngày:** một viên Tụ Khí Đan (1 linh thạch ≈ 1 200 văn ≈ 38 ngày hái thuốc ròng) cho thêm ≈ 60 ngày tu luyện. Lãi ròng ≈ 22 ngày mỗi viên, nhưng Đan Độc +25 cần 50 ngày để tan. Nhịp hợp lý là một viên mỗi 60 ngày, tăng hiệu suất ròng khoảng 20–25% (22 ngày lãi trên ~98 ngày cả kiếm tiền lẫn tu luyện), đổi lại phải dành thêm thời gian kiếm tiền. Đây là đánh đổi có lợi nhưng không áp đảo.
+**Giá trị đan tính bằng ngày:** một viên Tụ Khí Đan (1 linh thạch ≈ 1 200 văn ≈ 45 ngày hái thuốc ròng, đã trừ lương khô 6/ngày: 42 × 77% − 6 ≈ 26 văn/ngày) cho thêm ≈ 60 ngày tu luyện. Lãi ròng ≈ 15 ngày mỗi viên, nhưng Đan Độc +25 cần 50 ngày để tan. Nhịp hợp lý là một viên mỗi 60 ngày, tăng hiệu suất ròng khoảng 15% (15 ngày lãi trên ~105 ngày cả kiếm tiền lẫn tu luyện), đổi lại phải dành thêm thời gian kiếm tiền. Đây là đánh đổi có lợi nhưng không áp đảo.
 
 ## 5. Sổ cái nguồn ↔ tiêu thụ
 
@@ -101,16 +101,27 @@ Phân bổ giả định: 55% thời gian tu luyện (kể cả nghỉ), 35% ki�
 
 Dùng: ~2 Tụ Khí Đan/năm hoặc tiết kiệm ~3 năm cho một Phá Cảnh Đan ở nút thắt. Tiền không bao giờ dư thừa vô hạn vì mọi nguồn đều tốn ngày.
 
-### Theo năm game – tạp dịch Thanh Vân Môn
+### Theo năm game – Thanh Vân Môn
 
-| Dòng                          | Giá trị/năm                         |
-| ----------------------------- | ----------------------------------- |
-| Cống hiến (216 ngày tạp dịch) | +216                                |
-| Linh thạch từ tạp dịch        | +6,5                                |
-| Sinh hoạt phí                 | 0                                   |
-| Thời gian rảnh để tu luyện    | 40% (D 1,5 → tương đương 60% ở cốc) |
+| Dòng                       | Tạp dịch (3 năm đầu) | Ngoại môn (từ LK4 + 200 cống hiến) |
+| -------------------------- | -------------------- | ---------------------------------- |
+| Thời gian bị chiếm         | 60%                  | 50% (nhiệm vụ môn phái)            |
+| Cống hiến                  | +216                 | +90 (0,5/ngày nhiệm vụ)            |
+| Linh thạch                 | 0                    | 0                                  |
+| Sinh hoạt phí              | 0                    | 0                                  |
+| Tốc độ tu luyện hiệu dụng¹ | 0,4 × 1,5 = 0,60     | 0,5 × 1,5 = 0,75                   |
 
-Hai con đường có tốc độ tu luyện tương đương theo thiết kế (1,5 × 40% ≈ 1,0 × 60%). Khác biệt nằm ở **loại phần thưởng**: môn phái cho cống hiến và Trúc Cơ Đan; tán tu cho sự kiện, chợ đêm, chuỗi Lục.
+¹ Tỉ lệ thời gian rảnh × D. Tán tu ở cốc: 0,6 × 1,0 = 0,60.
+
+**So sánh có tính đan** (mỗi Tụ Khí Đan ≈ +60 ngày tu luyện; tán tu ~2,2 viên/năm, tạp dịch 216/80 ≈ 2,7, ngoại môn 90/80 ≈ 1,1):
+
+| Con đường | Gốc  | Kèm đan |
+| --------- | ---- | ------- |
+| Tán tu    | 0,60 | 0,82    |
+| Tạp dịch  | 0,60 | 0,87    |
+| Ngoại môn | 0,75 | 0,89    |
+
+Chênh lệch tối đa ≈ 1,08× → không có con đường thống trị về tốc độ. Ngoại môn còn phải để dành 600 cống hiến cho Trúc Cơ Đan, tức là bớt Tụ Khí Đan. Khác biệt chính nằm ở **loại phần thưởng**: môn phái cho cống hiến, linh địa D 1,5 (+0,05 đột phá) và Trúc Cơ Đan; tán tu cho sự kiện, chợ đêm, chuỗi Lục, Hàn Thủy Quyết.
 
 ## 6. Chiến đấu
 
@@ -133,11 +144,11 @@ BỏChạy   = clamp(0.5 + 0.01 × QuyềnCước + 0.1 × (tầng − tầngĐ�
 
 ### TTK mẫu (số lượt trung bình)
 
-| Trận                                              | Người chơi              | Người chơi hạ địch | Địch hạ người chơi | Kết quả mong đợi                                |
-| ------------------------------------------------- | ----------------------- | ------------------ | ------------------ | ----------------------------------------------- |
-| Thiếu niên 15 tuổi (TP 5, QC 3, rìu) vs Sói xám   | KH 75, Công 10, Thủ 2   | 7                  | 9                  | Thắng sát nút hoặc bỏ chạy (Thận trọng)         |
-| LK1 (TP 15, QC 8, đoản đao) vs Thiết Bối Lang     | KH 165, Công 26, Thủ 11 | 9                  | 10                 | 50/50 → khuyến khích dùng cỏ Xú Long hoặc né    |
-| LK3 (TP 20, QC 12, Thanh Phong Kiếm) vs Đoạn Ngạc | KH 270, Công 57, Thủ 22 | 7                  | 11                 | Thắng nếu chuẩn bị; Lục hỗ trợ giảm còn ~4 lượt |
+| Trận                                            | Người chơi              | Người chơi hạ địch | Địch hạ người chơi | Kết quả mong đợi                                                                              |
+| ----------------------------------------------- | ----------------------- | ------------------ | ------------------ | --------------------------------------------------------------------------------------------- |
+| Thiếu niên 15 tuổi (TP 5, QC 3, rìu) vs Sói xám | KH 75, Công 10, Thủ 2   | 7                  | 9                  | Thắng sát nút hoặc bỏ chạy (Thận trọng)                                                       |
+| LK1 (TP 15, QC 8, đoản đao) vs Thiết Bối Lang   | KH 165, Công 26, Thủ 11 | 9                  | 10                 | 50/50 → khuyến khích dùng cỏ Xú Long hoặc né                                                  |
+| LK3 (TP 20, QC 12, Thiết kiếm) vs Đoạn Ngạc     | KH 270, Công 50, Thủ 22 | 8                  | 11                 | Thắng nếu chuẩn bị; Lục hỗ trợ giảm còn ~4–5 lượt; Thanh Phong Kiếm (mua 4 linh thạch) còn ~7 |
 
 ## 7. Offline & Tích Thời `[CẦN DUYỆT D06]`
 
@@ -183,30 +194,30 @@ TíchThời  = min(8 giờ, TíchThời + phầnVắngMặtChưaDùng)
 
 ### Chiến lược thống trị và cách chặn
 
-| Chiến lược tiềm năng                | Vì sao không áp đảo                                                                                                               |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Chỉ tu luyện                        | Sinh hoạt phí và lương khô buộc phải kiếm tiền; không tiền → Đói, tu vi ×0,5                                                      |
-| Spam đan dược                       | Đan Độc làm giảm hiệu lực tuyến tính và chặn ở 80                                                                                 |
-| Đột phá ngay khi đầy                | Ở nút thắt p 0,45–0,55; thất bại mất 30% + 1 năm thọ → chuẩn bị thường đáng giá                                                   |
-| Chuẩn bị tối đa mọi lần             | Trần thưởng +0,25; Phá Cảnh Đan đắt; thời gian chuẩn bị là thọ nguyên                                                             |
-| Luôn vào môn phái                   | Mất 60% thời gian, ít sự kiện, không có chuỗi Lục/Hàn Thủy Quyết (mạnh nhất cho Thủy linh căn)                                    |
-| Luôn tán tu                         | Không có Trúc Cơ Đan dễ dàng; tốn lương khô; rủi ro chiến đấu                                                                     |
-| Hấp thu linh thạch thay vì tu luyện | 1 linh thạch = 15 tu vi ≈ 30 ngày tu luyện, nhưng kiếm 1 linh thạch tốn ≈ 38 ngày → chỉ đáng khi linh thạch đến từ chiến lợi phẩm |
-| Chết sớm để luân hồi nhanh          | Tàn Niệm và Hồn dưỡng căn phụ thuộc cảnh giới đạt được; không thể tự kích hoạt luân hồi                                           |
-| Save-scum đột phá                   | RNG nằm trong save; tải lại cho cùng kết quả                                                                                      |
+| Chiến lược tiềm năng                | Vì sao không áp đảo                                                                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chỉ tu luyện                        | Sinh hoạt phí và lương khô buộc phải kiếm tiền; không tiền → Đói, tu vi ×0,5                                                                 |
+| Spam đan dược                       | Đan Độc làm giảm hiệu lực tuyến tính và chặn ở 80                                                                                            |
+| Đột phá ngay khi đầy                | Ở nút thắt p 0,45–0,55; thất bại mất 30% + 1 năm thọ → chuẩn bị thường đáng giá                                                              |
+| Chuẩn bị tối đa mọi lần             | Trần thưởng +0,25; Phá Cảnh Đan đắt; thời gian chuẩn bị là thọ nguyên                                                                        |
+| Luôn vào môn phái                   | Mất 50–60% thời gian; tốc độ kèm đan chỉ hơn tán tu ~1,08× (§5); ít sự kiện, không có chuỗi Lục/Hàn Thủy Quyết (mạnh nhất cho Thủy linh căn) |
+| Luôn tán tu                         | Không có Trúc Cơ Đan dễ dàng; tốn lương khô; rủi ro chiến đấu                                                                                |
+| Hấp thu linh thạch thay vì tu luyện | 1 linh thạch = 15 tu vi ≈ 30 ngày tu luyện, nhưng kiếm 1 linh thạch tốn ≈ 45 ngày → chỉ đáng khi linh thạch đến từ chiến lợi phẩm            |
+| Chết sớm để luân hồi nhanh          | Tàn Niệm và Hồn dưỡng căn phụ thuộc cảnh giới đạt được; không thể tự kích hoạt luân hồi                                                      |
+| Save-scum đột phá                   | RNG nằm trong save; tải lại cho cùng kết quả                                                                                                 |
 
 ## 10. Mô phỏng sơ bộ
 
 Mô hình bảng tính (đã chạy khi soạn tài liệu): tu vi/ngày = 0,5 × D × R × 1,25 (thuần thục trung bình); tỉ lệ thời gian tu luyện f; mỗi lần đột phá thêm 30/p ngày; thất bại mất 30% ngưỡng (số lần thất bại kỳ vọng (1−p)/p); chuẩn bị +0,10; thọ nguyên 62 + 3 × tầng.
 
-| Kịch bản                                  | LK2  | LK4  | LK6  | LK7  | LK8  | LK9  | Chết (tuổi / giờ thực) |
-| ----------------------------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---------------------- |
-| Kiếp 1, Tứ, cốc D 1,0, f 0,6, nhập đạo 24 | 25,0 | 30,2 | 44,7 | 63,8 | –    | –    | ~83 / 3,5 h            |
-| Kiếp 1, Tứ, môn phái D 1,5, f 0,45        | 24,9 | 29,6 | 42,4 | 59,4 | –    | –    | ~83 / 3,5 h            |
-| Kiếp 2, Tam, cốc, f 0,65, nhập đạo 17     | 17,6 | 20,7 | 29,0 | 39,9 | 56,2 | 85,4 | ~89 / 3,8 h            |
-| Kiếp 2, Tam, môn phái, f 0,5              | 17,6 | 20,2 | 27,4 | 36,9 | 51,1 | 76,4 | ~89 / 3,8 h            |
-| Kiếp 2, Song, cốc, f 0,65                 | 16,4 | 18,5 | 24,0 | 31,1 | 41,8 | 60,8 | ~89                    |
+| Kịch bản                                       | LK2  | LK4  | LK6  | LK7  | LK8  | LK9  | Chết (tuổi / giờ thực) |
+| ---------------------------------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---------------------- |
+| Kiếp 1, Tứ, cốc D 1,0, f 0,6, nhập đạo 24      | 25,0 | 30,2 | 44,7 | 63,8 | –    | –    | ~83 / 3,5 h            |
+| Kiếp 1, Tứ, môn phái D 1,5, f 0,4 → 0,5 từ LK4 | 25,0 | 30,2 | 41,8 | 57,1 | 80,1 | –    | ~86 / 3,6 h            |
+| Kiếp 2, Tam, cốc, f 0,65, nhập đạo 17          | 17,6 | 20,7 | 29,0 | 39,9 | 56,2 | 85,4 | ~89 / 3,8 h            |
+| Kiếp 2, Tam, ngoại môn ngay, f 0,5             | 17,6 | 20,2 | 27,4 | 36,9 | 51,1 | 76,4 | ~89 / 3,8 h            |
+| Kiếp 2, Song, cốc, f 0,65                      | 16,4 | 18,5 | 24,0 | 31,1 | 41,8 | 60,8 | ~89                    |
 
-Mô hình chưa tính ký ức (×3 XP, cảm ngộ +0,10, biết đường từ đầu), Tụ Khí Đan và Hàn Thủy Quyết, nên kiếp 2 thực tế nhanh hơn bảng. Kết luận v0.1: kiếp 1 dừng ở LK7 đúng ý đồ; kiếp 2 với Tam linh căn chạm LK9 và có 5–15 năm để thử Trúc Cơ.
+Mô hình chưa tính ký ức (×3 XP, cảm ngộ +0,10, biết đường từ đầu), Tụ Khí Đan và Hàn Thủy Quyết, nên kiếp 2 thực tế nhanh hơn bảng. Bảng không có đan nên thiên vị môn phái: tán tu có nhiều đan hơn ngoại môn (§5), và khi tính đan hai con đường gần ngang nhau (~1,08×). Kết luận v0.1: kiếp 1 dừng ở LK7 (môn phái tối ưu có thể chạm LK8 sát cuối đời) đúng ý đồ; kiếp 2 với Tam linh căn chạm LK9 và có 5–15 năm để thử Trúc Cơ.
 
 **Việc cần làm khi triển khai:** harness headless chạy engine thật với các "chính sách chơi" cố định, kiểm tra tuổi đạt mốc nằm trong ±15% bảng trên (IMPLEMENTATION_PLAN Phase 7).

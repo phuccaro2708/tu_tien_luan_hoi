@@ -63,7 +63,7 @@ MVP hoàn chỉnh khi người chơi có thể: sống một đời phàm nhân 
 
 ## 7. Hướng mỹ thuật & âm thanh `[GIẢ ĐỊNH]`
 
-- Giao diện chủ đạo là bảng/chữ phong cách thủy mặc (giấy cũ, mực, ấn triện đỏ); ảnh nền 2D cho mỗi địa điểm (6 ảnh), chân dung NPC (8 + 6 người kế thừa), icon tài nguyên.
+- Giao diện chủ đạo là bảng/chữ phong cách thủy mặc (giấy cũ, mực, ấn triện đỏ); ảnh nền 2D cho mỗi địa điểm (7 ảnh), chân dung NPC (8 + 8 người kế thừa), icon tài nguyên.
 - Không bắt buộc âm thanh cho MVP; nếu có, nhạc nền theo địa điểm và hiệu ứng khi đột phá.
 
 ## 8. Mục lục tài liệu
