@@ -1,6 +1,6 @@
 # Progression – Tu luyện, Kỹ năng, Thọ nguyên, Luân hồi
 
-> **Trạng thái: Draft – 2026-10-23** · v0.1 – trước playtest. Mọi con số là giả thuyết để kiểm chứng bằng mô phỏng và playtest.
+> **Trạng thái: Approved – 2026-10-23** · v0.1 – trước playtest. Mọi con số là giả thuyết để kiểm chứng bằng mô phỏng và playtest.
 
 ## 1. Thang cảnh giới
 
@@ -41,7 +41,7 @@ tuVi/ngày = 0.5 × D × R × P × (1 + 0.01 × ThổNạp) × E × Q × B
 | Q       | Trạng thái                   | Khỏe 1.0 · Đói 0.5 · Nội thương 0.5 · Hàn độc 0.6                                  |
 | B       | Đan dược                     | Tụ Khí Đan ×(1 + 1.0 × (1 − ĐanĐộc/100)) trong 60 ngày                             |
 
-Ví dụ (kiếp 1, Tứ linh căn R = 0.8):
+Ví dụ (kiếp 1 seed chuẩn, Tứ linh căn R = 0.8):
 
 | Tình huống                                        | tuVi/ngày                              |
 | ------------------------------------------------- | -------------------------------------- |
@@ -108,25 +108,57 @@ Không softlock: thất bại luôn cho phép thử lại; chi phí thật là *
 
 - Linh căn là thuộc tính ẩn. Nhân vật chỉ biết khi được đo bằng Trắc Linh Thạch (Lục, hội tuyển Thanh Vân Môn, hoặc mua lượt đo ở chợ đêm). Trước đó giao diện ghi "Chưa rõ".
 - Hệ của linh căn (Kim/Mộc/Thủy/Hỏa/Thổ) quyết định công pháp có hệ (E) và pháp thuật dùng được.
-- Kiếp 1 cố định: **Tứ linh căn Kim–Mộc–Thủy–Thổ** `[CẦN DUYỆT D04]`.
+- Kiếp 1 **ngẫu nhiên theo seed** `[ĐÃ DUYỆT D04]`: Ngũ 35% · Tứ 50% · Tam 15%; **không bao giờ Song/Thiên** ở kiếp 1 (giữ trụ cột "phàm nhân, không thiên tài"). Các hệ cụ thể cũng ngẫu nhiên.
 - Các kiếp sau: theo quy luật "Hồn dưỡng căn" (§8.4).
 
-### Thiên phú (trait)
+### Kiếp 1 – khởi tạo ngẫu nhiên `[ĐÃ DUYỆT D04]`
 
-Mỗi nhân vật có 1–2 thiên phú đến từ xuất thân (không mua, không nâng cấp). Thiên phú đổi một điểm mạnh lấy một điểm yếu hoặc một hướng chơi.
+Seed sinh khi bắt đầu game mới và lưu trong save; cùng seed → cùng kiếp 1. Người chơi chỉ chọn tên và giới tính (D05).
 
-| Thiên phú        | Hiệu ứng                                             | Nguồn                                     |
-| ---------------- | ---------------------------------------------------- | ----------------------------------------- |
-| Con nhà tiều phu | Thể Phách XP ×1.2; bắt đầu có rìu                    | Kiếp 1 (cố định), xuất thân nông/tiều phu |
-| Chất phác        | Giao Tế XP ×0.9; thiện cảm với dân làng +10 khởi đầu | Kiếp 1 (cố định)                          |
-| Con nhà buôn     | Bắt đầu 300 văn; Giao Tế XP ×1.2; Thể Phách XP ×0.9  | Xuất thân trấn Lạc Thủy                   |
-| Con thợ săn      | Quyền Cước XP ×1.2; bắt đầu biết đường rừng sâu      | Xuất thân bìa rừng                        |
-| Thể nhược        | Thọ nguyên −4; Văn Tự XP ×1.2                        | Ngẫu nhiên theo seed                      |
-| Cường tráng      | Thọ nguyên +3; Tinh lực tối đa +10                   | Ngẫu nhiên theo seed                      |
+| Thành phần | Cách random                                               |
+| ---------- | --------------------------------------------------------- |
+| Linh căn   | Ngũ 35% · Tứ 50% · Tam 15%; ẩn tới khi đo (tuổi ~18–19)   |
+| Ngộ tính   | 0,85–1,15, phân bố đều                                    |
+| Xuất thân  | 1 trong 3 xuất thân ở làng Thạch Khê (bảng dưới), đều 1/3 |
+| Thiên phú  | 1 thiên phú bẩm sinh, đều 1/6, không phụ thuộc xuất thân  |
+
+Chơi lại game mới để random lại được phép; vì linh căn chỉ lộ sau ~15 phút chơi nên reroll tốn công, không cần cơ chế chặn.
+
+### Xuất thân
+
+Xuất thân quyết định vật phẩm, kỹ năng khởi đầu và lý do mắc nợ – không phải thiên phú. Kiếp 1 luôn ở Thạch Khê, mẹ là Lý Tam Nương, cùng tai nạn giếng cạn (WORLD_LORE §4); chỉ khác gia cảnh.
+
+| Xuất thân         | Nơi                | Khởi đầu                          | Nợ Hồ chưởng quỹ                                                     | Có ở    |
+| ----------------- | ------------------ | --------------------------------- | -------------------------------------------------------------------- | ------- |
+| Nhà tiều phu      | Thạch Khê          | Rìu của cha; Thể Phách 2          | 800 văn – cha gãy chân khi đốn củi                                   | Kiếp 1+ |
+| Nhà hái thuốc     | Thạch Khê          | Giỏ thuốc; Thảo Dược 3            | 800 văn – cha ngã núi khi hái thuốc, nằm liệt                        | Kiếp 1+ |
+| Nhà bán hàng rong | Thạch Khê          | 100 văn; Giao Tế 3                | 600 văn – hàng bị cướp trên đường lên trấn (manh mối Hắc Phong trại) | Kiếp 1+ |
+| Nhà buôn          | Trấn Lạc Thủy      | 300 văn; Giao Tế 3                | Không                                                                | Kiếp 2+ |
+| Nhà thợ săn       | Bìa rừng Thanh Mộc | Biết đường rừng sâu; Quyền Cước 3 | Không                                                                | Kiếp 2+ |
+
+### Thiên phú (trait) `[ĐÃ DUYỆT D15]`
+
+Thiên phú là dấu vết trên hồn phách (WORLD_LORE R6), đổi một điểm mạnh lấy một điểm yếu hoặc một hướng chơi. Mỗi kiếp có **2 ô**:
+
+- **Bẩm sinh:** 1 thiên phú random theo seed khi sinh ra (kiếp 1: §Kiếp 1; kiếp sau: đi kèm từng xuất thân được đề nghị).
+- **Hồn ấn:** người chơi chọn ở Vong Xuyên từ các thiên phú **đã khắc vào hồn**, ở bậc đã nâng. Không chọn trùng thiên phú bẩm sinh; nếu trùng thì ô hồn ấn thay thế (lấy bậc cao hơn).
+
+**Khắc vào hồn:** thiên phú có trong một kiếp (bẩm sinh hoặc hồn ấn) được khắc khi kiếp đó **sống tới ≥ 40 tuổi hoặc đạt LK1**. Kiếp kết thúc bằng Tự vẫn không khắc thiên phú mới. **Nâng bậc** ở Vong Xuyên bằng Tàn Niệm (§8.3); bậc III cần từng đạt LK4 ở bất kỳ kiếp nào.
+
+| Thiên phú   | Bậc I                                            | Bậc II                       | Bậc III                        |
+| ----------- | ------------------------------------------------ | ---------------------------- | ------------------------------ |
+| Thiết cốt   | Thể Phách XP ×1,2                                | ×1,3                         | ×1,4                           |
+| Khéo miệng  | Giao Tế XP ×1,2; Thể Phách XP ×0,9               | Giao Tế ×1,3; Thể Phách ×0,9 | Giao Tế ×1,4; Thể Phách ×1,0   |
+| Nhanh nhẹn  | Quyền Cước XP ×1,2                               | ×1,3; bỏ chạy +0,05          | ×1,4; bỏ chạy +0,10            |
+| Chất phác   | Giao Tế XP ×0,9; thiện cảm dân làng khởi đầu +10 | Thiện cảm +15                | Thiện cảm +20; Giao Tế XP ×1,0 |
+| Thể nhược   | Thọ nguyên −4; Văn Tự XP ×1,2                    | Thọ −3; Văn Tự ×1,3          | Thọ −2; Văn Tự ×1,4            |
+| Cường tráng | Thọ nguyên +3; Tinh lực tối đa +10               | Thọ +4; Tinh lực +20         | Thọ +5; Tinh lực +30           |
+
+**Trần sức mạnh** (kiểm thử tĩnh trên dữ liệu): hệ số XP tối đa ×1,4 (vì XP tăng theo L^1,6 nên tương đương ≈ +14% cấp kỹ năng trong cùng thời gian); thọ nguyên tối đa +5; không cộng dồn hai bản của cùng thiên phú.
 
 ### Ngộ tính
 
-- Hệ số 0.85–1.15 (kiếp 1 = 1.0), nhân vào XP của kỹ năng "trí" (Văn Tự, Thảo Dược, Thổ Nạp) và XP thuần thục công pháp.
+- Hệ số 0.85–1.15 (random theo seed mỗi kiếp), nhân vào XP của kỹ năng "trí" (Văn Tự, Thảo Dược, Thổ Nạp) và XP thuần thục công pháp.
 - Thể hiện qua mô tả, không hiện số: "chậm hiểu" (< 0.95), "bình thường", "sáng dạ" (> 1.05). Người lớn trong làng nhận xét được trí khôn của một đứa trẻ, nên thông tin này hợp lý.
 
 ## 4. Công pháp, Pháp thuật, Pháp khí
@@ -139,7 +171,7 @@ Mỗi nhân vật có 1–2 thiên phú đến từ xuất thân (không mua, kh
 | Thanh Vân Dưỡng Khí Quyết | Vô   | ×1.1      | Luyện Khí 9 | 15                       | Thanh Vân Môn: lên ngoại môn (LK4 + 200 cống hiến) · chợ đêm bản chép tay (12 linh thạch, 30% bản lỗi nếu Thảo Dược/Văn Tự < 15) |
 | Hàn Thủy Quyết            | Thủy | ×1.0 × E  | Luyện Khí 9 | 20 (cổ văn)              | Lục (thiện cảm ≥ 70, sau chuỗi Hắc Phong) · động phủ của Lục (kiếp sau, nếu nhớ địa điểm)                                        |
 
-- **Trần LK6 của Dẫn Khí Quyết** buộc người chơi chọn con đường trung hạn `[CẦN DUYỆT D12]`.
+- **Trần LK6 của Dẫn Khí Quyết** buộc người chơi chọn con đường trung hạn `[ĐÃ DUYỆT D12]`.
 - Hàn Thủy Quyết với linh căn có Thủy: ×1.25 → mạnh nhất cho kiếp 1. Đánh đổi: thất bại đột phá gây **Hàn độc** (Q 0.6, kéo dài 120 ngày thay vì 60).
 - Thuần thục: Sơ học → Thuần thục 100 điểm → Tinh thông 600 → Viên mãn 2 000 (cộng dồn). Mỗi ngày tu luyện: `1 × Ngộ × (1 + 0.01 × VănTự)` điểm. Văn Tự 15, Ngộ 1.0 → Tinh thông sau ≈ 1,4 năm tu luyện, Viên mãn sau ≈ 4,8 năm.
 - Đổi công pháp: 30 ngày "chuyển công", mất 10% tu vi tầng hiện tại; thuần thục công pháp mới bắt đầu từ Sơ học.
@@ -233,8 +265,8 @@ Nguyên tắc:
 
 - Không bao giờ được cộng chỉ số phẳng (+% mọi thứ).
 - Thứ mang theo là **ký ức (hiểu biết)**, **hậu quả thế giới** và **căn cơ linh hồn có giới hạn**.
-- Không thể tự kích hoạt luân hồi. Chỉ cái chết dẫn tới luân hồi.
-- Chết sớm cho ít Tàn Niệm hơn → không có lợi khi "tự sát để reset".
+- Chỉ cái chết dẫn tới luân hồi. Người chơi có thể chủ động kết thúc kiếp bằng **Tự vẫn** (§8.7), nhưng bị phạt để không thành chiến lược reset.
+- Chết sớm cho ít Tàn Niệm hơn; Tự vẫn còn nhân thêm ×0,5.
 
 ### 8.2 Tàn Niệm – điểm giữ ký ức
 
@@ -244,18 +276,21 @@ TànNiệm = 3 + 2 × tầngLuyệnKhíCaoNhất + Σ floor(cấpCaoNhấtKỹN�
 
 Ví dụ kiếp 1 điển hình (LK7; kỹ năng cao nhất 24/16/21/12/9/33; 3 NPC thân; 3 chuỗi): 3 + 14 + 9 + 3 + 3 = **32**.
 
+Kiếp kết thúc bằng Tự vẫn: `TànNiệm = floor(công thức trên × 0,5)` `[ĐÃ DUYỆT D16]`.
+
 ### 8.3 Ký ức có thể giữ
 
-| Ký ức             | Chi phí              | Hiệu quả ở kiếp sau                                                                                                           |
-| ----------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Kỹ năng X         | ceil(cấpCaoNhất / 5) | XP ×3 cho tới khi đạt lại cấp cao nhất cũ (Thổ Nạp 33 → 7 điểm)                                                               |
-| Văn bản công pháp | 6 mỗi bộ             | Nhớ nội dung, tu luyện được mà không cần bản chép (vẫn cần Văn Tự tương ứng để đạt trên Sơ học); thuần thục bắt đầu từ Sơ học |
-| Địa điểm ẩn       | 2 mỗi nơi            | Biết đường tới (VD: Hắc Thạch Cốc, động phủ Lục) từ đầu kiếp                                                                  |
-| Cảnh giới cảm ngộ | 2 mỗi chuyển tầng    | +0,10 xác suất cho đúng chuyển tầng đã từng vượt                                                                              |
-| Bí mật nhân duyên | 2 mỗi người          | Biết bí mật/động cơ của một NPC hoặc dòng họ (mở lựa chọn hội thoại)                                                          |
-| Chỗ chôn di vật   | 2                    | Biết chỗ chôn, lấy lại vật phẩm đã chôn (nếu chưa bị người khác đào – có xác suất theo cờ thế giới)                           |
+| Ký ức              | Chi phí              | Hiệu quả ở kiếp sau                                                                                                           |
+| ------------------ | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Kỹ năng X          | ceil(cấpCaoNhất / 5) | XP ×3 cho tới khi đạt lại cấp cao nhất cũ (Thổ Nạp 33 → 7 điểm)                                                               |
+| Văn bản công pháp  | 6 mỗi bộ             | Nhớ nội dung, tu luyện được mà không cần bản chép (vẫn cần Văn Tự tương ứng để đạt trên Sơ học); thuần thục bắt đầu từ Sơ học |
+| Địa điểm ẩn        | 2 mỗi nơi            | Biết đường tới (VD: Hắc Thạch Cốc, động phủ Lục) từ đầu kiếp                                                                  |
+| Cảnh giới cảm ngộ  | 2 mỗi chuyển tầng    | +0,10 xác suất cho đúng chuyển tầng đã từng vượt                                                                              |
+| Bí mật nhân duyên  | 2 mỗi người          | Biết bí mật/động cơ của một NPC hoặc dòng họ (mở lựa chọn hội thoại)                                                          |
+| Chỗ chôn di vật    | 2                    | Biết chỗ chôn, lấy lại vật phẩm đã chôn (nếu chưa bị người khác đào – có xác suất theo cờ thế giới)                           |
+| Nâng bậc thiên phú | I→II: 6 · II→III: 12 | Thiên phú đã khắc lên bậc mới, vĩnh viễn cho mọi kiếp sau (§3); bậc III cần từng đạt LK4 `[ĐÃ DUYỆT D15]`                     |
 
-Mua tất cả của kiếp 1 điển hình tốn ≈ 64 điểm, gấp đôi 32 → người chơi phải chọn.
+Mua tất cả ký ức của kiếp 1 điển hình tốn ≈ 64 điểm, gấp đôi 32 → người chơi phải chọn. Nâng bậc thiên phú cạnh tranh cùng quỹ điểm: "mạnh lâu dài" ↔ "biết nhiều cho kiếp sau".
 
 ### 8.4 Hồn dưỡng căn – linh căn kiếp sau
 
@@ -268,15 +303,24 @@ Quy luật thế giới: _"Vong Xuyên xóa ký ức, không xóa căn cơ hồn
 | Luyện Khí 4–6                 | –    | 50% | 45% | 5%   |
 | Luyện Khí 7–9                 | –    | 20% | 60% | 20%  |
 
-Linh căn được tung một lần mỗi kiếp bằng RNG có seed, ẩn cho tới khi được đo. Hệ cụ thể ngẫu nhiên theo seed.
+Linh căn được tung một lần mỗi kiếp bằng RNG có seed, ẩn cho tới khi được đo. Hệ cụ thể ngẫu nhiên theo seed. Bảng này chỉ áp dụng **từ kiếp 2**; kiếp 1 dùng phân phối ở §3.
 
 ### 8.5 Xuất thân
 
-Ở Vong Xuyên, người chơi chọn một trong **3 xuất thân** sinh từ seed (gia cảnh, nơi sinh, thiên phú, ngộ tính dạng mô tả). Linh căn không phụ thuộc xuất thân và không hiển thị. Mọi kiếp bắt đầu ở tuổi 14 – theo lore, Tàn Niệm chỉ thức tỉnh khi hồn phách ổn định ở tuổi này.
+Ở Vong Xuyên, người chơi chọn một trong **3 xuất thân** sinh từ seed (gia cảnh, nơi sinh, thiên phú bẩm sinh, ngộ tính dạng mô tả), rồi chọn thiên phú cho ô hồn ấn (§3). Linh căn không phụ thuộc xuất thân và không hiển thị. Mọi kiếp bắt đầu ở tuổi 14 – theo lore, Tàn Niệm chỉ thức tỉnh khi hồn phách ổn định ở tuổi này.
 
 ### 8.6 Thế giới tiếp diễn
 
-- Kiếp mới bắt đầu **30 năm sau** cái chết `[CẦN DUYỆT D03]`.
+- Kiếp mới bắt đầu **30 năm sau** cái chết `[ĐÃ DUYỆT D03]`.
 - Cờ thế giới giữ lại: VD Hắc Phong trại bị diệt hay lớn mạnh, Mộc bá có truyền nghề cho cháu không, động phủ Lục còn hay đã bị cướp.
 - NPC phàm nhân đã chết được thay bằng **người kế thừa** (bảng trong `WORLD_LORE.md`), mang theo thái độ dòng họ dựa trên cờ.
 - NPC tu sĩ còn sống theo thọ nguyên của họ (Chấp sự Đỗ của Thanh Vân Môn vẫn còn).
+
+### 8.7 Tự vẫn `[ĐÃ DUYỆT D16]`
+
+Ô "Tự vẫn" trong menu nhân vật cho phép kết thúc kiếp sớm, để thoát một kiếp "hỏng" (VD kẹt Ngũ linh căn, thọ nguyên còn quá ít) mà không phải chờ hàng chục phút.
+
+- **Xác nhận hai bước:** hộp thoại nêu rõ hậu quả, rồi xác nhận lần hai; không có phím tắt.
+- **Không dùng được** khi đang ở màn sự kiện hoặc chiến đấu, để không thoát khỏi hậu quả của lựa chọn đang diễn ra.
+- **Hậu quả:** Tàn Niệm ×0,5 (§8.2); không khắc thiên phú mới (§3); thế giới vẫn +30 năm; đặt cờ `tu_van` để người thân/người kế thừa phản ứng ở kiếp sau (WORLD_LORE §3).
+- **Chống reroll:** kiếp chưa nhập đạo → Hồn dưỡng căn cho 100% Ngũ linh căn (§8.4). Tự vẫn sớm để đổi linh căn luôn cho kết quả không tốt hơn, cộng thêm mất một nửa Tàn Niệm.

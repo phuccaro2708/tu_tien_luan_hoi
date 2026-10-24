@@ -1,6 +1,6 @@
 # Systems Specification
 
-> **Trạng thái: Draft – 2026-10-23** · v0.1 – trước playtest.
+> **Trạng thái: Approved – 2026-10-23** · v0.1 – trước playtest.
 >
 > Mỗi hệ thống theo mẫu: **Mục đích gameplay · Input/Output · Điều kiện · Tương tác · Tiêu chí kiểm thử**. Công thức chi tiết ở `PROGRESSION.md` và `BALANCE.md`; ở đây chỉ nêu hợp đồng của hệ thống.
 
@@ -24,13 +24,18 @@
 ## S1. Thời gian, Tuổi, Thọ nguyên
 
 - **Mục đích:** biến thời gian thành tài nguyên khan hiếm; tạo áp lực dài hạn.
-- **Input:** clock tập trung (ms thực), hệ số tốc độ (×1, ×2 khi dùng Tích Thời), trạng thái tạm dừng.
+- **Input:** clock tập trung (ms thực), hệ số tốc độ 1× / 2× / 3× / 5× `[ĐÃ DUYỆT D14]`, trạng thái tạm dừng; khi bắt đầu game mới: seed, tên, giới tính.
 - **Output:** số tick (1 tick = 1 ngày) được đưa vào engine; tuổi; thọ nguyên còn lại; sự kiện mốc tuổi; tín hiệu cảnh báo/chết.
-- **Điều kiện:** 2 tick/giây ở ×1. Engine chạy bước cố định; dư thời gian được giữ trong bộ tích lũy. Tạm dừng khi có điểm dừng (CORE_LOOP §3).
+- **Điều kiện:**
+  - 2 tick/giây ở 1× (4 / 6 / 10 ở 2× / 3× / 5×). Engine chạy bước cố định; dư thời gian được giữ trong bộ tích lũy. Mỗi khung hình xử lý tối đa một số tick cố định, phần dư dồn sang khung sau. Tạm dừng khi có điểm dừng (CORE_LOOP §3); tốc độ giữ nguyên sau điểm dừng.
+  - Tốc độ là tùy chọn giao diện: lưu cùng save nhưng nằm ngoài `GameState`, không ảnh hưởng replay. Ở 3×/5×, sự kiện nhỏ lấy lựa chọn mặc định an toàn và chỉ ghi nhật ký.
+  - **Game mới:** sinh seed, rồi tung kiếp 1 theo `PROGRESSION.md` §3 (linh căn, ngộ tính, xuất thân, thiên phú bẩm sinh) `[ĐÃ DUYỆT D04]`.
 - **Tương tác:** mọi hệ đều chạy theo tick; S9 cộng thọ nguyên; S12 kích hoạt khi chết; S13 dùng cùng bước tick.
 - **Tiêu chí kiểm thử:**
   - 360 tick = +1 tuổi; 2 tick/giây chính xác với fake clock.
   - Cùng tổng thời gian thực, chia frame khác nhau (16 ms vs 100 ms vs 1 s) → cùng state.
+  - Cùng seed + cùng lệnh theo tick → cùng state ở 1× / 2× / 3× / 5×; ở 5× với fake clock, 1 giây = 10 tick.
+  - Cùng seed → cùng kiếp 1 (linh căn, ngộ tính, xuất thân, thiên phú); kiếp 1 không bao giờ ra Song/Thiên linh căn (kiểm thử trên nhiều seed).
   - Tuổi ≥ thọ nguyên → chết đúng tick đó; cảnh báo tạm dừng ở 10/5/1 năm còn lại.
 
 ## S2. Hành động & Nghề
@@ -154,27 +159,35 @@
 ## S12. Luân hồi
 
 - **Mục đích:** biến cái chết thành bước tiến; tiến triển dài hạn bằng hiểu biết.
-- **Input:** state lúc chết (cảnh giới cao nhất, cấp kỹ năng cao nhất, NPC thân, chuỗi hoàn thành, tri thức, di vật đã chôn), lựa chọn ký ức, lựa chọn xuất thân, seed.
-- **Output:** state kiếp mới: tuổi 14, xuất thân, linh căn (Hồn dưỡng căn), ký ức đã giữ (tri thức `linh_hon`, hệ số XP, cảm ngộ), cờ thế giới, NPC kế thừa, năm thế giới +30 sau khi chết.
-- **Điều kiện:** chỉ khi chết. Màn hình Vong Xuyên không có thời gian chạy. Tàn Niệm không dùng hết thì mất.
+- **Input:** state lúc chết (cảnh giới cao nhất, cấp kỹ năng cao nhất, NPC thân, chuỗi hoàn thành, tri thức, di vật đã chôn, nguyên nhân chết), lựa chọn ký ức, lựa chọn nâng bậc thiên phú, lựa chọn xuất thân và thiên phú hồn ấn, seed. Lệnh **Tự vẫn** từ menu nhân vật `[ĐÃ DUYỆT D16]`.
+- **Output:** state kiếp mới: tuổi 14, xuất thân, linh căn (Hồn dưỡng căn), ký ức đã giữ (tri thức `linh_hon`, hệ số XP, cảm ngộ), 2 ô thiên phú (bẩm sinh + hồn ấn), cờ thế giới, NPC kế thừa, năm thế giới +30 sau khi chết. Dữ liệu xuyên kiếp: danh sách thiên phú đã khắc kèm bậc, cảnh giới cao nhất từng đạt.
+- **Điều kiện:**
+  - Chỉ khi chết (thọ nguyên, chiến đấu "Liều mạng", hoặc Tự vẫn). Màn hình Vong Xuyên không có thời gian chạy. Tàn Niệm không dùng hết thì mất.
+  - Tự vẫn: xác nhận hai bước; bị từ chối khi đang có sự kiện hoặc chiến đấu; Tàn Niệm ×0,5 (làm tròn xuống); đặt cờ `tu_van`.
+  - Khắc thiên phú `[ĐÃ DUYỆT D15]`: thiên phú của kiếp vừa kết thúc được khắc nếu kiếp đó sống ≥ 40 tuổi hoặc đạt LK1 **và** không kết thúc bằng Tự vẫn. Nâng bậc: I→II 6, II→III 12 Tàn Niệm; bậc III cần từng đạt LK4. Bậc tối đa III.
 - **Tương tác:** đọc mọi hệ; khởi tạo lại S1–S11.
 - **Tiêu chí kiểm thử:**
-  - Tàn Niệm khớp công thức với state mẫu (ví dụ PROGRESSION §8.2 = 32).
-  - Không thể chọn ký ức vượt Tàn Niệm.
-  - Không còn chỉ số phẳng nào được mang sang ngoài danh sách ký ức (kiểm thử: kiếp mới không giữ ký ức → state kỹ năng/tu vi/tiền = mặc định xuất thân).
+  - Tàn Niệm khớp công thức với state mẫu (ví dụ PROGRESSION §8.2 = 32); cùng state nhưng Tự vẫn → 16.
+  - Không thể chọn ký ức hoặc nâng bậc vượt Tàn Niệm.
+  - Không còn chỉ số phẳng nào được mang sang ngoài danh sách ký ức và thiên phú đã khắc (kiểm thử: kiếp mới không giữ ký ức → state kỹ năng/tu vi/tiền = mặc định xuất thân).
   - Cùng seed → cùng 3 xuất thân và cùng linh căn.
+  - Không khắc thiên phú khi Tự vẫn, khi chết trước 40 tuổi mà chưa đạt LK1; khắc khi đạt một trong hai điều kiện.
+  - Không nâng được lên bậc III nếu chưa từng đạt LK4; không vượt bậc III; không chọn hồn ấn trùng thiên phú bẩm sinh ở bậc thấp hơn.
+  - Lệnh Tự vẫn bị từ chối khi đang có sự kiện hoặc chiến đấu.
+  - Kiểm thử tĩnh dữ liệu thiên phú: hệ số XP ≤ 1,4; thọ nguyên ≤ +5 (BALANCE §9).
 
 ## S13. Offline & Tích Thời
 
 - **Mục đích:** tôn trọng thời gian người chơi vắng mặt mà không tước quyền quyết định.
-- **Input:** thời điểm lưu cuối, thời điểm hiện tại (từ clock được inject), state.
-- **Output:** state sau mô phỏng; báo cáo "trong lúc vắng mặt"; Tích Thời được cộng.
-- **Điều kiện:** `vắngMặt = min(now − lastSave, 8 giờ)`. Mô phỏng bằng chính engine, từng tick, tới khi hết `vắngMặt` hoặc gặp điểm dừng. Phần còn lại cộng vào Tích Thời (trần 8 giờ). Đồng hồ hệ thống chạy lùi → vắng mặt = 0.
+- **Input:** thời điểm lưu cuối, thời điểm hiện tại (từ clock được inject), state; lệnh "Dùng Tích Thời".
+- **Output:** state sau mô phỏng; báo cáo "trong lúc vắng mặt"; Tích Thời được cộng hoặc tiêu.
+- **Điều kiện:** `vắngMặt = min(now − lastSave, 8 giờ)`. Mô phỏng bằng chính engine, từng tick, tới khi hết `vắngMặt` hoặc gặp điểm dừng. Phần còn lại cộng vào Tích Thời (trần 8 giờ). Đồng hồ hệ thống chạy lùi → vắng mặt = 0. "Dùng Tích Thời" `[ĐÃ DUYỆT D06]` chạy cùng đường mô phỏng ngay lập tức với lượng Tích Thời đang có, dừng ở điểm dừng đầu tiên, trừ phần đã chạy.
 - **Tương tác:** S1 (bước tick), S6 (điểm dừng), lưu game.
 - **Tiêu chí kiểm thử:**
   - Offline N giờ ≡ online N giờ với cùng seed và không có tương tác.
   - Vắng 20 giờ → chỉ 8 giờ được xử lý.
   - Gặp sự kiện lớn ở giờ 1 → dừng, 7 giờ vào Tích Thời.
+  - Dùng 7 giờ Tích Thời, gặp điểm dừng sau 2 giờ → còn 5 giờ; state giống hệt chạy 2 giờ online với cùng seed.
   - Thời gian âm → không làm gì.
   - 8 giờ (57 600 tick) mô phỏng dưới 1 giây trên máy tầm trung.
 
@@ -182,5 +195,5 @@
 
 - **Mục đích:** bảo toàn tiến trình, chống mất dữ liệu.
 - **Input/Output:** state ↔ chuỗi JSON trong localStorage; export/import chuỗi.
-- **Điều kiện:** một save tự động `[CẦN DUYỆT D13]`; lưu mỗi 30 giây thực, khi có sự kiện lớn, khi đóng tab. Save có `version`; tải → kiểm tra cấu trúc → migrate tuần tự → kiểm tra lại. Save hỏng không ghi đè save hợp lệ (ghi vào khóa tạm rồi mới đổi). RNG state nằm trong save.
+- **Điều kiện:** một save tự động `[ĐÃ DUYỆT D13]`; lưu mỗi 30 giây thực, khi có sự kiện lớn, khi đóng tab. Save có `version`; tải → kiểm tra cấu trúc → migrate tuần tự → kiểm tra lại. Save hỏng không ghi đè save hợp lệ (ghi vào khóa tạm rồi mới đổi). RNG state nằm trong save.
 - **Tiêu chí kiểm thử:** round-trip save/load bằng nhau; save version cũ migrate được; JSON hỏng/thiếu trường bị từ chối và save cũ còn nguyên; import chuỗi sai không làm hỏng game.

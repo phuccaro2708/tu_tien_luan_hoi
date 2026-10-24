@@ -1,6 +1,6 @@
 # Core Loop
 
-> **Trạng thái: Draft – 2026-10-23** · v0.1 – trước playtest. Số liệu tham chiếu `BALANCE.md`.
+> **Trạng thái: Approved – 2026-10-23** · v0.1 – trước playtest. Số liệu tham chiếu `BALANCE.md`.
 
 ## 1. Ba phương án core loop
 
@@ -44,7 +44,7 @@ Mỗi kiếp là một chuỗi thẻ sự kiện/lựa chọn kiểu BitLife/Rei
 - A tốt nhất nhưng có rủi ro "chờ thanh tiến độ". **Khắc phục bằng cách mượn hệ sự kiện nhân quả của C**: sự kiện không phải thẻ ngẫu nhiên mà được kích hoạt bởi những gì người chơi đã làm, nên hành động nào cũng có thể mở ra lựa chọn.
 - Chiến đấu của B được giữ ở dạng tối giản, tự động, phục vụ thám hiểm và sự kiện.
 
-**Quyết định đề xuất: A + sự kiện nhân quả** `[CẦN DUYỆT D01]`.
+**Quyết định đề xuất: A + sự kiện nhân quả** `[ĐÃ DUYỆT D01]`.
 
 Phản biện lại chính lựa chọn này:
 
@@ -104,6 +104,12 @@ Nguyên tắc: **không có cơ chế thưởng cho việc click**. Chơi chủ 
 
 Điểm dừng tự động (online và offline): sự kiện lớn; tu vi đủ để đột phá; thọ nguyên còn 10 / 5 / 1 năm; tiền hoặc lương khô bằng 0 (khi không bật tự làm thuê); bị thương nặng; hoàn thành thám hiểm một nơi.
 
+**Tăng tốc** `[ĐÃ DUYỆT D14]`: người chơi chọn 1× / 2× / 3× / 5× bất cứ lúc nào (chi tiết `BALANCE.md` §1, `SYSTEMS.md` §S1).
+
+- Điểm dừng vẫn tạm dừng ở mọi tốc độ; sau điểm dừng, tốc độ giữ nguyên mức đã chọn.
+- Ở 3× và 5×, sự kiện nhỏ chỉ ghi vào nhật ký và lấy lựa chọn mặc định an toàn như khi idle; ở 1× và 2× vẫn bật hộp chọn.
+- Khi đứng lại ở điểm dừng sau khi chạy 3×/5×, hiện bản tóm tắt "trong năm qua" để người chơi không bỏ lỡ diễn biến.
+
 ## 4. Lựa chọn có ý nghĩa
 
 Mỗi lựa chọn dưới đây đổi **một thứ lấy một thứ khác**, không có đáp án đúng tuyệt đối.
@@ -124,16 +130,21 @@ Mỗi lựa chọn dưới đây đổi **một thứ lấy một thứ khác**,
 ## 5. Offline & Tích Thời (tóm tắt)
 
 - Khi mở lại game, engine mô phỏng tối đa **8 giờ thực** đã vắng mặt, với cùng quy tắc như online, dừng ở điểm dừng đầu tiên.
-- Phần thời gian chưa dùng (sau điểm dừng) được cộng vào **Tích Thời** (trần 8 giờ). Khi online, người chơi bật Tích Thời để chạy ×2 tốc độ cho đến khi hết.
-- Chi tiết công thức: `BALANCE.md` §7. `[CẦN DUYỆT D06]`
+- Phần thời gian chưa dùng (sau điểm dừng) được cộng vào **Tích Thời** (trần 8 giờ). Khi online, người chơi bấm "Dùng Tích Thời" để engine **tua nhanh tức thì** lượng thời gian đã tích, dừng ở điểm dừng đầu tiên; phần chưa dùng được giữ lại.
+- Chi tiết công thức: `BALANCE.md` §7. `[ĐÃ DUYỆT D06]`
 
 ## 6. Walkthrough 30 phút đầu tiên
 
-Giả định: người chơi chủ động vừa phải, theo con đường "Cứu tán tu". 2 tick/giây → 1 phút thực = 120 ngày; 30 phút = 3 600 ngày = 10 năm. Tuổi bắt đầu 14.
+Giả định: người chơi chủ động vừa phải, theo con đường "Cứu tán tu", ở tốc độ 1×. 2 tick/giây → 1 phút thực = 120 ngày; 30 phút = 3 600 ngày = 10 năm. Tuổi bắt đầu 14.
+
+Kiếp 1 ngẫu nhiên (D04, `PROGRESSION.md` §3). Walkthrough dưới đây dùng seed chuẩn: **xuất thân nhà tiều phu + Tứ linh căn**. Với seed khác, mạch chính giữ nguyên; chỉ khác:
+
+- **Xuất thân:** đồ và kỹ năng khởi đầu, lý do mắc nợ (nhà bán hàng rong nợ 600 văn nên trả xong sớm hơn ~1 phút).
+- **Linh căn:** đoạn tu luyện trong cốc (24:00–29:00) cần ≈ 165 ngày × 0,8 / R ngày tu luyện. Tam linh căn ≈ 102 ngày (sớm hơn ~0,5 phút); Ngũ linh căn ≈ 264 ngày (muộn hơn ~1 phút). Khác biệt lớn nằm ở hậu kỳ, không ở 30 phút đầu (`BALANCE.md` §2).
 
 | Thời gian thực | Tuổi (năm·ngày) | Diễn biến                                                                                                                                                                                                                                                                                 | Hệ thống được giới thiệu                            |
 | -------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| 0:00           | 14·0            | Mở đầu: làng Thạch Khê, mẹ dệt vải, cha gãy chân khi đốn củi năm ngoái. Hồ chưởng quỹ nhắc khoản nợ **800 văn**, hạn cuối năm. Chỉ có 3 hành động: Làm thuê, Đốn củi, Nghỉ ngơi.                                                                                                          | Hành động, Tinh lực, tiền, sinh hoạt phí            |
+| 0:00           | 14·0            | Mở đầu: làng Thạch Khê, mẹ dệt vải, cha gãy chân khi đốn củi năm ngoái (lý do mắc nợ của xuất thân tiều phu). Hồ chưởng quỹ nhắc khoản nợ **800 văn**, hạn cuối năm. Chỉ có 3 hành động: Làm thuê, Đốn củi, Nghỉ ngơi.                                                                    | Hành động, Tinh lực, tiền, sinh hoạt phí            |
 | 0:20           | 14·40           | Bà Từ ở miếu Thổ Địa kể lại chuyện năm 6 tuổi nhân vật rơi xuống giếng sau miếu, được tìm thấy đang nắm một mảnh đá vỡ, sốt ba ngày. (Hạt giống cho luân hồi; người chơi chưa biết ý nghĩa.)                                                                                              | Sự kiện nhỏ, Nhật ký                                |
 | 0:45           | 14·90           | Đốn củi: Thể Phách lên cấp 3. Tô tiên sinh mở lớp học chữ (10 văn/ngày) hoặc đổi công bổ củi. Mộc bá nhận học việc.                                                                                                                                                                       | Kỹ năng, mở hành động theo điều kiện                |
 | 1:30 – 2:30    | 14·180–300      | Người chơi đốn củi là chính để trả nợ, xen 1–2 tuần học việc. Trả đủ 800 văn trước hạn (net ≈ 6,3 văn/ngày khi đốn củi).                                                                                                                                                                  | Lựa chọn tiền ↔ kỹ năng                             |

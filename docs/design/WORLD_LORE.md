@@ -1,23 +1,23 @@
 # World & Lore
 
-> **Trạng thái: Draft – 2026-10-23** · Tên riêng là tạm `[CẦN DUYỆT D10]`; mọi tên đều nằm trong dữ liệu nên đổi được.
+> **Trạng thái: Approved – 2026-10-23** · Tên riêng là tạm `[ĐÃ DUYỆT D10]`; mọi tên đều nằm trong dữ liệu nên đổi được.
 
 ## 1. Quy luật thế giới
 
 Các quy luật dưới đây là "hiến pháp" của thế giới. Mọi sự kiện, NPC và cơ chế phải tuân theo; nếu một nội dung mâu thuẫn, nội dung đó sai.
 
-| Mã  | Quy luật                                                                                                                                                          | Hệ quả gameplay                                                                                   |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| R1  | **Linh khí** có khắp trời đất nhưng tụ ở **linh mạch**. Đất phàm nhân linh khí loãng.                                                                             | Mật độ D theo địa điểm; tu luyện ở làng rất chậm.                                                 |
-| R2  | Chỉ người có **linh căn** hấp thu được linh khí. Khoảng 1/100 người có linh căn, đa số là tạp linh căn.                                                           | Linh căn ẩn tới khi đo; tạp linh căn là chuyện bình thường.                                       |
-| R3  | Công pháp là **văn bản**. Không biết chữ thì không đọc được; đọc sai thì luyện sai.                                                                               | Văn Tự là cổng của tu luyện; không có "học công pháp bằng cách bấm nút".                          |
-| R4  | Tu vi tinh luyện thân thể nên **kéo dài thọ nguyên**; đột phá là tái cấu trúc khí trong cơ thể nên **nguy hiểm**.                                                 | Thọ nguyên +3/tầng; đột phá có xác suất và hậu quả.                                               |
-| R5  | Tu sĩ và phàm nhân sống tách biệt theo **Phàm Tiên Ước**: môn phái bảo hộ một vùng, nhận cống phẩm, cấm tu sĩ tàn sát phàm nhân công khai.                        | Thế giới không hỗn loạn; Hắc Phong trại phải hoạt động lén lút; Thanh Vân Môn có lý do can thiệp. |
-| R6  | Mọi linh hồn khi chết đều đi qua **Vong Xuyên** và bị xóa ký ức. **Vong Xuyên xóa ký ức, không xóa căn cơ hồn phách.**                                            | Giải thích vì sao linh căn hiếm và vì sao người chơi tái sinh dễ có linh căn (Hồn dưỡng căn).     |
-| R7  | Ba nghìn năm trước, **Đoạn Luân chi chiến** làm nứt Luân Hồi Đạo. Mảnh **Luân Hồi Bia** rơi rải rác khắp các giới.                                                | Nguồn gốc khả năng giữ ký ức của nhân vật; móc nối cho Post-MVP.                                  |
-| R8  | Một linh hồn chỉ **gắn với mảnh bia** khi chạm vào nó trong lúc **đổ máu và cận kề cái chết**. Linh hồn đã gắn giữ được một phần **tàn niệm** khi qua Vong Xuyên. | Nhân vật không được chọn; đó là một tai nạn thời thơ ấu. Rất hiếm người khác có.                  |
-| R9  | Tàn niệm chỉ **thức tỉnh khi hồn phách ổn định**, khoảng tuổi 14.                                                                                                 | Mọi kiếp bắt đầu ở tuổi 14.                                                                       |
-| R10 | Tri thức tu tiên bị giữ kín. Phàm nhân chỉ biết qua lời đồn, và lời đồn thường sai.                                                                               | Hệ Tri thức; tin đồn có độ tin cậy.                                                               |
+| Mã  | Quy luật                                                                                                                                                          | Hệ quả gameplay                                                                                                                                                                                                                                             |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R1  | **Linh khí** có khắp trời đất nhưng tụ ở **linh mạch**. Đất phàm nhân linh khí loãng.                                                                             | Mật độ D theo địa điểm; tu luyện ở làng rất chậm.                                                                                                                                                                                                           |
+| R2  | Chỉ người có **linh căn** hấp thu được linh khí. Khoảng 1/100 người có linh căn, đa số là tạp linh căn.                                                           | Linh căn ẩn tới khi đo; tạp linh căn là chuyện bình thường.                                                                                                                                                                                                 |
+| R3  | Công pháp là **văn bản**. Không biết chữ thì không đọc được; đọc sai thì luyện sai.                                                                               | Văn Tự là cổng của tu luyện; không có "học công pháp bằng cách bấm nút".                                                                                                                                                                                    |
+| R4  | Tu vi tinh luyện thân thể nên **kéo dài thọ nguyên**; đột phá là tái cấu trúc khí trong cơ thể nên **nguy hiểm**.                                                 | Thọ nguyên +3/tầng; đột phá có xác suất và hậu quả.                                                                                                                                                                                                         |
+| R5  | Tu sĩ và phàm nhân sống tách biệt theo **Phàm Tiên Ước**: môn phái bảo hộ một vùng, nhận cống phẩm, cấm tu sĩ tàn sát phàm nhân công khai.                        | Thế giới không hỗn loạn; Hắc Phong trại phải hoạt động lén lút; Thanh Vân Môn có lý do can thiệp.                                                                                                                                                           |
+| R6  | Mọi linh hồn khi chết đều đi qua **Vong Xuyên** và bị xóa ký ức. **Vong Xuyên xóa ký ức, không xóa căn cơ hồn phách.**                                            | Giải thích vì sao linh căn hiếm và vì sao người chơi tái sinh dễ có linh căn (Hồn dưỡng căn). Thiên phú cũng là dấu vết trên hồn phách nên được khắc và nâng bậc qua các kiếp (D15). Tự vẫn làm tổn thương hồn phách: mảnh bia níu được ít ký ức hơn (D16). |
+| R7  | Ba nghìn năm trước, **Đoạn Luân chi chiến** làm nứt Luân Hồi Đạo. Mảnh **Luân Hồi Bia** rơi rải rác khắp các giới.                                                | Nguồn gốc khả năng giữ ký ức của nhân vật; móc nối cho Post-MVP.                                                                                                                                                                                            |
+| R8  | Một linh hồn chỉ **gắn với mảnh bia** khi chạm vào nó trong lúc **đổ máu và cận kề cái chết**. Linh hồn đã gắn giữ được một phần **tàn niệm** khi qua Vong Xuyên. | Nhân vật không được chọn; đó là một tai nạn thời thơ ấu. Rất hiếm người khác có.                                                                                                                                                                            |
+| R9  | Tàn niệm chỉ **thức tỉnh khi hồn phách ổn định**, khoảng tuổi 14.                                                                                                 | Mọi kiếp bắt đầu ở tuổi 14.                                                                                                                                                                                                                                 |
+| R10 | Tri thức tu tiên bị giữ kín. Phàm nhân chỉ biết qua lời đồn, và lời đồn thường sai.                                                                               | Hệ Tri thức; tin đồn có độ tin cậy.                                                                                                                                                                                                                         |
 
 ## 2. Địa lý
 
@@ -63,6 +63,8 @@ Mỗi NPC có: **muốn gì**, **sợ gì**, **bí mật**, **điều làm họ 
 | Đoạn Ngạc       | Không còn (bị diệt) / **Hắc Phong bang** chiếm chợ đêm     | `doan_bi_diet`                                                    |
 | Chấp sự Đỗ      | Vẫn còn, 140 tuổi                                          | `biet_bi_mat_vu_chay` (ký ức nhân duyên) mở chuỗi chuộc lỗi       |
 
+**Cờ `tu_van`** `[ĐÃ DUYỆT D16]`: kiếp trước kết thúc bằng Tự vẫn. Ở kiếp sau, người kế thừa của các NPC từng thân (thiện cảm ≥ 60) kể lại "chuyện người ấy tự tìm đến cái chết" bằng một dòng hội thoại riêng: Mộc Tiểu Hà nhắc ông Mộc bá đến già vẫn tiếc; mộ mẹ có thêm tấm bia nhỏ không đề tên. Cờ chỉ đổi văn bản, không đổi cơ chế.
+
 ## 4. Bí ẩn luân hồi
 
 - Năm 6 tuổi nhân vật rơi xuống giếng cạn sau miếu Thổ Địa, đầu chảy máu, được tìm thấy đang nắm một mảnh đá xám. Nhân vật sốt ba ngày, suýt chết. Theo R8, đó là lúc linh hồn gắn với mảnh Luân Hồi Bia vùi dưới miếu. Đây là **tai nạn**, không phải định mệnh.
@@ -87,9 +89,13 @@ Mỗi đoạn văn trong game được gắn yêu cầu tri thức; nếu chưa 
 
 ### Hồi 0 – Sinh tồn (tuổi 14–15, ~3 phút)
 
-- **Hoàn cảnh:** cha gãy chân khi đốn củi; nhà nợ Hồ chưởng quỹ 800 văn (tiền thuốc cho cha).
+- **Hoàn cảnh** (theo xuất thân kiếp 1, ngẫu nhiên – D04, `PROGRESSION.md` §3):
+  - Nhà tiều phu: cha gãy chân khi đốn củi; nợ Hồ chưởng quỹ 800 văn tiền thuốc.
+  - Nhà hái thuốc: cha ngã núi khi hái thuốc, nằm liệt; nợ 800 văn tiền thuốc.
+  - Nhà bán hàng rong: hàng của cha bị cướp trên đường lên trấn (manh mối sớm về Hắc Phong trại); nợ 600 văn tiền vốn.
+  - Mọi xuất thân giữ nguyên: mẹ Lý Tam Nương, lá thư Lý Viễn, tai nạn giếng cạn, Mảnh đá xám.
 - **Mục tiêu:** trả nợ trước cuối năm.
-- **Nguyên nhân – hậu quả:** trả đủ → Hồ thôi ép, thiện cảm +10. Thiếu → tịch thu rìu. Nộp trễ nhưng xin khất được nhờ Giao Tế 5 → thêm 60 ngày.
+- **Nguyên nhân – hậu quả:** trả đủ → Hồ thôi ép, thiện cảm +10. Thiếu → tịch thu món đồ khởi đầu (rìu / giỏ thuốc / gánh hàng). Nộp trễ nhưng xin khất được nhờ Giao Tế 5 → thêm 60 ngày.
 
 ### Hồi 1 – Tin đồn (tuổi 15–17)
 

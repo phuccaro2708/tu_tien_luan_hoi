@@ -1,17 +1,29 @@
 # Balance
 
-> **Trạng thái: Draft – 2026-10-23** · **v0.1 – trước playtest.** Mọi số liệu là giả thuyết, đã kiểm sơ bộ bằng mô phỏng bảng tính (§10); sẽ được chỉnh lại bằng harness mô phỏng headless và playtest.
+> **Trạng thái: Approved – 2026-10-23** · **v0.1 – trước playtest.** Mọi số liệu là giả thuyết, đã kiểm sơ bộ bằng mô phỏng bảng tính (§10); sẽ được chỉnh lại bằng harness mô phỏng headless và playtest.
 
-## 1. Thang thời gian `[CẦN DUYỆT D02]`
+## 1. Thang thời gian `[ĐÃ DUYỆT D02]`
 
 | Đơn vị                                   | Giá trị                               |
 | ---------------------------------------- | ------------------------------------- |
 | 1 tick                                   | 1 ngày game                           |
-| Tốc độ thường                            | 2 tick / giây thực                    |
+| Tốc độ thường (1×)                       | 2 tick / giây thực                    |
 | 1 năm game                               | 360 ngày = 180 giây = **3 phút thực** |
 | 1 giờ thực                               | 7 200 ngày = **20 năm game**          |
 | Một đời kiếp 1 điển hình (14 → ~84 tuổi) | ≈ 3,5 giờ thực                        |
 | Offline tối đa                           | 8 giờ thực = 57 600 tick              |
+
+### Tăng tốc `[ĐÃ DUYỆT D14]`
+
+| Mức | Tick / giây | 1 năm game | Kiếp 1 Tứ linh căn (~70 năm) |
+| --- | ----------- | ---------- | ---------------------------- |
+| 1×  | 2           | 3 phút     | ≈ 3,5 giờ                    |
+| 2×  | 4           | 90 giây    | ≈ 1,75 giờ                   |
+| 3×  | 6           | 60 giây    | ≈ 70 phút                    |
+| 5×  | 10          | 36 giây    | ≈ 42 phút                    |
+
+- Có từ đầu, miễn phí, đổi bất cứ lúc nào kể cả khi đang tạm dừng. Tốc độ chỉ đổi số tick mỗi giây thực, không đổi logic → không ảnh hưởng cân bằng (thọ nguyên tính theo thời gian game).
+- Mọi mốc thời gian thực trong tài liệu tính ở 1×. Thiết kế không giả định người chơi dùng tốc độ nào.
 
 ## 2. Pacing mục tiêu
 
@@ -24,6 +36,20 @@ Người chơi tham chiếu: chơi chủ động vừa phải, không tối ưu 
 | **2 giờ**   | 54 (kiếp 1)                  | Luyện Khí 6 (tán tu) hoặc 6–7 (môn phái); đã qua nút thắt 3→4; đang đổi công pháp vì trần LK6; Lục đã mất; thọ nguyên còn ~25 năm               | Áp lực: "thời gian không đủ"           |
 | ~3,5 giờ    | ~84                          | Chết ở LK7 (có thể LK8 nếu tối ưu); lần luân hồi đầu tiên                                                                                       | Mất mát + hiểu ra luật chơi lớn        |
 | **10 giờ**  | Kiếp 2 cuối hoặc kiếp 3 giữa | Đã thử Trúc Cơ ít nhất một lần; người chơi tốt đạt Trúc Cơ (kết thúc nội dung MVP)                                                              | Thành tựu dài hạn                      |
+
+Các mốc trên dùng seed chuẩn (Tứ linh căn). Ở 5× chia thời gian thực cho 5: 10 phút → 2 phút, 30 phút → 6 phút, 2 giờ → 24 phút, 10 giờ → 2 giờ.
+
+**Chênh lệch theo linh căn kiếp 1** `[ĐÃ DUYỆT D04]` (mô phỏng §10):
+
+| Linh căn kiếp 1 (xác suất) | LK1 (phút ở 1×) | Cảnh giới khi chết | Chết (tuổi / giờ thực) |
+| -------------------------- | --------------- | ------------------ | ---------------------- |
+| Tam (15%)                  | ~29             | LK8                | ~86 / 3,6 h            |
+| Tứ (50%)                   | ~29,5           | LK7                | ~83 / 3,5 h            |
+| Ngũ (35%)                  | ~30,5           | LK6                | ~80 / 3,3 h            |
+
+Linh căn ít ảnh hưởng 30 phút đầu (chủ yếu là cốt truyện phàm nhân) nhưng quyết định cảnh giới cuối kiếp 1. Ngũ linh căn kiếp 1 vẫn đạt LK6 → Hồn dưỡng căn kiếp 2 cho Tứ 50% / Tam 45% / Song 5%, nên không softlock dài hạn.
+
+`[GIẢ ĐỊNH]` Mục tiêu "thử Trúc Cơ trong khoảng 10 giờ" áp dụng cho **trung vị** các seed, không áp dụng cho mọi seed. Seed Ngũ linh căn có thể cần thêm một kiếp.
 
 Kiểm tra pacing tự động: §10.
 
@@ -150,7 +176,7 @@ BỏChạy   = clamp(0.5 + 0.01 × QuyềnCước + 0.1 × (tầng − tầngĐ�
 | LK1 (TP 15, QC 8, đoản đao) vs Thiết Bối Lang   | KH 165, Công 26, Thủ 11 | 9                  | 10                 | 50/50 → khuyến khích dùng cỏ Xú Long hoặc né                                                  |
 | LK3 (TP 20, QC 12, Thiết kiếm) vs Đoạn Ngạc     | KH 270, Công 50, Thủ 22 | 8                  | 11                 | Thắng nếu chuẩn bị; Lục hỗ trợ giảm còn ~4–5 lượt; Thanh Phong Kiếm (mua 4 linh thạch) còn ~7 |
 
-## 7. Offline & Tích Thời `[CẦN DUYỆT D06]`
+## 7. Offline & Tích Thời `[ĐÃ DUYỆT D06]`
 
 ```
 vắngMặt   = clamp(now − lastSave, 0, 8 giờ)
@@ -158,7 +184,7 @@ mô phỏng từng tick cho tới khi hết vắngMặt hoặc gặp điểm d�
 TíchThời  = min(8 giờ, TíchThời + phầnVắngMặtChưaDùng)
 ```
 
-- Bật Tích Thời khi online: tốc độ ×2 (4 tick/giây); mỗi giây thực tiêu 1 giây Tích Thời. 8 giờ Tích Thời = 8 giờ chơi ở tốc độ gấp đôi.
+- **Dùng Tích Thời** khi online = **tua nhanh tức thì**: engine mô phỏng ngay (cùng đường chạy với offline) lượng Tích Thời đang có, dừng ở điểm dừng đầu tiên; phần chưa dùng được giữ lại. 1 giờ Tích Thời = 7 200 tick = 20 năm game. Không dùng dạng "chạy ×2" vì đã có nút tốc độ miễn phí (§1).
 - Điểm dừng như online (CORE_LOOP §3). Bế quan có ít điểm dừng nhất → hợp với offline dài.
 - Không có hiệu suất giảm khi offline: offline vẫn tiêu thọ nguyên như online, nên không có lợi thế khi đóng game (không khai thác được).
 - Vì 8 giờ = 160 năm game, gần như mọi lần offline dài đều dừng ở điểm dừng sớm; Tích Thời bảo đảm người chơi không mất phần còn lại.
@@ -194,17 +220,19 @@ TíchThời  = min(8 giờ, TíchThời + phầnVắngMặtChưaDùng)
 
 ### Chiến lược thống trị và cách chặn
 
-| Chiến lược tiềm năng                | Vì sao không áp đảo                                                                                                                          |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Chỉ tu luyện                        | Sinh hoạt phí và lương khô buộc phải kiếm tiền; không tiền → Đói, tu vi ×0,5                                                                 |
-| Spam đan dược                       | Đan Độc làm giảm hiệu lực tuyến tính và chặn ở 80                                                                                            |
-| Đột phá ngay khi đầy                | Ở nút thắt p 0,45–0,55; thất bại mất 30% + 1 năm thọ → chuẩn bị thường đáng giá                                                              |
-| Chuẩn bị tối đa mọi lần             | Trần thưởng +0,25; Phá Cảnh Đan đắt; thời gian chuẩn bị là thọ nguyên                                                                        |
-| Luôn vào môn phái                   | Mất 50–60% thời gian; tốc độ kèm đan chỉ hơn tán tu ~1,08× (§5); ít sự kiện, không có chuỗi Lục/Hàn Thủy Quyết (mạnh nhất cho Thủy linh căn) |
-| Luôn tán tu                         | Không có Trúc Cơ Đan dễ dàng; tốn lương khô; rủi ro chiến đấu                                                                                |
-| Hấp thu linh thạch thay vì tu luyện | 1 linh thạch = 15 tu vi ≈ 30 ngày tu luyện, nhưng kiếm 1 linh thạch tốn ≈ 45 ngày → chỉ đáng khi linh thạch đến từ chiến lợi phẩm            |
-| Chết sớm để luân hồi nhanh          | Tàn Niệm và Hồn dưỡng căn phụ thuộc cảnh giới đạt được; không thể tự kích hoạt luân hồi                                                      |
-| Save-scum đột phá                   | RNG nằm trong save; tải lại cho cùng kết quả                                                                                                 |
+| Chiến lược tiềm năng                | Vì sao không áp đảo                                                                                                                                                         |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Chỉ tu luyện                        | Sinh hoạt phí và lương khô buộc phải kiếm tiền; không tiền → Đói, tu vi ×0,5                                                                                                |
+| Spam đan dược                       | Đan Độc làm giảm hiệu lực tuyến tính và chặn ở 80                                                                                                                           |
+| Đột phá ngay khi đầy                | Ở nút thắt p 0,45–0,55; thất bại mất 30% + 1 năm thọ → chuẩn bị thường đáng giá                                                                                             |
+| Chuẩn bị tối đa mọi lần             | Trần thưởng +0,25; Phá Cảnh Đan đắt; thời gian chuẩn bị là thọ nguyên                                                                                                       |
+| Luôn vào môn phái                   | Mất 50–60% thời gian; tốc độ kèm đan chỉ hơn tán tu ~1,08× (§5); ít sự kiện, không có chuỗi Lục/Hàn Thủy Quyết (mạnh nhất cho Thủy linh căn)                                |
+| Luôn tán tu                         | Không có Trúc Cơ Đan dễ dàng; tốn lương khô; rủi ro chiến đấu                                                                                                               |
+| Hấp thu linh thạch thay vì tu luyện | 1 linh thạch = 15 tu vi ≈ 30 ngày tu luyện, nhưng kiếm 1 linh thạch tốn ≈ 45 ngày → chỉ đáng khi linh thạch đến từ chiến lợi phẩm                                           |
+| Tự vẫn sớm để reroll linh căn       | Kiếp chưa nhập đạo → Hồn dưỡng căn cho 100% Ngũ (tệ nhất); Tàn Niệm ×0,5; không khắc thiên phú mới. Tự vẫn chỉ có ích để thoát kiếp "hỏng" `[ĐÃ DUYỆT D16]`                 |
+| Cày thiên phú qua nhiều kiếp ngắn   | Chỉ khắc khi kiếp sống ≥ 40 tuổi hoặc đạt LK1 và không tự vẫn; nâng bậc tốn 6/12 Tàn Niệm (cạnh tranh với ký ức); bậc III cần từng đạt LK4; chỉ 1 ô hồn ấn `[ĐÃ DUYỆT D15]` |
+| Dồn thiên phú bậc III               | Trần kiểm thử tĩnh: hệ số XP ≤ ×1,4 (≈ +14% cấp kỹ năng), thọ nguyên ≤ +5, không cộng dồn cùng thiên phú → ≤ khoảng +15% trên một trục                                      |
+| Save-scum đột phá                   | RNG nằm trong save; tải lại cho cùng kết quả                                                                                                                                |
 
 ## 10. Mô phỏng sơ bộ
 
@@ -212,7 +240,9 @@ Mô hình bảng tính (đã chạy khi soạn tài liệu): tu vi/ngày = 0,5 �
 
 | Kịch bản                                       | LK2  | LK4  | LK6  | LK7  | LK8  | LK9  | Chết (tuổi / giờ thực) |
 | ---------------------------------------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---------------------- |
+| Kiếp 1, Ngũ, cốc D 1,0, f 0,6, nhập đạo 24,3   | 25,9 | 34,1 | 57,1 | –    | –    | –    | ~80 / 3,3 h            |
 | Kiếp 1, Tứ, cốc D 1,0, f 0,6, nhập đạo 24      | 25,0 | 30,2 | 44,7 | 63,8 | –    | –    | ~83 / 3,5 h            |
+| Kiếp 1, Tam, cốc D 1,0, f 0,6, nhập đạo 23,8   | 24,5 | 27,7 | 36,7 | 48,5 | 66,2 | –    | ~86 / 3,6 h            |
 | Kiếp 1, Tứ, môn phái D 1,5, f 0,4 → 0,5 từ LK4 | 25,0 | 30,2 | 41,8 | 57,1 | 80,1 | –    | ~86 / 3,6 h            |
 | Kiếp 2, Tam, cốc, f 0,65, nhập đạo 17          | 17,6 | 20,7 | 29,0 | 39,9 | 56,2 | 85,4 | ~89 / 3,8 h            |
 | Kiếp 2, Tam, ngoại môn ngay, f 0,5             | 17,6 | 20,2 | 27,4 | 36,9 | 51,1 | 76,4 | ~89 / 3,8 h            |
