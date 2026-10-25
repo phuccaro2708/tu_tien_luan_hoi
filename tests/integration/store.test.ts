@@ -1,11 +1,13 @@
-// Kiểm tra hạch toán thời gian/save qua store thật (Codex audit B01–B03, B06, B08, B09, R01).
+// Kiểm tra hạch toán thời gian/save qua store thật (Codex audit B01–B03, B06–B09, N01, N03–N05, R01).
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { hashState } from '../../src/core/hash'
 import { createInitialState } from '../../src/core/state'
 import type { GameState } from '../../src/types/game'
 import {
   readSave,
+  SAVE_BACKUP_KEY,
   SAVE_KEY,
+  SAVE_QUARANTINE_PREFIX,
+  serializeSave,
   writeSave,
   type SaveStorage,
 } from '../../src/utils/save'
@@ -43,6 +45,11 @@ const withAction = (s: GameState, actionId: string): GameState => ({
   currentActionId: actionId,
 })
 
+const savedDay = (storage: SaveStorage) => {
+  const loaded = readSave(storage, fixture)
+  return loaded.ok ? loaded.value.state.day : null
+}
+
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
@@ -67,7 +74,7 @@ describe('store time accounting', () => {
   it('B02: autosave with an unprocessed backlog keeps the backlog', async () => {
     const storage = memory()
     const s = await open(storage, 0)
-    s.getState().dispatch({ type: 'setAction', actionId: 'payFee' })
+    s.getState().dispatch({ type: 'setAction', actionId: 'payFee' }, 0)
     s.getState().frame(0, 0)
     s.getState().frame(60_000, 60_000) // 120 tick đến hạn, autosave
     const again = await open(storage, 60_000)
@@ -83,38 +90,65 @@ describe('store time accounting', () => {
     expect(again.getState().game.day).toBe(7_200)
   })
 
-  it('hidden tab is offline: pagehide while hidden ≡ showing the tab again', async () => {
-    const seed = (storage: SaveStorage) =>
-      writeSave(
-        storage,
-        {
-          ...withAction(createInitialState(fixture, 1), 'spend'),
-          resources: { van: 3_600, tinhLuc: 100, jar: 0 },
-        },
-        fixture,
-        0,
-      )
+  it('N03: a hidden tab runs at the chosen speed, same as a visible one', async () => {
+    const visible = await open(memory(), 0)
+    visible.getState().frame(0, 0)
+    visible.getState().setSpeed(5, 0)
+    for (let t = 1_000; t <= 61_000; t += 1_000) visible.getState().frame(t, t)
 
-    const a = memory()
-    seed(a)
-    const sa = await open(a, 0)
-    sa.getState().frame(0, 0)
-    sa.getState().hide(0, 0)
-    sa.getState().save(HOUR, HOUR) // pagehide khi đang ẩn
-    const closed = (await open(a, HOUR)).getState().game
+    // Ẩn = chỉ lưu (useGameLoop); rAF ngừng, frame đầu sau khi hiện lại chạy bù.
+    const hidden = await open(memory(), 0)
+    hidden.getState().frame(0, 0)
+    hidden.getState().setSpeed(5, 0)
+    hidden.getState().save(0, 0)
+    hidden.getState().frame(60_000, 60_000)
+    hidden.getState().frame(61_000, 61_000)
 
-    const b = memory()
-    seed(b)
-    const sb = await open(b, 0)
-    sb.getState().frame(0, 0)
-    sb.getState().hide(0, 0)
-    sb.getState().show(HOUR, HOUR)
-    sb.getState().frame(HOUR + 16, HOUR + 16)
-    const shown = sb.getState().game
+    expect(visible.getState().game.day).toBe(610)
+    expect(hidden.getState().game.day).toBe(610)
+  })
 
-    expect(shown.day).toBe(3_600)
-    expect(shown.tichThoiTicks).toBe(3_600)
-    expect(hashState(closed)).toBe(hashState(shown))
+  it('N03: closing a hidden tab saves the hidden time at the chosen speed', async () => {
+    const storage = memory()
+    const s = await open(storage, 0)
+    s.getState().frame(0, 0)
+    s.getState().setSpeed(5, 0)
+    s.getState().save(0, 0) // ẩn
+    s.getState().save(60_000, 60_000) // pagehide khi đang ẩn
+    expect((await open(storage, 60_000)).getState().game.day).toBe(600)
+  })
+
+  it('N04: hiding and showing in sub-tick slices loses no time at 1×', async () => {
+    const s = await open(memory(), 0)
+    s.getState().frame(0, 0)
+    s.getState().save(250, 250) // ẩn
+    s.getState().frame(500, 500) // hiện
+    s.getState().save(750, 750) // ẩn
+    s.getState().frame(1_000, 1_000) // hiện
+    expect(s.getState().game.day).toBe(2)
+  })
+
+  it('N05: resume after a frameless pause does not count the paused time', async () => {
+    const storage = memory()
+    writeSave(
+      storage,
+      {
+        ...createInitialState(fixture, 1),
+        day: 1,
+        stop: { reason: 'actionCompleted', detail: 'treasure' },
+      },
+      fixture,
+      0,
+    )
+    const s = await open(storage, 0)
+    s.getState().frame(0, 0)
+    // Đổi tốc độ khi đang dừng cũng không được mang thời gian dừng theo.
+    s.getState().setSpeed(5, 10_000)
+    s.getState().dispatch({ type: 'resume' }, 10_000)
+    s.getState().frame(10_000, 10_000)
+    expect(s.getState().game.day).toBe(1)
+    s.getState().frame(10_100, 10_100) // 100 ms ở 5× = 1 tick
+    expect(s.getState().game.day).toBe(2)
   })
 
   it('B06: re-selecting the current speed does not lose accumulated time', async () => {
@@ -173,7 +207,7 @@ describe('store write protection', () => {
     const storage: SaveStorage = {
       ...base,
       setItem: (k, v) => {
-        if (k.startsWith('ttlh.save.corrupt.')) throw new Error('quota')
+        if (k.startsWith(SAVE_QUARANTINE_PREFIX)) throw new Error('quota')
         base.setItem(k, v)
       },
     }
@@ -183,45 +217,89 @@ describe('store write protection', () => {
     expect(data.get(SAVE_KEY)).toBe('{"truncated')
     expect(s.getState().saveBlocked).toMatch(/quarantine/)
     // Lỗi gameplay sau đó không xóa cảnh báo chặn ghi.
-    s.getState().dispatch({ type: 'setAction', actionId: null })
+    s.getState().dispatch({ type: 'setAction', actionId: null }, 60_000)
     expect(s.getState().saveBlocked).toMatch(/quarantine/)
   })
 
-  it('R01: a second tab that cannot take the save lock never writes', async () => {
-    const denied = {
+  it('N01: a tab reads and quarantines saves only once it holds the lock', async () => {
+    let grant = () => {}
+    const deferred = {
       locks: {
-        request: (_name: string, _opts: unknown, cb: (lock: null) => unknown) =>
-          Promise.resolve().then(() => cb(null)),
+        request: (_n: string, _o: unknown, cb: (lock: object) => unknown) =>
+          new Promise((done) => (grant = () => done(cb({})))),
+      },
+    }
+    const data = new Map<string, string>([[SAVE_BACKUP_KEY, '{"bad']])
+    const storage = memory(data)
+    writeSave(storage, createInitialState(fixture, 1), fixture, 0)
+    const s = await open(storage, 0, deferred)
+    s.getState().frame(0, 0)
+    s.getState().save(60_000, 60_000)
+    // Chưa có khóa: không ghi gì, kể cả bản cách ly.
+    expect([...data.keys()].sort()).toEqual([SAVE_KEY, SAVE_BACKUP_KEY])
+
+    // Writer cũ lưu day 100 (backup hỏng vẫn còn) rồi nhả khóa.
+    const day100 = serializeSave(
+      { ...createInitialState(fixture, 1), day: 100 },
+      fixture,
+      0,
+    )
+    if (day100.ok) data.set(SAVE_KEY, day100.value)
+    grant()
+    await vi.waitFor(() => expect(s.getState().game.day).toBe(100))
+    s.getState().save(0, 0)
+    expect(savedDay(storage)).toBe(100)
+    expect(
+      [...data.keys()].some((k) => k.startsWith(SAVE_QUARANTINE_PREFIX)),
+    ).toBe(true)
+  })
+
+  it('R01: a second tab waits, never writes, then takes over the latest save', async () => {
+    const queue: (() => void)[] = []
+    const busy = {
+      locks: {
+        request: (
+          _n: string,
+          o: { ifAvailable?: boolean },
+          cb: (lock: object | null) => unknown,
+        ) =>
+          o.ifAvailable
+            ? Promise.resolve().then(() => cb(null))
+            : new Promise((done) => queue.push(() => done(cb({})))),
       },
     }
     const data = new Map<string, string>()
-    const s = await open(memory(data), 0, denied)
+    const storage = memory(data)
+    const s = await open(storage, 0, busy)
     await vi.waitFor(() => expect(s.getState().saveBlocked).toMatch(/tab khác/))
     s.getState().frame(0, 0)
     s.getState().save(60_000, 60_000)
     expect(data.has(SAVE_KEY)).toBe(false)
+
+    writeSave(
+      storage,
+      { ...createInitialState(fixture, 1), day: 50 },
+      fixture,
+      0,
+    )
+    await vi.waitFor(() => expect(queue).toHaveLength(1))
+    queue[0]() // tab kia đóng
+    await vi.waitFor(() => expect(s.getState().saveBlocked).toBeNull())
+    expect(s.getState().game.day).toBe(50)
+    s.getState().save(0, 0)
+    expect(savedDay(storage)).toBe(50)
   })
 
-  it('R01: the tab holding the lock writes', async () => {
-    let grant = () => {}
-    const granted = {
-      locks: {
-        request: (
-          _name: string,
-          _opts: unknown,
-          cb: (lock: object) => unknown,
-        ) => {
-          grant = () => void cb({})
-          return new Promise(() => {})
-        },
-      },
+  it('R01: a failed lock request blocks saving with a reason', async () => {
+    const broken = {
+      locks: { request: () => Promise.reject(new Error('SecurityError')) },
     }
     const data = new Map<string, string>()
-    const s = await open(memory(data), 0, granted)
+    const s = await open(memory(data), 0, broken)
+    await vi.waitFor(() =>
+      expect(s.getState().saveBlocked).toMatch(/SecurityError/),
+    )
     s.getState().save(0, 0)
-    expect(data.has(SAVE_KEY)).toBe(false) // khóa chưa được cấp → chưa ghi
-    grant()
-    s.getState().save(0, 0)
-    expect(data.has(SAVE_KEY)).toBe(true)
+    expect(data.has(SAVE_KEY)).toBe(false)
   })
 })

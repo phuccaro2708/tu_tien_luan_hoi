@@ -33,11 +33,15 @@ function App() {
       {game.stop && (
         <p>
           Tạm dừng ({game.stop.reason}){' '}
-          <button onClick={() => dispatch({ type: 'resume' })}>Tiếp tục</button>
+          <button
+            onClick={() => dispatch({ type: 'resume' }, performance.now())}
+          >
+            Tiếp tục
+          </button>
         </p>
       )}
       {game.tichThoiTicks > 0 && (
-        <button onClick={spendTichThoi}>
+        <button onClick={() => spendTichThoi(performance.now())}>
           Dùng Tích Thời ({formatHours(game.tichThoiTicks)})
         </button>
       )}

@@ -79,12 +79,14 @@ describe('B05: runTicks always terminates', () => {
     expect(runTicks(working(), fixture, 2.7).ticksRun).toBe(2)
   })
 
-  it('day at MAX_SAFE_INTEGER stops growing and the loop still ends', () => {
+  it('N08: at the last representable day no tick runs and no income is paid', () => {
     const s = { ...working(), day: Number.MAX_SAFE_INTEGER - 1 }
     const r = runTicks(s, fixture, 5)
-    expect(r.ticksRun).toBe(5)
+    expect(r.ticksRun).toBe(1)
     expect(r.state.day).toBe(Number.MAX_SAFE_INTEGER)
+    expect(r.state.resources.van).toBe(7) // đúng một ngày payFee
     expect(validateState(r.state, fixture)).toEqual([])
+    expect(runTicks(r.state, fixture, 5).state).toBe(r.state)
   })
 })
 

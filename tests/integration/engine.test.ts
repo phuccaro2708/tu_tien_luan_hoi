@@ -5,6 +5,7 @@ import { hashState } from '../../src/core/hash'
 import { simulateAway } from '../../src/systems/offline'
 import {
   bootSave,
+  SAVE_BACKUP_KEY,
   SAVE_KEY,
   SAVE_QUARANTINE_PREFIX,
   writeSave,
@@ -31,6 +32,20 @@ describe('deterministic simulation (replay)', () => {
     expect(hashState(a)).toBe(hashState(b))
   })
 
+  it('N09: each script entry runs once; a blocked action ends the run at its stop', () => {
+    const s = runScript(
+      fixture,
+      1,
+      [
+        { day: 0, command: { type: 'resume' } },
+        { day: 0, command: { type: 'setAction', actionId: 'spend' } },
+      ],
+      1,
+    )
+    expect(s.day).toBe(0)
+    expect(s.stop?.reason).toBe('actionBlocked')
+  }, 2_000)
+
   it('1× / 2× / 3× / 5× and different frame splits → same hash as headless replay', () => {
     const expected = hashState(runScript(fixture, 5, script, 200))
     const runs = [
@@ -54,13 +69,15 @@ describe('deterministic simulation (replay)', () => {
 
   it('harness runs 10 000 ticks in under 1 second; 8h offline (57 600 ticks) too', () => {
     const t0 = performance.now()
+    // payFee ròng dương, không bao giờ bị chặn → đủ 10 000 tick có hành động.
     const s = runScript(
       fixture,
       1,
-      [{ day: 0, command: { type: 'setAction', actionId: 'work' } }],
+      [{ day: 0, command: { type: 'setAction', actionId: 'payFee' } }],
       10_000,
     )
-    expect(s.day).toBeGreaterThan(0)
+    expect(s.day).toBe(10_000)
+    expect(s.resources.van).toBe(70_000)
     const empty = runScript(fixture, 1, [], 10_000)
     expect(empty.day).toBe(10_000)
     const off = simulateAway(
@@ -143,6 +160,28 @@ describe('boot (load + offline)', () => {
     expect(
       data.get(`${SAVE_QUARANTINE_PREFIX}${hashState('{"truncated')}`),
     ).toBe('{"truncated')
+  })
+
+  it('N02: two different unreadable saves with the same hash are both kept', () => {
+    const { data, storage } = memory()
+    const a = 'invalid-82999-eer8cn'
+    const b = 'invalid-140626-19zj9v6'
+    expect(hashState(a)).toBe(hashState(b)) // va chạm FNV-1a thật (Codex audit)
+    data.set(SAVE_KEY, a)
+    data.set(SAVE_BACKUP_KEY, b)
+    const r = bootSave(storage, fixture, 0)
+    expect(r.canWrite).toBe(true)
+    writeSave(storage, createInitialState(fixture, 2), fixture, 0)
+    const kept = [...data]
+      .filter(([k]) => k.startsWith(SAVE_QUARANTINE_PREFIX))
+      .map(([, v]) => v)
+    expect(kept.sort()).toEqual([a, b].sort())
+    // Mở lại nhiều lần không sinh thêm bản sao.
+    data.set(SAVE_KEY, a)
+    bootSave(storage, fixture, 0)
+    expect(
+      [...data.keys()].filter((k) => k.startsWith(SAVE_QUARANTINE_PREFIX)),
+    ).toHaveLength(2)
   })
 })
 

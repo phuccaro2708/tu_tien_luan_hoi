@@ -104,13 +104,42 @@ describe('SimulationClock', () => {
     expect(advanceClock(clock, 10_500, opts).ticks).toBe(1)
   })
 
-  it('backlog is kept across capped frames but never exceeds 8 real hours', () => {
+  it('backlog is kept across capped frames', () => {
     let clock = createClock(0, 2)
-    const a = advanceClock(clock, 24 * 3_600_000, { ...opts, maxTicks: 10 })
+    const a = advanceClock(clock, 3_600_000, { ...opts, maxTicks: 10 })
     expect(a.ticks).toBe(10)
     clock = a.clock
-    const rest = advanceClock(clock, 24 * 3_600_000, opts)
-    expect(a.ticks + rest.ticks).toBe(MAX_AWAY_TICKS * 2)
+    const rest = advanceClock(clock, 3_600_000, opts)
+    expect(a.ticks + rest.ticks).toBe(14_400)
+  })
+
+  it('N06: a long online gap is not cut: same 9 hours → same ticks however split', () => {
+    const HOUR = 3_600_000
+    expect(ticksFor([4 * HOUR, 4 * HOUR, HOUR])).toBe(64_800)
+    expect(ticksFor([9 * HOUR])).toBe(64_800)
+  })
+
+  it('N07: speed change at a tick boundary is exact, whatever the time origin', () => {
+    // 2 ms × 1 + 166 ms × 3 = 500 ms = đúng 1 tick.
+    for (const origin of [0, 1_000, 123_457, 1e12]) {
+      let clock = createClock(origin, 1)
+      clock = setClockSpeed(clock, origin + 2, 3)
+      expect(advanceClock(clock, origin + 168, opts).ticks).toBe(1)
+    }
+    // 100 ms × 1 rồi 2×/3×/5×: tick đầu đúng tại 500 ms thời gian game.
+    for (const speed of [2, 3, 5] as const) {
+      const ms = 400 / speed
+      if (!Number.isInteger(ms)) continue
+      for (const origin of [0, 7_777, 1e12]) {
+        let clock = createClock(origin, 1)
+        clock = setClockSpeed(clock, origin + 100, speed)
+        const before = advanceClock(clock, origin + 100 + ms - 1, opts)
+        expect(before.ticks).toBe(0)
+        expect(advanceClock(before.clock, origin + 100 + ms, opts).ticks).toBe(
+          1,
+        )
+      }
+    }
   })
 
   it('B07: clock going backwards or NaN grants no time and loses none', () => {

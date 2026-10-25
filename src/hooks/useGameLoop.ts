@@ -3,7 +3,8 @@ import { useGameStore } from '../stores/gameStore'
 
 /**
  * rAF chỉ đẩy thời gian vào clock; số tick không phụ thuộc FPS.
- * Tab ẩn = vắng mặt (đường offline); đóng tab = lưu tới thời điểm đã hạch toán.
+ * Tab ẩn vẫn là online ở tốc độ đã chọn (AGENTS.md §4): rAF ngừng, frame đầu khi hiện lại chạy bù.
+ * Ẩn hoặc đóng tab = lưu tới thời điểm đó.
  */
 export function useGameLoop(): void {
   useEffect(() => {
@@ -16,9 +17,7 @@ export function useGameLoop(): void {
     const saveNow = () =>
       useGameStore.getState().save(performance.now(), Date.now())
     const onVisibility = () => {
-      const store = useGameStore.getState()
-      const toggle = document.hidden ? store.hide : store.show
-      toggle(performance.now(), Date.now())
+      if (document.hidden) saveNow()
     }
     window.addEventListener('pagehide', saveNow)
     document.addEventListener('visibilitychange', onVisibility)

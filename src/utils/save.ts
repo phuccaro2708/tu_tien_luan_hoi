@@ -121,6 +121,19 @@ export function readSave(
   }
 }
 
+/** Cất `text` dưới tên theo hash; khóa đã giữ nội dung khác (va chạm hash) thì thêm hậu tố, không ghi đè. */
+function quarantine(storage: SaveStorage, text: string) {
+  const base = `${SAVE_QUARANTINE_PREFIX}${hashState(text)}`
+  let key = base
+  for (let i = 1; ; i++) {
+    const existing = storage.getItem(key)
+    if (existing === text) return
+    if (existing === null) break
+    key = `${base}.${i}`
+  }
+  storage.setItem(key, text)
+}
+
 export interface BootResult {
   /** null = không có save dùng được; người gọi tạo game mới. */
   state: GameState | null
@@ -148,9 +161,8 @@ export function bootSave(
   try {
     for (const key of [SAVE_KEY, SAVE_BACKUP_KEY]) {
       const text = storage.getItem(key)
-      if (text !== null && !parseSave(text, content).ok) {
-        storage.setItem(`${SAVE_QUARANTINE_PREFIX}${hashState(text)}`, text)
-      }
+      if (text !== null && !parseSave(text, content).ok)
+        quarantine(storage, text)
     }
   } catch (e) {
     canWrite = false

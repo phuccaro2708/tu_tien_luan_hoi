@@ -10,8 +10,10 @@ export const SPEEDS: readonly Speed[] = [1, 2, 3, 5]
 
 export interface ClockState {
   speed: Speed
-  /** Mốc neo; tick đến hạn tính từ tổng thời gian kể từ mốc để không trôi số thực. */
+  /** Mốc neo của tốc độ hiện tại; tick đến hạn tính từ tổng thời gian kể từ mốc để không trôi số thực. */
   anchorMs: number
+  /** Thời gian game (ms ở 1×) đã trôi trước mốc neo mà chưa thành tick (đổi tốc độ giữa tick). */
+  carryMs: number
   ticksSinceAnchor: number
   /** Thời điểm lớn nhất đã thấy. Thời gian lùi hoặc NaN = chưa có thời gian trôi qua. */
   lastMs: number
@@ -19,20 +21,19 @@ export interface ClockState {
 
 export function createClock(nowMs: number, speed: Speed = 1): ClockState {
   const t = Number.isFinite(nowMs) ? nowMs : 0
-  return { speed, anchorMs: t, ticksSinceAnchor: 0, lastMs: t }
+  return { speed, anchorMs: t, carryMs: 0, ticksSinceAnchor: 0, lastMs: t }
 }
 
 /** Thời điểm hợp lệ không lùi so với những gì clock đã thấy. */
 const seen = (clock: ClockState, nowMs: number) =>
   Number.isFinite(nowMs) ? Math.max(nowMs, clock.lastMs) : clock.lastMs
 
-/** Thời gian game (ms ở 1×) đã trôi nhưng chưa phát thành tick, gồm cả phần lẻ. */
-const remainderMs = (clock: ClockState, t: number) =>
-  (t - clock.anchorMs) * clock.speed - clock.ticksSinceAnchor * TICK_MS
+/** Thời gian game (ms ở 1×) đã trôi kể từ mốc neo, gồm phần mang sang. */
+const elapsedMs = (clock: ClockState, t: number) =>
+  clock.carryMs + (t - clock.anchorMs) * clock.speed
 
 /**
  * Số tick đến hạn tại `nowMs`, tối đa `maxTicks` (phần còn nợ được giữ cho lần sau).
- * Nợ quá 8 giờ thực (VD máy ngủ khi tab vẫn hiện) bị cắt, cùng trần với offline.
  * `paused`: bỏ thời gian đã trôi để không bùng tick khi tiếp tục.
  */
 export function advanceClock(
@@ -42,20 +43,13 @@ export function advanceClock(
 ): { clock: ClockState; ticks: number } {
   const t = seen(clock, nowMs)
   if (opts.paused) return { clock: createClock(t, clock.speed), ticks: 0 }
-  const capMs = MAX_AWAY_MS * clock.speed
-  const anchored =
-    remainderMs(clock, t) > capMs
-      ? { ...clock, anchorMs: t - MAX_AWAY_MS, ticksSinceAnchor: 0 }
-      : clock
-  const due =
-    Math.floor(((t - anchored.anchorMs) * anchored.speed) / TICK_MS) -
-    anchored.ticksSinceAnchor
+  const due = Math.floor(elapsedMs(clock, t) / TICK_MS) - clock.ticksSinceAnchor
   const limit = Math.max(0, Math.floor(opts.maxTicks) || 0)
   const ticks = Math.max(0, Math.min(due, limit))
   return {
     clock: {
-      ...anchored,
-      ticksSinceAnchor: anchored.ticksSinceAnchor + ticks,
+      ...clock,
+      ticksSinceAnchor: clock.ticksSinceAnchor + ticks,
       lastMs: t,
     },
     ticks,
@@ -72,7 +66,8 @@ export function setClockSpeed(
   const t = seen(clock, nowMs)
   return {
     speed,
-    anchorMs: t - remainderMs(clock, t) / speed,
+    anchorMs: t,
+    carryMs: elapsedMs(clock, t) - clock.ticksSinceAnchor * TICK_MS,
     ticksSinceAnchor: 0,
     lastMs: t,
   }
