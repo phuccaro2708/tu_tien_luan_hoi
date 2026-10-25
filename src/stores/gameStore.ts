@@ -18,7 +18,7 @@ const AUTOSAVE_MS = 30_000 // SYSTEMS S14
 const MAX_TICKS_PER_FRAME = 20 // phần còn nợ dồn sang frame sau (SYSTEMS S1)
 const SAVE_LOCK = 'ttlh.save'
 const OTHER_TAB =
-  'Game đang mở ở tab khác; tab này không lưu cho tới khi tab kia đóng.'
+  'Game đang mở ở tab khác; tab này tạm dừng và sẽ tiếp tục từ save mới nhất khi tab kia đóng.'
 
 const storage: SaveStorage | null =
   typeof localStorage === 'undefined' ? null : localStorage
