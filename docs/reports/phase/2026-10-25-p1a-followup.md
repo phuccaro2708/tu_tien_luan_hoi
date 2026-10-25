@@ -41,6 +41,7 @@ Người dùng chốt các quyết định D31–D36 và duyệt D23 ngày 2026-
 - **Tinh lực tối đa** (D35, PROGRESSION §6):
   - Công thức: `max(0, 100 + min(30, cấp Thể Phách) + thiên phú − 2 × max(0, tuổi − floor(80% × thọ nguyên)))`. Cường tráng được +10.
   - Kẹp Tinh lực trong `step`, ngay sau khi sang ngày mới (pipeline bước 1). Effect cộng Tinh lực cũng bị kẹp trong cùng tick.
+    - **Lệch khỏi plan:** plan định truyền map mức tối đa động vào `applyResourceDeltas`. Bản cài đặt giữ `applyResourceDeltas` kẹp theo trần tĩnh 140, rồi kẹp lại một lần trong `step`. Hai cách cho cùng kết quả vì `resolveEffects` gộp delta ròng của từng tài nguyên và chỉ gọi `applyResourceDeltas` một lần: `min(min(v, 140), m) = min(v, m)` với `m ≤ 140`. Diff nhỏ hơn, không phải sửa chữ ký hàm ở mọi chỗ gọi.
   - Kiếp mới bắt đầu với Tinh lực đầy.
   - Save v1 đã lão hóa: kẹp Tinh lực thay vì từ chối save.
   - Trần tuyệt đối của tài nguyên `tinhLuc` là 140. Registry kiểm tra trần này đủ chứa mức tối đa cao nhất có thể. `validateState` từ chối giá trị vượt mức tối đa hiện tại.
