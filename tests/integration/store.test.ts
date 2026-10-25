@@ -83,12 +83,17 @@ describe('store time accounting', () => {
     expect(loaded.ok && loaded.value.state.resources.van).toBe(0)
   })
 
-  it('B02: autosave with an unprocessed backlog keeps the backlog', async () => {
-    const storage = memory()
+  it('B02/S1: autosave waits for the frame backlog to clear, then keeps all of it', async () => {
+    const data = new Map<string, string>()
+    const storage = memory(data)
     const s = await open(storage, 0)
     s.getState().dispatch({ type: 'setAction', actionId: 'payFee' }, 0)
     s.getState().frame(0, 0)
-    s.getState().frame(60_000, 60_000) // 120 tick đến hạn, autosave
+    s.getState().frame(60_000, 60_000) // 120 tick đến hạn, frame chỉ chạy 20
+    expect(s.getState().game.day).toBe(20)
+    expect(data.has(SAVE_KEY)).toBe(false)
+    for (let i = 0; i < 6; i++) s.getState().frame(60_000, 60_000) // bù xong → autosave
+    expect(data.has(SAVE_KEY)).toBe(true)
     const again = await open(storage, 60_000)
     expect(again.getState().game.day).toBe(120)
   })
@@ -108,13 +113,13 @@ describe('store time accounting', () => {
     visible.getState().setSpeed(5, 0)
     for (let t = 1_000; t <= 61_000; t += 1_000) visible.getState().frame(t, t)
 
-    // Ẩn = chỉ lưu (useGameLoop); rAF ngừng, frame đầu sau khi hiện lại chạy bù.
+    // Ẩn = chỉ lưu (useGameLoop); rAF ngừng, các frame sau khi hiện lại chạy bù tối đa 20 tick mỗi frame.
     const hidden = await open(memory(), 0)
     hidden.getState().frame(0, 0)
     hidden.getState().setSpeed(5, 0)
     hidden.getState().save(0, 0)
     hidden.getState().frame(60_000, 60_000)
-    hidden.getState().frame(61_000, 61_000)
+    for (let i = 0; i < 40; i++) hidden.getState().frame(61_000, 61_000)
 
     expect(visible.getState().game.day).toBe(610)
     expect(hidden.getState().game.day).toBe(610)
@@ -313,6 +318,44 @@ describe('store write protection', () => {
     s.getState().save(60_000, 60_000)
     expect(s.getState().game.day).toBe(120)
     expect([...data]).toEqual(before)
+  })
+
+  it('R01: on plain HTTP the no-Web-Locks warning blames the origin, not the browser', async () => {
+    vi.stubGlobal('isSecureContext', false)
+    const s = await open(memory(), 0, {})
+    expect(s.getState().saveBlocked).toMatch(/HTTPS/)
+  })
+
+  it('a tab booted while hidden counts the time before its first frame', async () => {
+    const storage = memory()
+    const s = await open(storage, 0)
+    s.getState().frame(3 * HOUR, 3 * HOUR) // frame đầu sau 3 giờ ẩn
+    s.getState().save(3 * HOUR, 3 * HOUR)
+    expect(s.getState().game.day).toBe(21_600)
+    expect(savedDay(storage)).toBe(21_600)
+  })
+
+  it('autosave keeps running when the system clock is set back', async () => {
+    const data = new Map<string, string>()
+    const s = await open(memory(data), 0)
+    s.getState().frame(0, 0)
+    for (let t = 1_000; t <= 31_000; t += 1_000)
+      s.getState().frame(t, -24 * HOUR)
+    expect(data.has(SAVE_KEY)).toBe(true)
+  })
+
+  it('a failed write stays reported after a successful command', async () => {
+    const storage = {
+      ...memory(),
+      setItem: () => {
+        throw new Error('QuotaExceededError')
+      },
+    }
+    const s = await open(storage, 0)
+    s.getState().save(1_000, 1_000)
+    s.getState().dispatch({ type: 'setAction', actionId: 'payFee' }, 1_000)
+    expect(s.getState().error).toBeNull()
+    expect(s.getState().saveError).toMatch(/QuotaExceededError/)
   })
 
   it('R01: a failed lock request blocks saving with a reason', async () => {

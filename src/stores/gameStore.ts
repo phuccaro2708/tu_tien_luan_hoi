@@ -19,8 +19,11 @@ const MAX_TICKS_PER_FRAME = 20 // phần còn nợ dồn sang frame sau (SYSTEMS
 const SAVE_LOCK = 'ttlh.save'
 const OTHER_TAB =
   'Game đang mở ở tab khác; tab này tạm dừng và sẽ tiếp tục từ save mới nhất khi tab kia đóng.'
+// Web Locks chỉ có trong secure context: trang HTTP (VD preview qua IP LAN) cũng không có.
 const NO_LOCKS =
-  'Trình duyệt không hỗ trợ Web Locks nên không lưu được (tránh hai tab ghi đè nhau). Hãy cập nhật trình duyệt.'
+  globalThis.isSecureContext === false
+    ? 'Trang không chạy qua HTTPS hoặc localhost nên trình duyệt tắt Web Locks; tab này không lưu được (tránh hai tab ghi đè nhau).'
+    : 'Trình duyệt không hỗ trợ Web Locks nên không lưu được (tránh hai tab ghi đè nhau). Hãy cập nhật trình duyệt.'
 
 const storage: SaveStorage | null =
   typeof localStorage === 'undefined' ? null : localStorage
@@ -31,6 +34,8 @@ interface GameStore {
   /** Tick đã chạy khi vắng mặt (lúc mở game). */
   offlineTicks: number
   error: string | null
+  /** Lần ghi save gần nhất thất bại (VD hết quota); ghi được thì xóa. Tách khỏi `error` để lệnh chơi không xóa nó. */
+  saveError: string | null
   /** Khác null = tab này không được ghi save (save hỏng chưa cách ly được, hoặc tab khác đang giữ). */
   saveBlocked: string | null
   frame: (frameNow: number, wallNow: number) => void
@@ -45,10 +50,11 @@ interface GameStore {
 // Hạch toán thời gian nằm ngoài React state.
 // `savedAt`: mốc thời gian thực mà `game` đã được hạch toán tới; chỉ tăng (đồng hồ lùi không cấp lại thời gian).
 let savedAt = 0
-let lastSaveWall = 0
-let clock: ClockState | null = null // null = chưa có frame
-// Một writer cho một save: chỉ đọc, cách ly và ghi save sau khi giữ khóa, để không chạy trên bản cũ (N01).
-let ready = false
+// Mốc clock (đơn điệu) của lần lưu gần nhất: đồng hồ hệ thống lùi không làm ngừng autosave.
+let lastSaveMs = 0
+// null = chưa boot. Một writer cho một save: chỉ đọc, cách ly và ghi save sau khi giữ khóa (N01).
+let clock: ClockState | null = null
+let behind = false // frame gần nhất chạm MAX_TICKS_PER_FRAME, còn tick nợ
 const locks = typeof navigator === 'undefined' ? undefined : navigator.locks
 
 /**
@@ -57,15 +63,18 @@ const locks = typeof navigator === 'undefined' ? undefined : navigator.locks
  */
 function boot(now: number, readOnly = false) {
   const booted = storage ? bootSave(storage, content, now, readOnly) : null
+  const speed = booted?.speed ?? 1
   savedAt = booted?.savedAt ?? now
-  lastSaveWall = now
-  clock = null
-  ready = true
+  // Clock chạy từ lúc boot, không đợi frame đầu: tab tải (hoặc nhận khóa) khi đang ẩn vẫn tính giờ ẩn là online.
+  clock = createClock(performance.now(), speed)
+  lastSaveMs = clock.lastMs
+  behind = false
   return {
     game: booted?.state ?? createInitialState(content, now >>> 0),
-    speed: booted?.speed ?? 1,
+    speed,
     offlineTicks: booted?.offlineTicks ?? 0,
     error: booted?.error ?? null,
+    saveError: null,
     saveBlocked: readOnly
       ? NO_LOCKS
       : booted && !booted.canWrite
@@ -82,6 +91,7 @@ function settle(game: GameState, frameNow: number, maxTicks: number) {
     maxTicks,
   })
   clock = adv.clock
+  behind = adv.ticks >= maxTicks
   return adv.ticks > 0 ? runTicks(game, content, adv.ticks).state : game
 }
 
@@ -93,6 +103,7 @@ const initial = locks
       speed: 1 as Speed,
       offlineTicks: 0,
       error: null,
+      saveError: null,
       saveBlocked: null,
     }
   : boot(Date.now(), true)
@@ -101,42 +112,41 @@ export const useGameStore = create<GameStore>((set, get) => ({
   ...initial,
 
   frame(frameNow, wallNow) {
-    if (!ready) return
-    clock ??= createClock(frameNow, get().speed)
+    if (!clock) return
     const game = settle(get().game, frameNow, MAX_TICKS_PER_FRAME)
     if (game !== get().game) set({ game })
-    if (wallNow - lastSaveWall >= AUTOSAVE_MS) get().save(frameNow, wallNow)
+    // Đang chạy bù thì hoãn autosave: save hạch toán hết nợ trong một lần, vượt trần mỗi frame (SYSTEMS S1).
+    if (!behind && clock.lastMs - lastSaveMs >= AUTOSAVE_MS)
+      get().save(frameNow, wallNow)
   },
 
   setSpeed(speed, frameNow) {
-    if (!ready) return
+    if (!clock) return
     set({ game: settle(get().game, frameNow, Infinity), speed })
-    if (clock) clock = setClockSpeed(clock, frameNow, speed)
+    clock = setClockSpeed(clock, frameNow, speed)
   },
 
   dispatch(command, frameNow) {
-    if (!ready) return
+    if (!clock) return
     const game = settle(get().game, frameNow, Infinity)
     const r = applyCommand(game, content, command)
     set(r.ok ? { game: r.value, error: null } : { game, error: r.error })
   },
 
   spendTichThoi(frameNow) {
-    if (!ready) return
+    if (!clock) return
     const game = settle(get().game, frameNow, Infinity)
     set({ game: spendTichThoi(game, content).state })
   },
 
   save(frameNow, wallNow) {
-    if (!ready) return
-    lastSaveWall = wallNow
-    if (clock) {
-      set({ game: settle(get().game, frameNow, Infinity) })
-      savedAt = Math.max(savedAt, wallNow)
-    }
+    if (!clock) return
+    set({ game: settle(get().game, frameNow, Infinity) })
+    savedAt = Math.max(savedAt, wallNow)
+    lastSaveMs = clock.lastMs
     if (!storage || get().saveBlocked) return
     const r = writeSave(storage, get().game, content, savedAt, get().speed)
-    if (!r.ok) set({ error: r.error })
+    set({ saveError: r.ok ? null : r.error })
   },
 }))
 

@@ -47,6 +47,12 @@ export function runScript(
     s = runTicks(s, content, nextCmd - s.day).state
     if (s === before) break // không còn ngày nào trôi được
   }
+  // Dừng sớm mà còn lệnh chưa áp = kịch bản sai; báo lỗi thay vì trả về một lượt chạy ngắn hơn dự kiến.
+  const missed = pending.filter((e) => e.day < totalDays)
+  if (missed.length > 0)
+    throw new Error(
+      `stopped at day ${s.day}; commands for day ${missed.map((e) => e.day).join(', ')} never applied`,
+    )
   return s
 }
 

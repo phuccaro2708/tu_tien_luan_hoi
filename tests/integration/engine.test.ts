@@ -46,6 +46,16 @@ describe('deterministic simulation (replay)', () => {
     expect(s.stop?.reason).toBe('actionBlocked')
   }, 2_000)
 
+  it('runScript fails loudly when a stop leaves later commands unapplied', () => {
+    const script = [
+      { day: 0, command: { type: 'setAction', actionId: 'spend' } },
+      { day: 3, command: { type: 'resume' } },
+    ] as const
+    expect(() => runScript(fixture, 1, script, 5)).toThrow(
+      /day 3 never applied/,
+    )
+  })
+
   it('1× / 2× / 3× / 5× and different frame splits → same hash as headless replay', () => {
     const expected = hashState(runScript(fixture, 5, script, 200))
     const runs = [
