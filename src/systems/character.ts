@@ -1,6 +1,13 @@
 import { own } from '../core/record'
 import { nextFloat } from '../core/rng'
-import type { Character, Content, ResourceId, SkillId } from '../types/game'
+import type {
+  Character,
+  Content,
+  Identity,
+  ResourceId,
+  Result,
+  SkillId,
+} from '../types/game'
 
 /** Chọn theo trọng số với số ngẫu nhiên `u` ∈ [0, 1). Trọng số 0 không bao giờ được chọn. */
 function pickWeighted<T>(
@@ -56,6 +63,7 @@ export function rollLife1(
 
   return {
     character: {
+      identity: null,
       linhCan: { id: linhCan.id, elements },
       ngoTinh,
       originId: origin.id,
@@ -88,4 +96,28 @@ export function applyOrigin(
     ]),
   )
   return { resources: next, skillXp }
+}
+
+/**
+ * Chuẩn hóa và kiểm tra danh tính (D32): tên NFC, cắt khoảng trắng hai đầu, 1..nameMaxLength ký tự
+ * (đếm theo code point), không có ký tự điều khiển; giới tính có trong dữ liệu.
+ */
+export function parseIdentity(
+  content: Content,
+  name: unknown,
+  gender: unknown,
+): Result<Identity> {
+  if (typeof name !== 'string') return { ok: false, error: 'name required' }
+  const clean = name.normalize('NFC').trim()
+  const length = [...clean].length
+  if (length < 1 || length > content.identity.nameMaxLength)
+    return {
+      ok: false,
+      error: `name must be 1–${content.identity.nameMaxLength} characters`,
+    }
+  if (/\p{Cc}/u.test(clean))
+    return { ok: false, error: 'name has control characters' }
+  if (!content.identity.genders.some((g) => g.id === gender))
+    return { ok: false, error: 'unknown gender' }
+  return { ok: true, value: { name: clean, gender: gender as string } }
 }

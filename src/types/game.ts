@@ -102,8 +102,16 @@ export interface TraitDef {
   tiers: TraitTier[]
 }
 
+/** Danh tính do người chơi chọn (D05, D32). */
+export interface IdentityRules {
+  /** Số ký tự tối đa của tên, sau khi cắt khoảng trắng hai đầu. */
+  nameMaxLength: number
+  genders: { id: string; name: string }[]
+}
+
 export interface RawContent {
   calendar: Calendar
+  identity: IdentityRules
   resources: ResourceDef[]
   actions: ActionDef[]
   skillRules: SkillRules
@@ -119,6 +127,7 @@ export interface RawContent {
 /** Nội dung đã nạp: bất biến sâu (createContent đóng băng mọi cấp). */
 export interface Content {
   readonly calendar: Readonly<Calendar>
+  readonly identity: Readonly<IdentityRules>
   readonly resources: Readonly<Record<ResourceId, Readonly<ResourceDef>>>
   readonly actions: Readonly<Record<ActionId, Readonly<ActionDef>>>
   readonly skillRules: Readonly<SkillRules>
@@ -141,6 +150,8 @@ export type StopReason =
   | 'lifespanWarning'
   /** Hết kiếp: engine không chạy tiếp, mọi lệnh bị từ chối (Vong Xuyên thuộc P4). */
   | 'death'
+  /** Kiếp mới chưa có tên/giới tính: thời gian chưa chạy, chỉ nhận lệnh `setIdentity` (D32). */
+  | 'chooseIdentity'
 
 export interface StopPoint {
   reason: StopReason
@@ -148,7 +159,14 @@ export interface StopPoint {
 }
 
 /** Thuộc tính của kiếp, tung theo seed (PROGRESSION §3, D04). Linh căn và ngộ tính là thông tin ẩn với người chơi. */
+export interface Identity {
+  name: string
+  gender: string
+}
+
 export interface Character {
+  /** null ⇔ stop là `chooseIdentity`. */
+  identity: Identity | null
   linhCan: { id: string; elements: string[] }
   ngoTinh: number
   originId: string
@@ -176,6 +194,8 @@ export interface GameState {
 }
 
 export type Command =
-  { type: 'setAction'; actionId: ActionId | null } | { type: 'resume' }
+  | { type: 'setAction'; actionId: ActionId | null }
+  | { type: 'resume' }
+  | { type: 'setIdentity'; name: string; gender: string }
 
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string }

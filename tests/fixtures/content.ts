@@ -1,6 +1,8 @@
+import { applyCommand } from '../../src/core/engine'
+import { createInitialState } from '../../src/core/state'
 import { characterData } from '../../src/data/character'
 import { createContent } from '../../src/data/registry'
-import type { RawContent } from '../../src/types/game'
+import type { Content, GameState, RawContent } from '../../src/types/game'
 
 // Nội dung giả chỉ dùng cho test; không phải số liệu gameplay.
 // Kỹ năng, linh căn, xuất thân, thiên phú lấy từ dữ liệu thật. Thọ nguyên đặt rất dài để test
@@ -97,3 +99,18 @@ export const lifeFixture = createContent({
   ...rawFixture,
   lifespan: characterData.lifespan,
 })
+
+/** Chọn danh tính mặc định cho state đang chờ `chooseIdentity` (D32). */
+export function named(content: Content, state: GameState): GameState {
+  const r = applyCommand(state, content, {
+    type: 'setIdentity',
+    name: 'Thử',
+    gender: 'nam',
+  })
+  if (!r.ok) throw new Error(r.error)
+  return r.value
+}
+
+/** Game mới đã chọn danh tính: thời gian chạy được ngay. */
+export const startGame = (content: Content, seed: number): GameState =>
+  named(content, createInitialState(content, seed))

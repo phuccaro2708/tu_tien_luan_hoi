@@ -1,6 +1,5 @@
 import { ESLint } from 'eslint'
 import { describe, expect, it } from 'vitest'
-import { createInitialState } from '../../src/core/state'
 import { hashState } from '../../src/core/hash'
 import { simulateAway } from '../../src/systems/offline'
 import {
@@ -12,7 +11,7 @@ import {
   writeSave,
   type SaveStorage,
 } from '../../src/utils/save'
-import { fixture } from '../fixtures/content'
+import { fixture, startGame } from '../fixtures/content'
 import { runRealtime, runScript, type ScriptEntry } from './harness'
 
 const script: ScriptEntry[] = [
@@ -29,7 +28,7 @@ describe('deterministic simulation (replay)', () => {
     const b = runScript(fixture, 5, script, 400)
     expect(a.day).toBe(400)
     expect(a.claimed).toEqual({ treasure: true })
-    const startVan = createInitialState(fixture, 5).resources.van // vốn xuất thân
+    const startVan = startGame(fixture, 5).resources.van // vốn xuất thân
     expect(a.resources.van).toBe(startVan + 9 * 10 + 100 + 30 * 7)
     expect(hashState(a)).toBe(hashState(b))
   })
@@ -92,11 +91,7 @@ describe('deterministic simulation (replay)', () => {
     expect(s.resources.van).toBe(70_000)
     const empty = runScript(fixture, 1, [], 10_000)
     expect(empty.day).toBe(10_000)
-    const off = simulateAway(
-      createInitialState(fixture, 1),
-      fixture,
-      8 * 3_600_000,
-    )
+    const off = simulateAway(startGame(fixture, 1), fixture, 8 * 3_600_000)
     expect(off.ticksRun).toBe(57_600)
     expect(performance.now() - t0).toBeLessThan(1000)
   })
@@ -115,7 +110,7 @@ describe('boot (load + offline)', () => {
 
   it('boot never writes; offline is applied once because the next save carries the accounted time', () => {
     const { data, storage } = memory()
-    writeSave(storage, createInitialState(fixture, 1), fixture, 0)
+    writeSave(storage, startGame(fixture, 1), fixture, 0)
     const before = data.get(SAVE_KEY)
     const first = bootSave(storage, fixture, 3_600_000)
     expect(first.offlineTicks).toBe(7_200)
@@ -134,7 +129,7 @@ describe('boot (load + offline)', () => {
 
   it('boot after the clock went back keeps the later savedAt', () => {
     const { storage } = memory()
-    writeSave(storage, createInitialState(fixture, 1), fixture, 10_000)
+    writeSave(storage, startGame(fixture, 1), fixture, 10_000)
     const r = bootSave(storage, fixture, 0)
     expect(r.offlineTicks).toBe(0)
     expect(r.savedAt).toBe(10_000)
@@ -146,26 +141,21 @@ describe('boot (load + offline)', () => {
     const stale = JSON.stringify({
       version: SAVE_VERSION,
       savedAt: 0,
-      state: { ...createInitialState(fixture, 1), resources: { van: 5 } },
+      state: { ...startGame(fixture, 1), resources: { van: 5 } },
     })
     data.set(SAVE_KEY, stale)
     const r = bootSave(storage, fixture, 1_000)
     expect(r.state).toBeNull()
     expect(r.error).toMatch(/invalid state/)
     // Store tạo game mới và autosave:
-    writeSave(storage, createInitialState(fixture, 2), fixture, 2_000)
+    writeSave(storage, startGame(fixture, 2), fixture, 2_000)
     expect(data.get(`${SAVE_QUARANTINE_PREFIX}${hashState(stale)}`)).toBe(stale)
   })
 
   it('a bad main save with a good backup loads the backup and keeps the bad text', () => {
     const { data, storage } = memory()
-    writeSave(storage, createInitialState(fixture, 1), fixture, 0)
-    writeSave(
-      storage,
-      { ...createInitialState(fixture, 1), day: 5 },
-      fixture,
-      0,
-    )
+    writeSave(storage, startGame(fixture, 1), fixture, 0)
+    writeSave(storage, { ...startGame(fixture, 1), day: 5 }, fixture, 0)
     data.set(SAVE_KEY, '{"truncated')
     const r = bootSave(storage, fixture, 0)
     expect(r.state?.day).toBe(0)
@@ -183,7 +173,7 @@ describe('boot (load + offline)', () => {
     data.set(SAVE_BACKUP_KEY, b)
     const r = bootSave(storage, fixture, 0)
     expect(r.canWrite).toBe(true)
-    writeSave(storage, createInitialState(fixture, 2), fixture, 0)
+    writeSave(storage, startGame(fixture, 2), fixture, 0)
     const kept = [...data]
       .filter(([k]) => k.startsWith(SAVE_QUARANTINE_PREFIX))
       .map(([, v]) => v)

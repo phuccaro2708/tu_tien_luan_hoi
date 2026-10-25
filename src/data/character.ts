@@ -1,9 +1,10 @@
 import type { RawContent } from '../types/game'
 
-// Dữ liệu nhân vật đã duyệt: D04 + PROGRESSION §3 (kiếp 1), §5 (kỹ năng), §6 (thọ nguyên).
+// Dữ liệu nhân vật đã duyệt: D04 + PROGRESSION §3 (kiếp 1), §5 (kỹ năng), §6 (thọ nguyên); D32 (danh tính).
 // Tách khỏi content.ts để fixture test dùng chung mà không import module content (store test mock nó).
 export const characterData: Pick<
   RawContent,
+  | 'identity'
   | 'skillRules'
   | 'skills'
   | 'lifespan'
@@ -13,6 +14,13 @@ export const characterData: Pick<
   | 'origins'
   | 'traits'
 > = {
+  identity: {
+    nameMaxLength: 16,
+    genders: [
+      { id: 'nam', name: 'Nam' },
+      { id: 'nu', name: 'Nữ' },
+    ],
+  },
   skillRules: { maxLevel: 50, xpBase: 10, xpExponent: 1.6 },
   skills: [
     { id: 'thePhach', name: 'Thể Phách', ngo: false },

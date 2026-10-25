@@ -43,6 +43,12 @@ export function validateContent(raw: RawContent): string[] {
     return ids
   }
 
+  const { nameMaxLength, genders } = raw.identity
+  if (!Number.isInteger(nameMaxLength) || nameMaxLength < 1)
+    errors.push('identity.nameMaxLength must be a positive integer')
+  idsOf('gender', genders)
+  if (genders.length === 0) errors.push('need at least one gender')
+
   const resourceIds = idsOf('resource', raw.resources)
   for (const r of raw.resources) {
     if (![r.min, r.max, r.initial].every(isNum))
@@ -177,6 +183,7 @@ export function createContent(raw: RawContent): Content {
     throw new Error(`Invalid content:\n${errors.join('\n')}`)
   return deepFreeze({
     calendar: copy.calendar,
+    identity: copy.identity,
     resources: byId(copy.resources),
     actions: byId(copy.actions),
     skillRules: copy.skillRules,

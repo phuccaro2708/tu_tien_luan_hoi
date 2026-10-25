@@ -15,13 +15,16 @@ export function awayTicks(awayMs: number): number {
   return Math.min(Math.floor(awayMs / TICK_MS), MAX_AWAY_TICKS)
 }
 
-/** Mô phỏng thời gian vắng mặt bằng chính engine; phần còn lại thành Tích Thời. */
+/**
+ * Mô phỏng thời gian vắng mặt bằng chính engine; phần còn lại thành Tích Thời.
+ * Chưa chọn danh tính → nhân vật chưa tồn tại, vắng mặt không sinh Tích Thời (D32).
+ */
 export function simulateAway(
   state: GameState,
   content: Content,
   awayMs: number,
 ): OfflineReport {
-  const ticks = awayTicks(awayMs)
+  const ticks = state.stop?.reason === 'chooseIdentity' ? 0 : awayTicks(awayMs)
   const run = runTicks(state, content, ticks)
   const tichThoiTicks = Math.min(
     MAX_AWAY_TICKS,

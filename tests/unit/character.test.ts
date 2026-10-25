@@ -1,4 +1,4 @@
-// Nhân vật kiếp 1, kỹ năng/XP, thọ nguyên và save v2 (PROGRESSION §3, §5, §6; D04).
+// Nhân vật kiếp 1, danh tính, kỹ năng/XP, thọ nguyên và save v2 (PROGRESSION §3, §5, §6; D04, D32).
 import { describe, expect, it } from 'vitest'
 import { applyCommand, runTicks, step } from '../../src/core/engine'
 import { seedRng } from '../../src/core/rng'
@@ -13,10 +13,11 @@ import { simulateAway, spendTichThoi } from '../../src/systems/offline'
 import { gainSkillXp, levelForXp, skillLevel } from '../../src/systems/skills'
 import type { Character, GameState } from '../../src/types/game'
 import { parseSave, SAVE_VERSION, serializeSave } from '../../src/utils/save'
-import { fixture, lifeFixture } from '../fixtures/content'
+import { fixture, lifeFixture, named, startGame } from '../fixtures/content'
 
 /** Nhân vật cố định để số liệu không phụ thuộc kết quả tung. */
 const plain: Character = {
+  identity: { name: 'Thử', gender: 'nam' },
   linhCan: { id: 'tam', elements: ['kim', 'thuy', 'tho'] },
   ngoTinh: 1,
   originId: 'tieuPhu',
@@ -31,6 +32,7 @@ const make = (
   content = fixture,
 ): GameState => ({
   ...createInitialState(content, 1),
+  stop: null,
   skillXp: zeroXp,
   ...patch,
   character: { ...plain, ...character },
@@ -52,6 +54,7 @@ describe('rollLife1 (D04)', () => {
   it('golden: seed 1 rolls the same life forever (changing draw order breaks this)', () => {
     expect(createInitialState(fixture, 1).character).toMatchInlineSnapshot(`
       {
+        "identity": null,
         "innateTrait": {
           "id": "theNhuoc",
           "tier": 1,
@@ -360,7 +363,7 @@ describe('save v2', () => {
     const rest: Partial<GameState> = { ...s }
     delete rest.character
     delete rest.skillXp
-    return { ...rest, rng: seedRng(s.seed) }
+    return { ...rest, stop: null, rng: seedRng(s.seed) }
   }
   const text = (version: unknown, state: unknown) =>
     JSON.stringify({ version, savedAt: 123, speed: 2, state })
@@ -401,12 +404,16 @@ describe('save v2', () => {
     expect(s.character).toEqual(fresh.character)
   })
 
-  it('a v1 save already past the rolled lifespan loads, then dies on its first tick', () => {
-    // Save P0 không có thọ nguyên: chơi lâu (≥ 46 năm game) rồi migrate → chết ngay khi tick (softlock tới P4).
+  it('a v1 save already past the rolled lifespan asks for a name, then dies on its first tick', () => {
+    // Save P0 không có thọ nguyên: chơi lâu (≥ 46 năm game) rồi migrate → chết ngay khi tick; chơi lại bằng kiếp mới (D31).
     const v1 = { ...v1Of(createInitialState(lifeFixture, 3)), day: 30_000 }
     const loaded = ok(parseSave(text(1, v1), lifeFixture)).state
-    expect(loaded.stop).toBeNull()
-    const away = simulateAway(loaded, lifeFixture, 3_600_000)
+    expect(loaded.stop?.reason).toBe('chooseIdentity')
+    const away = simulateAway(
+      named(lifeFixture, loaded),
+      lifeFixture,
+      3_600_000,
+    )
     expect(away.state.stop?.reason).toBe('death')
     expect(away.state.day).toBe(30_001)
     expect(away.ticksRun).toBe(1)
@@ -430,7 +437,7 @@ describe('save v2', () => {
 })
 
 describe('validateState: character and skills', () => {
-  const good = createInitialState(fixture, 1)
+  const good = startGame(fixture, 1)
   const withChar = (c: object) => ({
     ...good,
     character: { ...good.character, ...c },
@@ -478,6 +485,32 @@ describe('validateState: character and skills', () => {
       withChar({ innateTrait: { id: 'thietCot', tier: 1.5 } }),
     ],
     ['extra character key', withChar({ name: 'A' })],
+    ['identity missing', withChar({ identity: undefined })],
+    ['identity null while running', withChar({ identity: null })],
+    [
+      'identity name empty',
+      withChar({ identity: { name: '', gender: 'nam' } }),
+    ],
+    [
+      'identity name not trimmed',
+      withChar({ identity: { name: ' A', gender: 'nam' } }),
+    ],
+    [
+      'identity name too long',
+      withChar({ identity: { name: 'a'.repeat(17), gender: 'nam' } }),
+    ],
+    [
+      'identity gender unknown',
+      withChar({ identity: { name: 'A', gender: 'x' } }),
+    ],
+    [
+      'identity extra key',
+      withChar({ identity: { name: 'A', gender: 'nam', age: 1 } }),
+    ],
+    [
+      'chooseIdentity with an identity',
+      { ...good, stop: { reason: 'chooseIdentity', detail: '' } },
+    ],
     ['skillXp missing skill', { ...good, skillXp: { thePhach: 0 } }],
     ['skillXp negative', { ...good, skillXp: { ...good.skillXp, vanTu: -1 } }],
     [
@@ -499,5 +532,86 @@ describe('validateState: character and skills', () => {
       expect(
         validateState({ ...good, stop: { reason, detail: '1' } }, fixture),
       ).toEqual([])
+  })
+})
+
+describe('identity (D05, D32)', () => {
+  const fresh = () => createInitialState(fixture, 1)
+  const setId = (s: GameState, name: unknown, gender: unknown = 'nam') =>
+    applyCommand(s, fixture, {
+      type: 'setIdentity',
+      name: name as string,
+      gender: gender as string,
+    })
+
+  it('a new game waits at chooseIdentity: no tick runs, other commands are refused', () => {
+    const s = fresh()
+    expect(s.character.identity).toBeNull()
+    expect(s.stop).toEqual({ reason: 'chooseIdentity', detail: '' })
+    expect(runTicks(s, fixture, 100).ticksRun).toBe(0)
+    for (const cmd of [
+      { type: 'resume' as const },
+      { type: 'setAction' as const, actionId: 'idle' },
+    ])
+      expect(applyCommand(s, fixture, cmd)).toEqual({
+        ok: false,
+        error: 'choose a name and gender first',
+      })
+  })
+
+  it('setIdentity stores the trimmed NFC name, clears the stop, and lets time run', () => {
+    const s = ok(setId(fresh(), '  Lý Thanh  ', 'nu'))
+    expect(s.character.identity).toEqual({ name: 'Lý Thanh', gender: 'nu' })
+    expect(s.stop).toBeNull()
+    expect(runTicks(s, fixture, 3).ticksRun).toBe(3)
+    expect(validateState(s, fixture)).toEqual([])
+    // Tổ hợp (NFD) được chuẩn hóa về NFC.
+    const nfd = ok(setId(fresh(), 'Lý'.normalize('NFD')))
+    expect(nfd.character.identity?.name).toBe('Lý')
+  })
+
+  it('names: 1 and 16 characters (Vietnamese counted per character) are accepted', () => {
+    expect(setId(fresh(), 'A').ok).toBe(true)
+    const sixteen = 'Nguyễn Thị Hương' // 16 ký tự
+    expect([...sixteen]).toHaveLength(16)
+    expect(setId(fresh(), sixteen).ok).toBe(true)
+  })
+
+  it.each<[string, unknown]>([
+    ['empty', ''],
+    ['only spaces', '   '],
+    ['17 characters', 'a'.repeat(17)],
+    ['control character', 'A\u0007B'],
+    ['newline', 'A\nB'],
+    ['not a string', 5],
+  ])('rejects a name: %s', (_n, name) => {
+    expect(setId(fresh(), name).ok).toBe(false)
+  })
+
+  it('rejects an unknown gender and a second setIdentity', () => {
+    expect(setId(fresh(), 'A', 'x').ok).toBe(false)
+    const s = ok(setId(fresh(), 'A'))
+    expect(setId(s, 'B')).toEqual({
+      ok: false,
+      error: 'identity already chosen',
+    })
+  })
+
+  it('time away before choosing grants no Tích Thời', () => {
+    const away = simulateAway(fresh(), fixture, 8 * 3_600_000)
+    expect(away.ticksRun).toBe(0)
+    expect(away.tichThoiAdded).toBe(0)
+    expect(away.state.tichThoiTicks).toBe(0)
+  })
+
+  it('a v1 save migrates to chooseIdentity', () => {
+    const v1: Partial<GameState> = { ...fresh(), stop: null }
+    delete v1.character
+    delete v1.skillXp
+    const loaded = ok(
+      parseSave(JSON.stringify({ version: 1, savedAt: 0, state: v1 }), fixture),
+    )
+    expect(loaded.state.stop?.reason).toBe('chooseIdentity')
+    expect(loaded.state.character.identity).toBeNull()
   })
 })

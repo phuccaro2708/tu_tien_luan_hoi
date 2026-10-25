@@ -42,7 +42,8 @@ export function serializeSave(
 }
 
 /**
- * v1 (P0) → v2: thêm nhân vật kiếp 1 và kỹ năng.
+ * v1 (P0) → v2: thêm nhân vật kiếp 1 và kỹ năng; dừng ở `chooseIdentity` để người chơi đặt tên (D32).
+ * `stop` cũ bị bỏ: bản P0 phát hành không có hành động nào nên không có điểm dừng thật.
  * P0 chưa rút RNG nên `rng` của save v1 vẫn bằng seed: tung từ đó cho đúng kiếp 1 của game mới cùng seed.
  * Kiểm v1 trước khi migrate: v2 chỉ thêm trường, nên mọi trường v1 phải hợp lệ theo luật v2.
  */
@@ -53,9 +54,9 @@ function migrateV1(state: unknown, content: Content): Result<unknown> {
   if (Object.hasOwn(v1, 'character') || Object.hasOwn(v1, 'skillXp'))
     return { ok: false, error: 'v1 state has v2 fields' }
   const rng = v1.rng as number
-  const life = startLife1(content, rng, {})
+  // Trường v2 lấy từ một lần tung thử; `stop` của v1 bị thay bằng `chooseIdentity` nên không cần kiểm.
   const errors = validateState(
-    { ...v1, character: life.character, skillXp: life.skillXp },
+    { ...v1, ...startLife1(content, rng, {}), resources: v1.resources },
     content,
   )
   if (errors.length > 0)

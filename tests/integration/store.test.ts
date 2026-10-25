@@ -1,6 +1,5 @@
 // Kiểm tra hạch toán thời gian/save qua store thật (Codex audit B01–B03, B06–B09, N01, N03–N05, R01).
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createInitialState } from '../../src/core/state'
 import type { GameState } from '../../src/types/game'
 import {
   readSave,
@@ -11,7 +10,7 @@ import {
   writeSave,
   type SaveStorage,
 } from '../../src/utils/save'
-import { fixture } from '../fixtures/content'
+import { fixture, named, startGame } from '../fixtures/content'
 
 vi.mock('../../src/data/content', async () => ({
   content: (await import('../fixtures/content')).fixture,
@@ -38,6 +37,7 @@ const grantedNow = {
 /**
  * Nạp lại module store như mở game mới tại `now`.
  * Mặc định tab nhận khóa ngay; Node có `navigator.locks` thật giữ khóa cả tiến trình nên luôn stub.
+ * Game mới (chưa có save) được đặt danh tính ngay lúc boot để thời gian chạy được.
  */
 async function open(
   storage: SaveStorage,
@@ -49,6 +49,9 @@ async function open(
   vi.stubGlobal('localStorage', storage)
   vi.stubGlobal('navigator', nav)
   const { useGameStore } = await import('../../src/stores/gameStore')
+  const { game } = useGameStore.getState()
+  if (game.character.identity === null)
+    useGameStore.setState({ game: named(fixture, game) })
   return useGameStore
 }
 
@@ -71,7 +74,7 @@ describe('store time accounting', () => {
   it('B01: setting the clock back and forward again grants no extra time', async () => {
     const data = new Map<string, string>()
     const storage = memory(data)
-    const start = withAction(createInitialState(fixture, 1), 'payFee')
+    const start = withAction(startGame(fixture, 1), 'payFee')
     writeSave(storage, start, fixture, 10_000)
     for (let i = 0; i < 2; i++) {
       ;(await open(storage, 0)).getState().save(0, 0)
@@ -150,7 +153,7 @@ describe('store time accounting', () => {
     writeSave(
       storage,
       {
-        ...createInitialState(fixture, 1),
+        ...startGame(fixture, 1),
         day: 1,
         stop: { reason: 'actionCompleted', detail: 'treasure' },
       },
@@ -248,7 +251,7 @@ describe('store write protection', () => {
     }
     const data = new Map<string, string>([[SAVE_BACKUP_KEY, '{"bad']])
     const storage = memory(data)
-    writeSave(storage, createInitialState(fixture, 1), fixture, 0)
+    writeSave(storage, startGame(fixture, 1), fixture, 0)
     const s = await open(storage, 0, deferred)
     s.getState().frame(0, 0)
     s.getState().save(60_000, 60_000)
@@ -257,7 +260,7 @@ describe('store write protection', () => {
 
     // Writer cũ lưu day 100 (backup hỏng vẫn còn) rồi nhả khóa.
     const day100 = serializeSave(
-      { ...createInitialState(fixture, 1), day: 100 },
+      { ...startGame(fixture, 1), day: 100 },
       fixture,
       0,
     )
@@ -293,12 +296,7 @@ describe('store write protection', () => {
     s.getState().save(60_000, 60_000)
     expect(data.has(SAVE_KEY)).toBe(false)
 
-    writeSave(
-      storage,
-      { ...createInitialState(fixture, 1), day: 50 },
-      fixture,
-      0,
-    )
+    writeSave(storage, { ...startGame(fixture, 1), day: 50 }, fixture, 0)
     await vi.waitFor(() => expect(queue).toHaveLength(1))
     queue[0]() // tab kia đóng
     await vi.waitFor(() => expect(s.getState().saveBlocked).toBeNull())
@@ -310,7 +308,7 @@ describe('store write protection', () => {
   it('R01: without Web Locks the tab plays but never writes, not even a quarantine', async () => {
     const data = new Map<string, string>([[SAVE_BACKUP_KEY, '{"bad']])
     const storage = memory(data)
-    writeSave(storage, createInitialState(fixture, 1), fixture, 0)
+    writeSave(storage, startGame(fixture, 1), fixture, 0)
     const before = [...data]
     const s = await open(storage, 0, {})
     expect(s.getState().saveBlocked).toMatch(/Web Locks/)

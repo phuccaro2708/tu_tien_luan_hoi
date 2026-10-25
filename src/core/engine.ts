@@ -1,8 +1,12 @@
 import { checkAction, runCurrentAction } from '../systems/actions'
+import { parseIdentity } from '../systems/character'
 import { checkLifespan } from '../systems/lifespan'
 import type { Command, Content, GameState, Result } from '../types/game'
 
-/** Mọi thay đổi state từ người chơi đi qua đây. Hết kiếp thì không lệnh nào áp được (chờ Vong Xuyên, P4). */
+/**
+ * Mọi thay đổi state từ người chơi đi qua đây. Hết kiếp thì không lệnh nào áp được (chờ Vong Xuyên, P4).
+ * Chưa có danh tính thì chỉ nhận `setIdentity`; có rồi thì không đổi được (D32).
+ */
 export function applyCommand(
   state: GameState,
   content: Content,
@@ -10,6 +14,23 @@ export function applyCommand(
 ): Result<GameState> {
   if (state.stop?.reason === 'death')
     return { ok: false, error: 'this life has ended' }
+  const { character } = state
+  if (command.type === 'setIdentity') {
+    if (character.identity !== null)
+      return { ok: false, error: 'identity already chosen' }
+    const identity = parseIdentity(content, command.name, command.gender)
+    if (!identity.ok) return identity
+    return {
+      ok: true,
+      value: {
+        ...state,
+        character: { ...character, identity: identity.value },
+        stop: null,
+      },
+    }
+  }
+  if (character.identity === null)
+    return { ok: false, error: 'choose a name and gender first' }
   switch (command.type) {
     case 'setAction': {
       if (command.actionId === null)

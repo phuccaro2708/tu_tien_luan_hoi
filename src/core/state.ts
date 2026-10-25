@@ -1,4 +1,4 @@
-import { applyOrigin, rollLife1 } from '../systems/character'
+import { applyOrigin, parseIdentity, rollLife1 } from '../systems/character'
 import { isValidAmount } from '../systems/resources'
 import type { Content, GameState, ResourceId } from '../types/game'
 import { MAX_AWAY_TICKS } from './clock'
@@ -7,15 +7,17 @@ import { seedRng } from './rng'
 
 /**
  * Bắt đầu kiếp 1 từ trạng thái RNG và tài nguyên hiện có: tung nhân vật rồi cộng vốn xuất thân.
+ * Kiếp mới dừng ở `chooseIdentity` cho tới khi người chơi chọn tên/giới tính (D32).
  * Dùng chung cho game mới và migrate save v1 (P0 chưa rút RNG nên `rng` của save v1 vẫn bằng seed).
  */
 export function startLife1(
   content: Content,
   rng: number,
   resources: Readonly<Record<ResourceId, number>>,
-): Pick<GameState, 'rng' | 'character' | 'resources' | 'skillXp'> {
+): Pick<GameState, 'rng' | 'character' | 'resources' | 'skillXp' | 'stop'> {
   const rolled = rollLife1(content, rng)
   return {
+    stop: { reason: 'chooseIdentity', detail: '' },
     rng: rolled.rng,
     character: rolled.character,
     ...applyOrigin(content, rolled.character.originId, resources),
@@ -32,7 +34,6 @@ export function createInitialState(content: Content, seed: number): GameState {
     flags: {},
     claimed: {},
     currentActionId: null,
-    stop: null,
     tichThoiTicks: 0,
     ...startLife1(content, seedRng(seed), base),
   }
@@ -112,6 +113,10 @@ export function validateState(value: unknown, content: Content): string[] {
   }
 
   errors.push(...validateCharacter(s.character, content))
+  const identity = isObj(s.character) ? s.character.identity : undefined
+  const choosing = isObj(s.stop) && s.stop.reason === 'chooseIdentity'
+  if ((identity === null) !== choosing)
+    errors.push('identity must be null exactly while stop is chooseIdentity')
 
   const maxXp = content.xpTable[content.xpTable.length - 1]
   if (!isObj(s.skillXp)) errors.push('skillXp must be an object')
@@ -134,6 +139,7 @@ const STOP_REASONS = new Set<string>([
   'actionCompleted',
   'lifespanWarning',
   'death',
+  'chooseIdentity',
 ])
 
 const STATE_KEYS = [
@@ -168,10 +174,21 @@ function validateCharacter(value: unknown, content: Content): string[] {
   if (!isObj(value)) return ['character must be an object']
   const errors = exactKeys(
     value,
-    ['linhCan', 'ngoTinh', 'originId', 'innateTrait'],
+    ['identity', 'linhCan', 'ngoTinh', 'originId', 'innateTrait'],
     'character field',
   )
-  const { linhCan, ngoTinh, originId, innateTrait } = value
+  const { identity, linhCan, ngoTinh, originId, innateTrait } = value
+
+  // Tên lưu phải đúng dạng đã chuẩn hóa (parseIdentity không đổi gì).
+  if (identity !== null) {
+    const parsed =
+      isObj(identity) &&
+      exactKeys(identity, ['name', 'gender'], '').length === 0
+        ? parseIdentity(content, identity.name, identity.gender)
+        : undefined
+    if (!parsed?.ok || !isObj(identity) || parsed.value.name !== identity.name)
+      errors.push('character.identity invalid')
+  }
 
   const lcDef =
     isObj(linhCan) && typeof linhCan.id === 'string'

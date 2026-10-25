@@ -7,6 +7,10 @@ describe('App shell', () => {
     const html = renderToStaticMarkup(<App />)
     expect(html).toContain('Tuổi 14')
     expect(html).toContain('5×')
+    // Game mới chờ chọn danh tính (D32): có form, chưa có "Tạm dừng".
+    expect(html).toContain('name="name"')
+    expect(html).toContain('Nữ')
+    expect(html).not.toContain('Tạm dừng')
     for (const word of [
       'linh khí',
       'linh căn',

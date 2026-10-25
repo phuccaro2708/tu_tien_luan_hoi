@@ -1,18 +1,18 @@
 // Regression cho Codex audit P0: B04 (khóa prototype), B05 (runTicks dừng), R02 (nội dung bất biến).
 import { describe, expect, it } from 'vitest'
 import { applyCommand, runTicks } from '../../src/core/engine'
-import { createInitialState, validateState } from '../../src/core/state'
+import { validateState } from '../../src/core/state'
 import { createContent } from '../../src/data/registry'
 import { evaluateCondition } from '../../src/systems/conditions'
 import { resolveEffects } from '../../src/systems/effects'
 import { applyResourceDeltas } from '../../src/systems/resources'
 import type { GameState, RawContent } from '../../src/types/game'
-import { fixture, rawFixture } from '../fixtures/content'
+import { fixture, rawFixture, startGame } from '../fixtures/content'
 
 const PROTO_KEYS = ['toString', 'constructor', '__proto__', 'hasOwnProperty']
 
 describe('B04: ids that collide with Object.prototype', () => {
-  const fresh = () => createInitialState(fixture, 1)
+  const fresh = () => startGame(fixture, 1)
 
   it.each(PROTO_KEYS)('"%s" is unknown everywhere', (id) => {
     const s = fresh()
@@ -69,7 +69,7 @@ describe('B04: ids that collide with Object.prototype', () => {
 
 describe('B05: runTicks always terminates', () => {
   const working = (): GameState => ({
-    ...createInitialState(fixture, 1),
+    ...startGame(fixture, 1),
     currentActionId: 'payFee',
   })
 

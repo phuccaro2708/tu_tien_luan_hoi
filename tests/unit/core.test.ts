@@ -351,6 +351,27 @@ describe('ContentRegistry', () => {
       },
     ],
     ['trait without tiers', { traits: [{ id: 't', name: 't', tiers: [] }] }],
+    [
+      'name length 0',
+      { identity: { ...rawFixture.identity, nameMaxLength: 0 } },
+    ],
+    [
+      'name length 1.5',
+      { identity: { ...rawFixture.identity, nameMaxLength: 1.5 } },
+    ],
+    ['no genders', { identity: { nameMaxLength: 16, genders: [] } }],
+    [
+      'duplicate gender',
+      {
+        identity: {
+          nameMaxLength: 16,
+          genders: [
+            { id: 'nam', name: 'Nam' },
+            { id: 'nam', name: 'Nam' },
+          ],
+        },
+      },
+    ],
   ])('rejects content: %s', (_name, patch) => {
     expect(validateContent({ ...rawFixture, ...patch })).not.toEqual([])
   })
