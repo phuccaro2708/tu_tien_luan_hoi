@@ -150,6 +150,13 @@ describe('store time accounting', () => {
     expect(await run(oneStall)).toBe(610)
   })
 
+  it('B07: frame time going backwards or NaN grants no time and loses none', async () => {
+    const s = await open(memory(), 0)
+    s.getState().frame(0, 0)
+    for (const t of [5_000, 4_000, 5_000, NaN, 5_500]) s.getState().frame(t, t)
+    expect(s.getState().game.day).toBe(11)
+  })
+
   it('B09: speed survives save and reload', async () => {
     const storage = memory()
     const s = await open(storage, 0)
