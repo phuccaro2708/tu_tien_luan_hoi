@@ -2,6 +2,8 @@
 
 > **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt). Bản v0.1 đã Approved 2026-10-23; phần không gắn `[CẦN DUYỆT D17–D26]` giữ nguyên. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
 >
+> **Bổ sung 2026-10-24:** D27–D30 (S1, S13, S14: thời gian khi tab ẩn hoặc máy ngủ, autosave khi chạy bù, nhiều tab) do người dùng quyết định trong lượt xử lý review P0. Nguồn: `docs/reports/phase/2026-10-24-p0-audit-n01-n09.md`, `docs/reports/phase/2026-10-24-code-review-round3.md`.
+>
 > Mỗi hệ thống theo mẫu: **Mục đích gameplay · Input/Output · Điều kiện · Tương tác · Tiêu chí kiểm thử**. Công thức chi tiết ở `PROGRESSION.md` và `BALANCE.md`; ở đây chỉ nêu hợp đồng của hệ thống.
 
 ## 0. Đánh giá sự cần thiết của các hệ RPG
@@ -28,6 +30,17 @@
 - **Output:** số tick (1 tick = 1 ngày) được đưa vào engine; tuổi; thọ nguyên còn lại; sự kiện mốc tuổi; tín hiệu cảnh báo/chết.
 - **Điều kiện:**
   - 2 tick/giây ở 1× (4 / 6 / 10 ở 2× / 3× / 5×). Engine chạy bước cố định; dư thời gian được giữ trong bộ tích lũy. Mỗi khung hình xử lý tối đa một số tick cố định, phần dư dồn sang khung sau. Tạm dừng khi có điểm dừng (CORE_LOOP §3); tốc độ giữ nguyên sau điểm dừng.
+  - **Tab ẩn** `[ĐÃ DUYỆT D27 – 2026-10-24]`:
+    - Vẫn là online: chạy ở tốc độ đã chọn, không có trần.
+    - Trình duyệt ngừng khung hình khi tab ẩn. Khi hiện lại, engine chạy bù theo trần mỗi khung hình (P0: 20 tick).
+    - Ẩn hoặc đóng tab thì hạch toán hết thời gian tới lúc đó rồi lưu (S14).
+    - Gặp điểm dừng trong lúc ẩn: thời gian còn lại bị bỏ như khi chơi online, **không** cộng vào Tích Thời. Tab ẩn không phải vắng mặt; S13 chỉ áp dụng khi game không chạy.
+    - Clock bắt đầu chạy từ lúc game nạp save, không đợi khung hình đầu. Nhờ vậy tab mở sẵn ở nền cũng được tính thời gian.
+  - **Máy ngủ** `[ĐÃ DUYỆT D28 – 2026-10-24]`:
+    - Trên một số hệ điều hành, clock khung hình đứng yên khi máy ngủ còn đồng hồ hệ thống vẫn chạy. Phần đồng hồ hệ thống chạy hơn clock **trên 5 giây** được xử lý như vắng mặt theo S13: trần 8 giờ, phần dư thành Tích Thời.
+    - Chênh dưới 5 giây coi là sai số đo.
+    - Nếu clock khung hình vẫn chạy khi máy ngủ, thời gian đó là online như tab ẩn.
+    - Hệ quả đã chấp nhận: chỉnh đồng hồ hệ thống tiến lên khi đang chơi cũng chỉ được tối đa 8 giờ, như khi đóng tab.
   - Tốc độ là tùy chọn giao diện: lưu cùng save nhưng nằm ngoài `GameState`, không ảnh hưởng replay. **Engine không bao giờ đọc tốc độ.**
   - **Chính sách sự kiện nhỏ** `[CẦN DUYỆT D21]` (sửa F04): `GameState.chinhSachSuKienNho ∈ { hoi, tuDong }`, chỉ đổi bằng lệnh `datChinhSachSuKienNho`; lệnh này được ghi vào nhật ký lệnh như mọi lệnh khác. `hoi`: sự kiện nhỏ tạm dừng và hỏi. `tuDong`: lấy `macDinhAnToan` và ghi vào Nhật ký. UI có tùy chọn "tự xử lý sự kiện nhỏ khi tua ≥ 3×"; khi người chơi đổi tốc độ, UI gửi lệnh tương ứng **tại tick hiện tại**, nên replay chỉ cần nhật ký lệnh.
   - **Game mới:** sinh seed, rồi tung kiếp 1 theo `PROGRESSION.md` §3 (linh căn, ngộ tính, xuất thân, thiên phú bẩm sinh) `[ĐÃ DUYỆT D04]`.
@@ -37,6 +50,9 @@
   - Cùng tổng thời gian thực, chia frame khác nhau (16 ms vs 100 ms vs 1 s) → cùng state.
   - Cùng seed + cùng nhật ký lệnh (kể cả lệnh đổi chính sách sự kiện nhỏ) → cùng hash state ở 1× / 2× / 3× / 5×; ở 5× với fake clock, 1 giây = 10 tick.
   - Đổi tốc độ mà không gửi lệnh chính sách → kết quả mô phỏng không đổi.
+  - Tab ẩn N giây rồi hiện lại (sau khi chạy bù) → cùng số tick như tab hiện suốt N giây, ở mọi tốc độ (D27).
+  - Tab mở khi đang ẩn, 3 giờ sau mới có khung hình đầu → 3 giờ được tính là online (D27).
+  - Clock khung hình đứng yên trong khi đồng hồ hệ thống chạy 1 giờ → 1 giờ xử lý như vắng mặt; 9 giờ → chỉ 8 giờ; chênh 2 giây → không có gì (D28).
   - Cùng seed → cùng kiếp 1 (linh căn, ngộ tính, xuất thân, thiên phú); kiếp 1 không bao giờ ra Song/Thiên linh căn (kiểm thử trên nhiều seed).
   - Tuổi ≥ thọ nguyên → chết đúng tick đó; cảnh báo tạm dừng ở 10/5/1 năm còn lại.
 
@@ -211,13 +227,17 @@
 - **Input:** thời điểm lưu cuối, thời điểm hiện tại (từ clock được inject), state; lệnh "Dùng Tích Thời".
 - **Output:** state sau mô phỏng; báo cáo "trong lúc vắng mặt"; Tích Thời được cộng hoặc tiêu.
 - **Điều kiện:** `vắngMặt = min(now − lastSave, 8 giờ)`. Mô phỏng bằng chính engine, từng tick, tới khi hết `vắngMặt` hoặc gặp điểm dừng. Phần còn lại cộng vào Tích Thời (trần 8 giờ). Đồng hồ hệ thống chạy lùi → vắng mặt = 0. "Dùng Tích Thời" `[ĐÃ DUYỆT D06]` chạy cùng đường mô phỏng ngay lập tức với lượng Tích Thời đang có, dừng ở điểm dừng đầu tiên, trừ phần đã chạy.
-- **Tương tác:** S1 (bước tick), S6 (điểm dừng), lưu game.
+  - Cùng quy tắc áp cho khoảng máy ngủ mà clock khung hình đứng yên (S1, D28).
+  - Tab ẩn **không** phải vắng mặt (S1, D27): không bị trần 8 giờ, và không sinh Tích Thời khi gặp điểm dừng.
+- **Tương tác:** S1 (bước tick, tab ẩn, máy ngủ), S6 (điểm dừng), lưu game.
 - **Tiêu chí kiểm thử:**
   - Offline N giờ ≡ online N giờ với cùng seed và không có tương tác.
   - Vắng 20 giờ → chỉ 8 giờ được xử lý.
   - Gặp sự kiện lớn ở giờ 1 → dừng, 7 giờ vào Tích Thời.
   - Dùng 7 giờ Tích Thời, gặp điểm dừng sau 2 giờ → còn 5 giờ; state giống hệt chạy 2 giờ online với cùng seed.
   - Thời gian âm → không làm gì.
+  - Máy ngủ 9 giờ mà clock khung hình đứng yên → chỉ 8 giờ được xử lý (D28).
+  - Tab ẩn gặp điểm dừng → Tích Thời không tăng (D27).
   - 8 giờ (57 600 tick) mô phỏng dưới 1 giây trên máy tầm trung.
 
 ## S14. Lưu game
@@ -225,4 +245,11 @@
 - **Mục đích:** bảo toàn tiến trình, chống mất dữ liệu.
 - **Input/Output:** state ↔ chuỗi JSON trong localStorage; export/import chuỗi.
 - **Điều kiện:** một save tự động `[ĐÃ DUYỆT D13]`; lưu mỗi 30 giây thực, khi có sự kiện lớn, khi đóng tab. Save có `version`; tải → kiểm tra cấu trúc → migrate tuần tự → kiểm tra lại. Save hỏng không ghi đè save hợp lệ (ghi vào khóa tạm rồi mới đổi). RNG state nằm trong save.
-- **Tiêu chí kiểm thử:** round-trip save/load bằng nhau; save version cũ migrate được; JSON hỏng/thiếu trường bị từ chối và save cũ còn nguyên; import chuỗi sai không làm hỏng game.
+  - Khoảng 30 giây đo bằng clock khung hình, không bằng đồng hồ hệ thống: chỉnh đồng hồ lùi không làm ngừng autosave.
+  - **Autosave khi chạy bù** `[ĐÃ DUYỆT D29 – 2026-10-24]`: khi engine còn tick nợ (S1, D27), autosave được hoãn tới khi bù xong. Lý do: lưu phải hạch toán hết nợ trong một lần, vượt trần mỗi khung hình. Việc hoãn có trần: tối đa 5 lần khoảng autosave (2,5 phút) kể từ lúc bắt đầu bù; quá trần thì vẫn lưu, chấp nhận UI khựng một lần.
+  - **Nhiều tab** `[ĐÃ DUYỆT D30 – 2026-10-24]`:
+    - Tại một thời điểm chỉ một tab được ghi save (khóa Web Locks).
+    - Tab mở sau tạm dừng. Khi tab kia đóng, nó đọc save mới nhất rồi chạy tiếp.
+    - Trình duyệt không có Web Locks, hoặc trang không chạy qua HTTPS/localhost: vẫn chơi được nhưng **không ghi gì** vào storage, kể cả bản cách ly save hỏng, và hiện cảnh báo nêu đúng nguyên nhân.
+  - Lỗi ghi save (VD hết dung lượng) hiển thị riêng và chỉ mất khi lần ghi sau thành công.
+- **Tiêu chí kiểm thử:** round-trip save/load bằng nhau; save version cũ migrate được; JSON hỏng/thiếu trường bị từ chối và save cũ còn nguyên; import chuỗi sai không làm hỏng game; chạy bù 1 giờ → không autosave trước 2,5 phút, tới 2,5 phút thì lưu đủ (D29); tab thứ hai không ghi khi tab đầu còn mở, rồi tiếp tục từ save mới nhất khi tab đầu đóng; không có Web Locks → storage không đổi (D30).
