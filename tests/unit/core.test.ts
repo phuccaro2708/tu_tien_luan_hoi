@@ -3,6 +3,7 @@ import {
   advanceClock,
   createClock,
   MAX_AWAY_TICKS,
+  setClockSpeed,
   type ClockState,
 } from '../../src/core/clock'
 import { hashState } from '../../src/core/hash'
@@ -18,8 +19,7 @@ import { fixture, rawFixture } from '../fixtures/content'
 
 const opts = {
   paused: false,
-  maxTicksPerFrame: 1_000_000,
-  maxBacklogTicks: Infinity,
+  maxTicks: 1_000_000,
 }
 
 function ticksFor(
@@ -84,7 +84,7 @@ describe('SimulationClock', () => {
   })
 
   it('caps ticks per frame and carries the rest to later frames', () => {
-    const o = { ...opts, maxTicksPerFrame: 3 }
+    const o = { ...opts, maxTicks: 3 }
     let clock = createClock(0)
     const a = advanceClock(clock, 5_000, o) // 10 tick đến hạn
     expect(a.ticks).toBe(3)
@@ -104,19 +104,47 @@ describe('SimulationClock', () => {
     expect(advanceClock(clock, 10_500, opts).ticks).toBe(1)
   })
 
-  it('backlog over the limit is reported as dropped time instead of ticks', () => {
-    const a = advanceClock(createClock(0), 3_600_000, {
-      ...opts,
-      maxBacklogTicks: 100,
-    })
-    expect(a.ticks).toBe(0)
-    expect(a.droppedMs).toBe(3_600_000)
-    expect(advanceClock(a.clock, 3_600_500, opts).ticks).toBe(1)
+  it('backlog is kept across capped frames but never exceeds 8 real hours', () => {
+    let clock = createClock(0, 2)
+    const a = advanceClock(clock, 24 * 3_600_000, { ...opts, maxTicks: 10 })
+    expect(a.ticks).toBe(10)
+    clock = a.clock
+    const rest = advanceClock(clock, 24 * 3_600_000, opts)
+    expect(a.ticks + rest.ticks).toBe(MAX_AWAY_TICKS * 2)
   })
 
-  it('clock going backwards or NaN yields no ticks', () => {
-    expect(advanceClock(createClock(1000), 500, opts).ticks).toBe(0)
-    expect(advanceClock(createClock(1000), NaN, opts).ticks).toBe(0)
+  it('B07: clock going backwards or NaN grants no time and loses none', () => {
+    let clock = createClock(0)
+    let total = 0
+    for (const t of [5_000, 4_000, 5_000, NaN, 5_500]) {
+      const a = advanceClock(clock, t, opts)
+      clock = a.clock
+      total += a.ticks
+    }
+    expect(total).toBe(11)
+    expect(advanceClock(createClock(NaN), NaN, opts).ticks).toBe(0)
+  })
+
+  it('maxTicks NaN/negative → no ticks; Infinity → all due', () => {
+    for (const maxTicks of [NaN, -5])
+      expect(
+        advanceClock(createClock(0), 5_000, { ...opts, maxTicks }).ticks,
+      ).toBe(0)
+    expect(
+      advanceClock(createClock(0), 5_000, { ...opts, maxTicks: Infinity })
+        .ticks,
+    ).toBe(10)
+  })
+
+  it('B06: setClockSpeed keeps partial time; same speed is a no-op', () => {
+    let clock = createClock(0)
+    clock = advanceClock(clock, 250, opts).clock // nửa tick ở 1×
+    expect(setClockSpeed(clock, 250, 1)).toBe(clock)
+    clock = setClockSpeed(clock, 250, 2)
+    expect(advanceClock(clock, 375, opts).ticks).toBe(1)
+    // Thời gian lùi khi đổi tốc độ không cấp thêm tick.
+    const back = setClockSpeed(createClock(1_000), 0, 5)
+    expect(advanceClock(back, 1_000, opts).ticks).toBe(0)
   })
 })
 

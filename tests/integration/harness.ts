@@ -76,8 +76,7 @@ export function runRealtime(
     due()
     const adv = advanceClock(clock, now, {
       paused: s.stop !== null,
-      maxTicksPerFrame: opts.maxTicksPerFrame,
-      maxBacklogTicks: Infinity,
+      maxTicks: opts.maxTicksPerFrame,
     })
     clock = adv.clock
     for (let i = 0; i < adv.ticks && !s.stop && s.day < opts.untilDay; i++) {

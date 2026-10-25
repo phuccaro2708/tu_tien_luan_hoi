@@ -10,51 +10,70 @@ export const SPEEDS: readonly Speed[] = [1, 2, 3, 5]
 
 export interface ClockState {
   speed: Speed
-  /** Mốc thời gian thực; số tick tính từ tổng thời gian kể từ mốc để không trôi số thực. */
+  /** Mốc neo; tick đến hạn tính từ tổng thời gian kể từ mốc để không trôi số thực. */
   anchorMs: number
   ticksSinceAnchor: number
+  /** Thời điểm lớn nhất đã thấy. Thời gian lùi hoặc NaN = chưa có thời gian trôi qua. */
+  lastMs: number
 }
 
-export interface ClockAdvance {
-  clock: ClockState
-  ticks: number
-  /** Thời gian bị cắt vì vượt `maxBacklogTicks` (VD tab bị ẩn lâu); UI đưa vào đường offline. */
-  droppedMs: number
-}
-
-/** Cũng dùng khi đổi tốc độ: neo lại tại `nowMs`, phần lẻ chưa đủ một tick bị bỏ. */
 export function createClock(nowMs: number, speed: Speed = 1): ClockState {
-  return { speed, anchorMs: nowMs, ticksSinceAnchor: 0 }
+  const t = Number.isFinite(nowMs) ? nowMs : 0
+  return { speed, anchorMs: t, ticksSinceAnchor: 0, lastMs: t }
 }
+
+/** Thời điểm hợp lệ không lùi so với những gì clock đã thấy. */
+const seen = (clock: ClockState, nowMs: number) =>
+  Number.isFinite(nowMs) ? Math.max(nowMs, clock.lastMs) : clock.lastMs
+
+/** Thời gian game (ms ở 1×) đã trôi nhưng chưa phát thành tick, gồm cả phần lẻ. */
+const remainderMs = (clock: ClockState, t: number) =>
+  (t - clock.anchorMs) * clock.speed - clock.ticksSinceAnchor * TICK_MS
 
 /**
- * Số tick đến hạn tại `nowMs`, tối đa `maxTicksPerFrame` (phần dư dồn sang khung sau).
- * Nếu tồn đọng vượt `maxBacklogTicks`, clock neo lại và trả phần thời gian bị cắt.
- * `paused`: bỏ tồn đọng để không bùng tick khi tiếp tục.
+ * Số tick đến hạn tại `nowMs`, tối đa `maxTicks` (phần còn nợ được giữ cho lần sau).
+ * Nợ quá 8 giờ thực (VD máy ngủ khi tab vẫn hiện) bị cắt, cùng trần với offline.
+ * `paused`: bỏ thời gian đã trôi để không bùng tick khi tiếp tục.
  */
 export function advanceClock(
   clock: ClockState,
   nowMs: number,
-  opts: { paused: boolean; maxTicksPerFrame: number; maxBacklogTicks: number },
-): ClockAdvance {
-  if (opts.paused || !Number.isFinite(nowMs) || nowMs < clock.anchorMs) {
-    return { clock: createClock(nowMs, clock.speed), ticks: 0, droppedMs: 0 }
-  }
+  opts: { paused: boolean; maxTicks: number },
+): { clock: ClockState; ticks: number } {
+  const t = seen(clock, nowMs)
+  if (opts.paused) return { clock: createClock(t, clock.speed), ticks: 0 }
+  const capMs = MAX_AWAY_MS * clock.speed
+  const anchored =
+    remainderMs(clock, t) > capMs
+      ? { ...clock, anchorMs: t - MAX_AWAY_MS, ticksSinceAnchor: 0 }
+      : clock
   const due =
-    Math.floor(((nowMs - clock.anchorMs) * clock.speed) / TICK_MS) -
-    clock.ticksSinceAnchor
-  if (due > opts.maxBacklogTicks) {
-    // Trả thời gian thực bị cắt; đường offline tính nó theo nhịp 1× (BALANCE §7).
-    return {
-      clock: createClock(nowMs, clock.speed),
-      ticks: 0,
-      droppedMs: (due * TICK_MS) / clock.speed,
-    }
-  }
-  const ticks = Math.min(due, opts.maxTicksPerFrame)
+    Math.floor(((t - anchored.anchorMs) * anchored.speed) / TICK_MS) -
+    anchored.ticksSinceAnchor
+  const limit = Math.max(0, Math.floor(opts.maxTicks) || 0)
+  const ticks = Math.max(0, Math.min(due, limit))
   return {
-    clock: { ...clock, ticksSinceAnchor: clock.ticksSinceAnchor + ticks },
+    clock: {
+      ...anchored,
+      ticksSinceAnchor: anchored.ticksSinceAnchor + ticks,
+      lastMs: t,
+    },
     ticks,
-    droppedMs: 0,
+  }
+}
+
+/** Đổi tốc độ tại `nowMs`, giữ nguyên phần thời gian đã trôi chưa thành tick. */
+export function setClockSpeed(
+  clock: ClockState,
+  nowMs: number,
+  speed: Speed,
+): ClockState {
+  if (speed === clock.speed) return clock
+  const t = seen(clock, nowMs)
+  return {
+    speed,
+    anchorMs: t - remainderMs(clock, t) / speed,
+    ticksSinceAnchor: 0,
+    lastMs: t,
   }
 }

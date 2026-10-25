@@ -1,6 +1,7 @@
 import { isValidAmount } from '../systems/resources'
 import type { Content, GameState } from '../types/game'
 import { MAX_AWAY_TICKS } from './clock'
+import { own } from './record'
 import { seedRng } from './rng'
 
 export function createInitialState(content: Content, seed: number): GameState {
@@ -54,11 +55,11 @@ export function validateState(value: unknown, content: Content): string[] {
   if (!isObj(s.resources)) errors.push('resources must be an object')
   else {
     for (const def of Object.values(content.resources)) {
-      if (!isValidAmount(s.resources[def.id], def))
+      if (!isValidAmount(own(s.resources, def.id), def))
         errors.push(`resource "${def.id}" invalid`)
     }
     for (const id of Object.keys(s.resources)) {
-      if (!content.resources[id]) errors.push(`unknown resource "${id}"`)
+      if (!own(content.resources, id)) errors.push(`unknown resource "${id}"`)
     }
   }
 
@@ -75,7 +76,7 @@ export function validateState(value: unknown, content: Content): string[] {
   if (
     s.currentActionId !== null &&
     (typeof s.currentActionId !== 'string' ||
-      !content.actions[s.currentActionId])
+      !own(content.actions, s.currentActionId))
   ) {
     errors.push('currentActionId unknown')
   }
@@ -105,6 +106,6 @@ export function validateState(value: unknown, content: Content): string[] {
   for (const key of Object.keys(s))
     if (!known.has(key)) errors.push(`unknown field "${key}"`)
   for (const key of known)
-    if (!(key in s)) errors.push(`missing field "${key}"`)
+    if (!Object.hasOwn(s, key)) errors.push(`missing field "${key}"`)
   return errors
 }

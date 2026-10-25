@@ -1,4 +1,5 @@
 import type { Content, Effect, GameState, Result } from '../types/game'
+import { own } from '../core/record'
 import { applyResourceDeltas } from './resources'
 
 /**
@@ -11,16 +12,17 @@ export function resolveEffects(
   content: Content,
   effects: readonly Effect[],
 ): Result<GameState> {
-  const deltas: Record<string, number> = {}
+  let deltas: Record<string, number> = {}
   let flags = state.flags
   for (const effect of effects) {
     switch (effect.type) {
-      case 'addResource':
-        deltas[effect.resource] = (deltas[effect.resource] ?? 0) + effect.amount
+      case 'addResource': {
+        const sum = (own(deltas, effect.resource) ?? 0) + effect.amount
+        deltas = { ...deltas, [effect.resource]: sum }
         break
+      }
       case 'setFlag':
-        if (flags === state.flags) flags = { ...flags }
-        flags[effect.flag] = effect.value
+        flags = { ...flags, [effect.flag]: effect.value }
         break
     }
   }

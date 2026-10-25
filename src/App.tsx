@@ -9,7 +9,7 @@ const formatHours = (ticks: number) =>
 
 function App() {
   useGameLoop()
-  const { game, speed, offlineTicks, error } = useGameStore()
+  const { game, speed, offlineTicks, error, saveBlocked } = useGameStore()
   const { setSpeed, dispatch, spendTichThoi } = useGameStore.getState()
   const day = (game.day % content.calendar.daysPerYear) + 1
 
@@ -44,6 +44,7 @@ function App() {
       {offlineTicks > 0 && (
         <p>Trong lúc vắng mặt: {offlineTicks} ngày đã trôi qua.</p>
       )}
+      {saveBlocked && <p role="alert">Không lưu được: {saveBlocked}</p>}
       {error && <p role="alert">{error}</p>}
     </main>
   )

@@ -1,3 +1,4 @@
+import { own } from '../core/record'
 import type { Condition, GameState } from '../types/game'
 
 export function evaluateCondition(
@@ -6,9 +7,9 @@ export function evaluateCondition(
 ): boolean {
   switch (condition.type) {
     case 'resourceAtLeast':
-      return (state.resources[condition.resource] ?? 0) >= condition.amount
+      return (own(state.resources, condition.resource) ?? 0) >= condition.amount
     case 'flag':
-      return (state.flags[condition.flag] ?? false) === condition.value
+      return (own(state.flags, condition.flag) ?? false) === condition.value
   }
 }
 

@@ -32,16 +32,26 @@ export function step(state: GameState, content: Content): GameState {
   const next = runCurrentAction(state, content)
   // Bị chặn trước khi làm gì → ngày chưa trôi.
   if (next.stop?.reason === 'actionBlocked') return next
-  return { ...next, day: next.day + 1 }
+  // Không vượt số nguyên an toàn: state luôn còn hợp lệ (thực tế không thể chạm tới).
+  return { ...next, day: Math.min(next.day + 1, Number.MAX_SAFE_INTEGER) }
 }
 
-/** Chạy tối đa `ticks` tick, dừng ở điểm dừng đầu tiên. `ticksRun` = số ngày đã trôi. */
+/**
+ * Chạy tối đa `ticks` tick, dừng ở điểm dừng đầu tiên. `ticksRun` = số tick đã tiêu
+ * (tick bị chặn không tính). Vòng lặp kết thúc theo bộ đếm, không theo `day`.
+ * `ticks` âm, NaN hoặc Infinity → 0; số lẻ làm tròn xuống.
+ */
 export function runTicks(
   state: GameState,
   content: Content,
   ticks: number,
 ): { state: GameState; ticksRun: number } {
+  const budget = Number.isFinite(ticks) ? Math.max(0, Math.floor(ticks)) : 0
   let s = state
-  while (s.day - state.day < ticks && !s.stop) s = step(s, content)
-  return { state: s, ticksRun: s.day - state.day }
+  let ticksRun = 0
+  while (ticksRun < budget && !s.stop) {
+    s = step(s, content)
+    if (s.stop?.reason !== 'actionBlocked') ticksRun++
+  }
+  return { state: s, ticksRun }
 }

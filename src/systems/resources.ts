@@ -1,3 +1,4 @@
+import { own } from '../core/record'
 import type { ResourceDef, ResourceId, Result } from '../types/game'
 
 /** Một giá trị tài nguyên hợp lệ: hữu hạn và nằm trong [min, max]. */
@@ -24,17 +25,17 @@ export function applyResourceDeltas(
   defs: Readonly<Record<ResourceId, ResourceDef>>,
   deltas: Readonly<Record<ResourceId, number>>,
 ): Result<Record<ResourceId, number>> {
-  const next = { ...resources }
+  let next = { ...resources }
   for (const [id, delta] of Object.entries(deltas)) {
-    const def = defs[id]
+    const def = own(defs, id)
     if (!def) return { ok: false, error: `unknown resource "${id}"` }
     if (!Number.isFinite(delta))
       return { ok: false, error: `non-finite delta for "${id}"` }
-    const value = (next[id] ?? def.initial) + delta
+    const value = (own(next, id) ?? def.initial) + delta
     if (!Number.isFinite(value))
       return { ok: false, error: `non-finite result for "${id}"` }
     if (value < def.min) return { ok: false, error: `insufficient ${id}` }
-    next[id] = Math.min(value, def.max)
+    next = { ...next, [id]: Math.min(value, def.max) }
   }
   return { ok: true, value: next }
 }

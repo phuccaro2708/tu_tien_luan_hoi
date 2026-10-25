@@ -5,6 +5,7 @@ import type {
   GameState,
   Result,
 } from '../types/game'
+import { own } from '../core/record'
 import { describeCondition, firstUnmet } from './conditions'
 import { resolveEffects } from './effects'
 
@@ -14,9 +15,9 @@ export function checkAction(
   content: Content,
   id: ActionId,
 ): Result<ActionDef> {
-  const action = content.actions[id]
+  const action = own(content.actions, id)
   if (!action) return { ok: false, error: `unknown action "${id}"` }
-  if (action.once && state.claimed[id])
+  if (action.once && own(state.claimed, id))
     return { ok: false, error: `already claimed "${id}"` }
   const unmet = firstUnmet(state, action.requires)
   if (unmet) return { ok: false, error: `requires ${describeCondition(unmet)}` }

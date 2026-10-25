@@ -45,18 +45,26 @@ export function validateContent(raw: RawContent): string[] {
   return errors
 }
 
-/** Tải nội dung: validate rồi lập chỉ mục theo id. Ném lỗi nếu dữ liệu sai. */
+function deepFreeze<T>(value: T): T {
+  if (typeof value === 'object' && value !== null) {
+    Object.values(value).forEach(deepFreeze)
+    Object.freeze(value)
+  }
+  return value
+}
+
+/**
+ * Tải nội dung: chép sâu, validate, lập chỉ mục theo id rồi đóng băng toàn bộ.
+ * Sửa `raw` sau đó không ảnh hưởng nội dung đã nạp. Ném lỗi nếu dữ liệu sai.
+ */
 export function createContent(raw: RawContent): Content {
-  const errors = validateContent(raw)
+  const copy = structuredClone(raw)
+  const errors = validateContent(copy)
   if (errors.length > 0)
     throw new Error(`Invalid content:\n${errors.join('\n')}`)
-  return Object.freeze({
-    calendar: Object.freeze({ ...raw.calendar }),
-    resources: Object.freeze(
-      Object.fromEntries(raw.resources.map((r) => [r.id, r])),
-    ),
-    actions: Object.freeze(
-      Object.fromEntries(raw.actions.map((a) => [a.id, a])),
-    ),
+  return deepFreeze({
+    calendar: copy.calendar,
+    resources: Object.fromEntries(copy.resources.map((r) => [r.id, r])),
+    actions: Object.fromEntries(copy.actions.map((a) => [a.id, a])),
   })
 }
