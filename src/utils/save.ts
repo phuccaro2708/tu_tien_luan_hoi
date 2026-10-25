@@ -1,4 +1,5 @@
 import { validateState } from '../core/state'
+import { simulateAway } from '../systems/offline'
 import type { Content, GameState, Result } from '../types/game'
 
 export const SAVE_VERSION = 1
@@ -102,5 +103,54 @@ export function readSave(
     return backup.ok ? backup : main
   } catch (e) {
     return { ok: false, error: `storage error: ${String(e)}` }
+  }
+}
+
+export const SAVE_QUARANTINE_PREFIX = 'ttlh.save.corrupt.'
+
+export interface BootResult {
+  /** null = không có save dùng được; người gọi tạo game mới. */
+  state: GameState | null
+  offlineTicks: number
+  error: string | null
+}
+
+/**
+ * Mở game: đọc save, mô phỏng thời gian vắng mặt đúng một lần, ghi lại với `savedAt = now`.
+ * Save chính hoặc backup không đọc được thì được chép nguyên văn sang khóa cách ly
+ * trước mọi lần ghi, để autosave về sau không xóa mất nó (VD dữ liệu đổi giữa các phase).
+ */
+export function bootSave(
+  storage: SaveStorage,
+  content: Content,
+  now: number,
+): BootResult {
+  let quarantineError: string | null = null
+  try {
+    for (const key of [SAVE_KEY, SAVE_BACKUP_KEY]) {
+      const text = storage.getItem(key)
+      if (text !== null && !parseSave(text, content).ok) {
+        storage.setItem(`${SAVE_QUARANTINE_PREFIX}${key}.${now}`, text)
+      }
+    }
+  } catch (e) {
+    quarantineError = `could not quarantine bad save: ${String(e)}`
+  }
+
+  const loaded = readSave(storage, content)
+  if (!loaded.ok) {
+    const error = loaded.error === 'no save' ? quarantineError : loaded.error
+    return { state: null, offlineTicks: 0, error }
+  }
+  const away = simulateAway(
+    loaded.value.state,
+    content,
+    now - loaded.value.savedAt,
+  )
+  const written = writeSave(storage, away.state, content, now)
+  return {
+    state: away.state,
+    offlineTicks: away.ticksRun,
+    error: quarantineError ?? (written.ok ? null : written.error),
   }
 }

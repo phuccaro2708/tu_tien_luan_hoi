@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest'
 import { createInitialState } from '../../src/core/state'
 import { hashState } from '../../src/core/hash'
 import { simulateAway } from '../../src/systems/offline'
-import { readSave, writeSave, type SaveStorage } from '../../src/utils/save'
+import {
+  bootSave,
+  SAVE_KEY,
+  SAVE_QUARANTINE_PREFIX,
+  writeSave,
+  type SaveStorage,
+} from '../../src/utils/save'
 import { fixture } from '../fixtures/content'
 import { runRealtime, runScript, type ScriptEntry } from './harness'
 
@@ -67,32 +73,60 @@ describe('deterministic simulation (replay)', () => {
   })
 })
 
-describe('offline is applied once', () => {
-  it('load → offline → save → load at the same now → no extra ticks or Tích Thời', () => {
+describe('boot (load + offline)', () => {
+  const memory = () => {
     const data = new Map<string, string>()
     const storage: SaveStorage = {
       getItem: (k) => data.get(k) ?? null,
       setItem: (k, v) => void data.set(k, v),
       removeItem: (k) => void data.delete(k),
     }
-    const boot = (now: number) => {
-      const loaded = readSave(storage, fixture)
-      if (!loaded.ok) throw new Error(loaded.error)
-      const r = simulateAway(
-        loaded.value.state,
-        fixture,
-        now - loaded.value.savedAt,
-      )
-      writeSave(storage, r.state, fixture, now)
-      return r
-    }
+    return { data, storage }
+  }
+
+  it('applies offline once: boot twice at the same now → no extra ticks or Tích Thời', () => {
+    const { storage } = memory()
     writeSave(storage, createInitialState(fixture, 1), fixture, 0)
-    const first = boot(3_600_000)
-    expect(first.ticksRun).toBe(7_200)
-    const second = boot(3_600_000)
-    expect(second.ticksRun).toBe(0)
-    expect(second.tichThoiAdded).toBe(0)
+    const first = bootSave(storage, fixture, 3_600_000)
+    expect(first.offlineTicks).toBe(7_200)
+    const second = bootSave(storage, fixture, 3_600_000)
+    expect(second.offlineTicks).toBe(0)
+    expect(second.state?.tichThoiTicks).toBe(0)
     expect(hashState(second.state)).toBe(hashState(first.state))
+  })
+
+  it('an unloadable save is quarantined before a new game autosaves over it', () => {
+    const { data, storage } = memory()
+    // VD save cũ thiếu tài nguyên mà dữ liệu mới yêu cầu.
+    const stale = JSON.stringify({
+      version: 1,
+      savedAt: 0,
+      state: { ...createInitialState(fixture, 1), resources: { van: 5 } },
+    })
+    data.set(SAVE_KEY, stale)
+    const r = bootSave(storage, fixture, 1_000)
+    expect(r.state).toBeNull()
+    expect(r.error).toMatch(/invalid state/)
+    // Store tạo game mới và autosave:
+    writeSave(storage, createInitialState(fixture, 2), fixture, 2_000)
+    expect(data.get(`${SAVE_QUARANTINE_PREFIX}${SAVE_KEY}.1000`)).toBe(stale)
+  })
+
+  it('a bad main save with a good backup loads the backup and keeps the bad text', () => {
+    const { data, storage } = memory()
+    writeSave(storage, createInitialState(fixture, 1), fixture, 0)
+    writeSave(
+      storage,
+      { ...createInitialState(fixture, 1), day: 5 },
+      fixture,
+      0,
+    )
+    data.set(SAVE_KEY, '{"truncated')
+    const r = bootSave(storage, fixture, 0)
+    expect(r.state?.day).toBe(0)
+    expect(data.get(`${SAVE_QUARANTINE_PREFIX}${SAVE_KEY}.0`)).toBe(
+      '{"truncated',
+    )
   })
 })
 

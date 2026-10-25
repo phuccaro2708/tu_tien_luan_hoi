@@ -10,7 +10,7 @@ import { createInitialState } from '../core/state'
 import { content } from '../data/content'
 import { simulateAway, spendTichThoi } from '../systems/offline'
 import type { Command, GameState } from '../types/game'
-import { readSave, writeSave, type SaveStorage } from '../utils/save'
+import { bootSave, writeSave, type SaveStorage } from '../utils/save'
 
 // Store chỉ giữ GameState và gọi engine; không chứa luật chơi.
 const AUTOSAVE_MS = 30_000 // SYSTEMS S14
@@ -39,23 +39,15 @@ function boot(wallNow: number): {
   offlineTicks: number
   error: string | null
 } {
-  const loaded = storage ? readSave(storage, content) : null
-  if (!loaded?.ok) {
-    // ponytail: seed từ đồng hồ khi chơi mới; khởi tạo kiếp 1 theo seed thuộc P1.
-    const game = createInitialState(content, wallNow >>> 0)
-    return {
-      game,
-      offlineTicks: 0,
-      error: loaded && loaded.error !== 'no save' ? loaded.error : null,
-    }
+  const r = storage
+    ? bootSave(storage, content, wallNow)
+    : { state: null, offlineTicks: 0, error: null }
+  // ponytail: seed từ đồng hồ khi chơi mới; khởi tạo kiếp 1 theo seed thuộc P1.
+  return {
+    game: r.state ?? createInitialState(content, wallNow >>> 0),
+    offlineTicks: r.offlineTicks,
+    error: r.error,
   }
-  const away = simulateAway(
-    loaded.value.state,
-    content,
-    wallNow - loaded.value.savedAt,
-  )
-  if (storage) writeSave(storage, away.state, content, wallNow)
-  return { game: away.state, offlineTicks: away.ticksRun, error: null }
 }
 
 const booted = boot(Date.now())
