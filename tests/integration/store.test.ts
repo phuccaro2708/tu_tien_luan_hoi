@@ -27,11 +27,23 @@ function memory(data = new Map<string, string>()): SaveStorage {
   }
 }
 
+/** Web Locks giả cấp khóa ngay (đồng bộ) để test không phải chờ. */
+const grantedNow = {
+  locks: {
+    request: (_n: string, _o: unknown, cb: (lock: object) => unknown) =>
+      Promise.resolve(cb({})),
+  },
+}
+
 /**
  * Nạp lại module store như mở game mới tại `now`.
- * Mặc định không có Web Locks (tab là writer); Node có `navigator.locks` thật giữ khóa cả tiến trình.
+ * Mặc định tab nhận khóa ngay; Node có `navigator.locks` thật giữ khóa cả tiến trình nên luôn stub.
  */
-async function open(storage: SaveStorage, now: number, nav: object = {}) {
+async function open(
+  storage: SaveStorage,
+  now: number,
+  nav: object = grantedNow,
+) {
   vi.resetModules()
   vi.useFakeTimers({ now })
   vi.stubGlobal('localStorage', storage)
@@ -288,6 +300,19 @@ describe('store write protection', () => {
     expect(s.getState().game.day).toBe(50)
     s.getState().save(0, 0)
     expect(savedDay(storage)).toBe(50)
+  })
+
+  it('R01: without Web Locks the tab plays but never writes, not even a quarantine', async () => {
+    const data = new Map<string, string>([[SAVE_BACKUP_KEY, '{"bad']])
+    const storage = memory(data)
+    writeSave(storage, createInitialState(fixture, 1), fixture, 0)
+    const before = [...data]
+    const s = await open(storage, 0, {})
+    expect(s.getState().saveBlocked).toMatch(/Web Locks/)
+    s.getState().frame(0, 0)
+    s.getState().save(60_000, 60_000)
+    expect(s.getState().game.day).toBe(120)
+    expect([...data]).toEqual(before)
   })
 
   it('R01: a failed lock request blocks saving with a reason', async () => {

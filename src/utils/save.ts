@@ -150,20 +150,23 @@ export interface BootResult {
  * Mở game: cách ly save không đọc được, đọc save, mô phỏng thời gian vắng mặt.
  * Không ghi save: mô phỏng tất định nên mở lại trước lần ghi kế tiếp cho cùng kết quả.
  * Bản cách ly đặt tên theo hash nội dung, mở lại nhiều lần không sinh thêm bản sao.
+ * `readOnly`: tab không được ghi storage (kể cả bản cách ly); người gọi phải chặn mọi lần ghi.
  */
 export function bootSave(
   storage: SaveStorage,
   content: Content,
   now: number,
+  readOnly = false,
 ): BootResult {
   const errors: string[] = []
-  let canWrite = true
+  let canWrite = !readOnly
   try {
-    for (const key of [SAVE_KEY, SAVE_BACKUP_KEY]) {
-      const text = storage.getItem(key)
-      if (text !== null && !parseSave(text, content).ok)
-        quarantine(storage, text)
-    }
+    if (!readOnly)
+      for (const key of [SAVE_KEY, SAVE_BACKUP_KEY]) {
+        const text = storage.getItem(key)
+        if (text !== null && !parseSave(text, content).ok)
+          quarantine(storage, text)
+      }
   } catch (e) {
     canWrite = false
     errors.push(`could not quarantine unreadable save: ${String(e)}`)

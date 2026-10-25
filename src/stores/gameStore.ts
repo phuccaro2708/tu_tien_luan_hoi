@@ -19,6 +19,8 @@ const MAX_TICKS_PER_FRAME = 20 // phần còn nợ dồn sang frame sau (SYSTEMS
 const SAVE_LOCK = 'ttlh.save'
 const OTHER_TAB =
   'Game đang mở ở tab khác; tab này tạm dừng và sẽ tiếp tục từ save mới nhất khi tab kia đóng.'
+const NO_LOCKS =
+  'Trình duyệt không hỗ trợ Web Locks nên không lưu được (tránh hai tab ghi đè nhau). Hãy cập nhật trình duyệt.'
 
 const storage: SaveStorage | null =
   typeof localStorage === 'undefined' ? null : localStorage
@@ -49,9 +51,12 @@ let clock: ClockState | null = null // null = chưa có frame
 let ready = false
 const locks = typeof navigator === 'undefined' ? undefined : navigator.locks
 
-/** Đọc save (cách ly bản hỏng) + mô phỏng vắng mặt; chỉ gọi khi tab này là writer. */
-function boot(now: number) {
-  const booted = storage ? bootSave(storage, content, now) : null
+/**
+ * Đọc save + mô phỏng vắng mặt. Writer (giữ khóa) còn cách ly bản hỏng;
+ * `readOnly` (không có Web Locks): chơi được nhưng không ghi gì vào storage.
+ */
+function boot(now: number, readOnly = false) {
+  const booted = storage ? bootSave(storage, content, now, readOnly) : null
   savedAt = booted?.savedAt ?? now
   lastSaveWall = now
   clock = null
@@ -61,7 +66,11 @@ function boot(now: number) {
     speed: booted?.speed ?? 1,
     offlineTicks: booted?.offlineTicks ?? 0,
     error: booted?.error ?? null,
-    saveBlocked: booted && !booted.canWrite ? booted.error : null,
+    saveBlocked: readOnly
+      ? NO_LOCKS
+      : booted && !booted.canWrite
+        ? booted.error
+        : null,
   }
 }
 
@@ -76,7 +85,7 @@ function settle(game: GameState, frameNow: number, maxTicks: number) {
   return adv.ticks > 0 ? runTicks(game, content, adv.ticks).state : game
 }
 
-// Trình duyệt không có Web Locks: tải ngay và coi tab này là writer.
+// Trình duyệt không có Web Locks: tải ngay, chơi được nhưng không lưu (không phân biệt được tab nào là writer).
 // Có Web Locks: hiển thị game mới tạm thời, chưa chạy gì cho tới khi nhận khóa.
 const initial = locks
   ? {
@@ -86,7 +95,7 @@ const initial = locks
       error: null,
       saveBlocked: null,
     }
-  : boot(Date.now())
+  : boot(Date.now(), true)
 
 export const useGameStore = create<GameStore>((set, get) => ({
   ...initial,
