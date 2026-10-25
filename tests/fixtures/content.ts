@@ -1,8 +1,13 @@
+import { characterData } from '../../src/data/character'
 import { createContent } from '../../src/data/registry'
 import type { RawContent } from '../../src/types/game'
 
 // Nội dung giả chỉ dùng cho test; không phải số liệu gameplay.
+// Kỹ năng, linh căn, xuất thân, thiên phú lấy từ dữ liệu thật. Thọ nguyên đặt rất dài để test
+// không liên quan (offline 8 giờ = 160 năm game) không chạm cảnh báo/chết; test thọ nguyên dùng `lifeFixture`.
 export const rawFixture: RawContent = {
+  ...characterData,
+  lifespan: { ...characterData.lifespan, base: 1_000 },
   calendar: { daysPerYear: 360, startAgeYears: 14 },
   resources: [
     { id: 'van', name: 'Văn', min: 0, max: 1_000_000, initial: 0 },
@@ -65,7 +70,30 @@ export const rawFixture: RawContent = {
       once: false,
     },
     { id: 'idle', name: 'Ngồi', requires: [], effects: [], once: false },
+    {
+      id: 'train',
+      name: 'Rèn thân',
+      requires: [],
+      effects: [
+        { type: 'addResource', resource: 'van', amount: -1 },
+        { type: 'addSkillXp', skill: 'thePhach', amount: 50 },
+      ],
+      once: false,
+    },
+    {
+      id: 'haul',
+      name: 'Khuân vác',
+      requires: [{ type: 'skillAtLeast', skill: 'thePhach', level: 5 }],
+      effects: [],
+      once: false,
+    },
   ],
 }
 
 export const fixture = createContent(rawFixture)
+
+/** Như fixture nhưng thọ nguyên theo dữ liệu thật (PROGRESSION §6). */
+export const lifeFixture = createContent({
+  ...rawFixture,
+  lifespan: characterData.lifespan,
+})

@@ -34,11 +34,13 @@ function App() {
       {game.stop && (
         <p>
           Tạm dừng ({game.stop.reason}){' '}
-          <button
-            onClick={() => dispatch({ type: 'resume' }, performance.now())}
-          >
-            Tiếp tục
-          </button>
+          {game.stop.reason !== 'death' && (
+            <button
+              onClick={() => dispatch({ type: 'resume' }, performance.now())}
+            >
+              Tiếp tục
+            </button>
+          )}
         </p>
       )}
       {game.tichThoiTicks > 0 && (

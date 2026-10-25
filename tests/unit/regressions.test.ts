@@ -20,15 +20,15 @@ describe('B04: ids that collide with Object.prototype', () => {
       applyCommand(s, fixture, { type: 'setAction', actionId: id }).ok,
     ).toBe(false)
     expect(
-      evaluateCondition(s, {
+      evaluateCondition(s, fixture, {
         type: 'resourceAtLeast',
         resource: id,
         amount: 1,
       }),
     ).toBe(false)
-    expect(evaluateCondition(s, { type: 'flag', flag: id, value: false })).toBe(
-      true,
-    )
+    expect(
+      evaluateCondition(s, fixture, { type: 'flag', flag: id, value: false }),
+    ).toBe(true)
     expect(
       applyResourceDeltas(
         s.resources,
@@ -58,7 +58,11 @@ describe('B04: ids that collide with Object.prototype', () => {
     expect(Object.getPrototypeOf(r.value.flags)).toBe(Object.prototype)
     expect(Object.hasOwn(r.value.flags, id)).toBe(true)
     expect(
-      evaluateCondition(r.value, { type: 'flag', flag: id, value: true }),
+      evaluateCondition(r.value, fixture, {
+        type: 'flag',
+        flag: id,
+        value: true,
+      }),
     ).toBe(true)
   })
 })

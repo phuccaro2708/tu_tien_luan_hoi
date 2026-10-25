@@ -74,33 +74,33 @@ describe('ConditionEvaluator', () => {
       flags: { a: true },
     })
     expect(
-      evaluateCondition(s, {
+      evaluateCondition(s, fixture, {
         type: 'resourceAtLeast',
         resource: 'van',
         amount: 5,
       }),
     ).toBe(true)
     expect(
-      evaluateCondition(s, {
+      evaluateCondition(s, fixture, {
         type: 'resourceAtLeast',
         resource: 'van',
         amount: 5.01,
       }),
     ).toBe(false)
-    expect(evaluateCondition(s, { type: 'flag', flag: 'a', value: true })).toBe(
-      true,
-    )
     expect(
-      evaluateCondition(s, { type: 'flag', flag: 'b', value: false }),
+      evaluateCondition(s, fixture, { type: 'flag', flag: 'a', value: true }),
+    ).toBe(true)
+    expect(
+      evaluateCondition(s, fixture, { type: 'flag', flag: 'b', value: false }),
     ).toBe(true)
   })
 
   it('reports the first unmet condition', () => {
     const conds = fixture.actions.study.requires
-    expect(firstUnmet(fresh(), conds)).toEqual(conds[0])
-    expect(firstUnmet(fresh({ flags: { canStudy: true } }), conds)).toEqual(
-      conds[1],
-    )
+    expect(firstUnmet(fresh(), fixture, conds)).toEqual(conds[0])
+    expect(
+      firstUnmet(fresh({ flags: { canStudy: true } }), fixture, conds),
+    ).toEqual(conds[1])
   })
 })
 

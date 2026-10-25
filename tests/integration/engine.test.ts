@@ -8,6 +8,7 @@ import {
   SAVE_BACKUP_KEY,
   SAVE_KEY,
   SAVE_QUARANTINE_PREFIX,
+  SAVE_VERSION,
   writeSave,
   type SaveStorage,
 } from '../../src/utils/save'
@@ -28,7 +29,8 @@ describe('deterministic simulation (replay)', () => {
     const b = runScript(fixture, 5, script, 400)
     expect(a.day).toBe(400)
     expect(a.claimed).toEqual({ treasure: true })
-    expect(a.resources.van).toBe(9 * 10 + 100 + 30 * 7)
+    const startVan = createInitialState(fixture, 5).resources.van // vốn xuất thân
+    expect(a.resources.van).toBe(startVan + 9 * 10 + 100 + 30 * 7)
     expect(hashState(a)).toBe(hashState(b))
   })
 
@@ -142,7 +144,7 @@ describe('boot (load + offline)', () => {
     const { data, storage } = memory()
     // VD save cũ thiếu tài nguyên mà dữ liệu mới yêu cầu.
     const stale = JSON.stringify({
-      version: 1,
+      version: SAVE_VERSION,
       savedAt: 0,
       state: { ...createInitialState(fixture, 1), resources: { van: 5 } },
     })

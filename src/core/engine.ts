@@ -1,12 +1,15 @@
 import { checkAction, runCurrentAction } from '../systems/actions'
+import { checkLifespan } from '../systems/lifespan'
 import type { Command, Content, GameState, Result } from '../types/game'
 
-/** Mọi thay đổi state từ người chơi đi qua đây. */
+/** Mọi thay đổi state từ người chơi đi qua đây. Hết kiếp thì không lệnh nào áp được (chờ Vong Xuyên, P4). */
 export function applyCommand(
   state: GameState,
   content: Content,
   command: Command,
 ): Result<GameState> {
+  if (state.stop?.reason === 'death')
+    return { ok: false, error: 'this life has ended' }
   switch (command.type) {
     case 'setAction': {
       if (command.actionId === null)
@@ -25,7 +28,7 @@ export function applyCommand(
 
 /**
  * Một tick = một ngày. Thứ tự pipeline cố định (IMPLEMENTATION_PLAN §1);
- * P0 chỉ có: hành động hiện tại → ngày +1. Đang ở điểm dừng → không chạy.
+ * hiện có: hành động hiện tại → ngày +1 → cảnh báo thọ nguyên / chết. Đang ở điểm dừng → không chạy.
  */
 export function step(state: GameState, content: Content): GameState {
   // Ngày cuối biểu diễn được (thực tế không thể chạm tới): không chạy gì để 1 tick luôn = 1 ngày.
@@ -33,7 +36,7 @@ export function step(state: GameState, content: Content): GameState {
   const next = runCurrentAction(state, content)
   // Bị chặn trước khi làm gì → ngày chưa trôi.
   if (next.stop?.reason === 'actionBlocked') return next
-  return { ...next, day: next.day + 1 }
+  return checkLifespan(state, { ...next, day: next.day + 1 }, content)
 }
 
 /**

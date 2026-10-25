@@ -14,6 +14,7 @@ import {
   readSave,
   SAVE_BACKUP_KEY,
   SAVE_KEY,
+  SAVE_VERSION,
   serializeSave,
   writeSave,
   type SaveStorage,
@@ -60,7 +61,12 @@ describe('SaveManager', () => {
     const back = text.ok && parseSave(text.value, fixture)
     expect(back && back.ok && back.value.speed).toBe(5)
     for (const speed of [undefined, 4, '5', null]) {
-      const old = JSON.stringify({ version: 1, savedAt: 0, speed, state: s })
+      const old = JSON.stringify({
+        version: SAVE_VERSION,
+        savedAt: 0,
+        speed,
+        state: s,
+      })
       const r = parseSave(old, fixture)
       expect(r.ok && r.value.speed).toBe(1)
     }
@@ -85,11 +91,11 @@ describe('SaveManager', () => {
         state: createInitialState(fixture, 1),
       }),
     ],
-    ['missing state', JSON.stringify({ version: 1, savedAt: 0 })],
+    ['missing state', JSON.stringify({ version: SAVE_VERSION, savedAt: 0 })],
     [
       'negative resource',
       JSON.stringify({
-        version: 1,
+        version: SAVE_VERSION,
         savedAt: 0,
         state: {
           ...createInitialState(fixture, 1),
@@ -100,7 +106,7 @@ describe('SaveManager', () => {
     [
       'null resource (NaN)',
       JSON.stringify({
-        version: 1,
+        version: SAVE_VERSION,
         savedAt: 0,
         state: {
           ...createInitialState(fixture, 1),
@@ -111,7 +117,7 @@ describe('SaveManager', () => {
     [
       'bad savedAt',
       JSON.stringify({
-        version: 1,
+        version: SAVE_VERSION,
         savedAt: 'x',
         state: createInitialState(fixture, 1),
       }),

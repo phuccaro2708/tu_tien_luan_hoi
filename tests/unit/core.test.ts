@@ -269,5 +269,89 @@ describe('ContentRegistry', () => {
 
   it('content is frozen', () => {
     expect(Object.isFrozen(fixture.actions)).toBe(true)
+    expect(Object.isFrozen(fixture.xpTable)).toBe(true)
+    expect(Object.isFrozen(fixture.origins.tieuPhu.skills)).toBe(true)
+  })
+
+  it.each<[string, Partial<typeof rawFixture>]>([
+    [
+      'unknown skill in condition',
+      {
+        actions: [
+          {
+            id: 'a',
+            name: 'a',
+            requires: [{ type: 'skillAtLeast', skill: 'bay', level: 1 }],
+            effects: [],
+            once: false,
+          },
+        ],
+      },
+    ],
+    [
+      'skill level above max',
+      {
+        actions: [
+          {
+            id: 'a',
+            name: 'a',
+            requires: [{ type: 'skillAtLeast', skill: 'vanTu', level: 51 }],
+            effects: [],
+            once: false,
+          },
+        ],
+      },
+    ],
+    [
+      'negative XP effect',
+      {
+        actions: [
+          {
+            id: 'a',
+            name: 'a',
+            requires: [],
+            effects: [{ type: 'addSkillXp', skill: 'vanTu', amount: -1 }],
+            once: false,
+          },
+        ],
+      },
+    ],
+    [
+      'duplicate skill',
+      { skills: [...rawFixture.skills, { id: 'vanTu', name: 'x', ngo: true }] },
+    ],
+    [
+      'lifespan skill unknown',
+      { lifespan: { ...rawFixture.lifespan, skill: 'bay' } },
+    ],
+    [
+      'linh căn with more elements than exist',
+      { linhCan: [{ id: 'x', name: 'x', elements: 6, weightLife1: 1 }] },
+    ],
+    [
+      'all life-1 weights zero',
+      { linhCan: [{ id: 'x', name: 'x', elements: 3, weightLife1: 0 }] },
+    ],
+    ['ngộ min > max', { ngoTinh: { min: 1.2, max: 1 } }],
+    [
+      'origin gives unknown skill',
+      { origins: [{ id: 'o', name: 'o', resources: {}, skills: { bay: 1 } }] },
+    ],
+    [
+      'origin gives unknown resource',
+      { origins: [{ id: 'o', name: 'o', resources: { gold: 1 }, skills: {} }] },
+    ],
+    ['no origins', { origins: [] }],
+    [
+      'trait XP factor 0',
+      {
+        traits: [
+          { id: 't', name: 't', tiers: [{ xp: { vanTu: 0 }, lifespan: 0 }] },
+        ],
+      },
+    ],
+    ['trait without tiers', { traits: [{ id: 't', name: 't', tiers: [] }] }],
+  ])('rejects content: %s', (_name, patch) => {
+    expect(validateContent({ ...rawFixture, ...patch })).not.toEqual([])
   })
 })
