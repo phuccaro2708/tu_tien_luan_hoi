@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import {
   advanceClock,
   createClock,
+  setClockSpeed,
   type ClockState,
   type Speed,
 } from '../core/clock'
@@ -14,8 +15,17 @@ import { bootSave, writeSave, type SaveStorage } from '../utils/save'
 
 // Store chỉ giữ GameState và gọi engine; không chứa luật chơi.
 const AUTOSAVE_MS = 30_000 // SYSTEMS S14
-const MAX_TICKS_PER_FRAME = 20
-const MAX_BACKLOG_TICKS = 600 // tồn đọng lớn hơn (tab bị ẩn lâu) → đường offline có trần 8 giờ
+const MAX_TICKS_PER_FRAME = 20 // phần còn nợ dồn sang frame sau (SYSTEMS S1)
+const MAX_AUTOSAVE_DEFER = 5 // chạy bù quá 5 × AUTOSAVE_MS chưa lưu thì vẫn lưu (quyết định 2026-10-24)
+const SLEEP_SLACK_MS = 5_000 // chênh đồng hồ hệ thống/clock dưới mức này là sai số đo, không phải máy ngủ
+const SAVE_LOCK = 'ttlh.save'
+const OTHER_TAB =
+  'Game đang mở ở tab khác; tab này tạm dừng và sẽ tiếp tục từ save mới nhất khi tab kia đóng.'
+// Web Locks chỉ có trong secure context: trang HTTP (VD preview qua IP LAN) cũng không có.
+const NO_LOCKS =
+  globalThis.isSecureContext === false
+    ? 'Trang không chạy qua HTTPS hoặc localhost nên trình duyệt tắt Web Locks; tab này không lưu được (tránh hai tab ghi đè nhau).'
+    : 'Trình duyệt không hỗ trợ Web Locks nên không lưu được (tránh hai tab ghi đè nhau). Hãy cập nhật trình duyệt.'
 
 const storage: SaveStorage | null =
   typeof localStorage === 'undefined' ? null : localStorage
@@ -23,75 +33,172 @@ const storage: SaveStorage | null =
 interface GameStore {
   game: GameState
   speed: Speed
-  /** Tick đã chạy khi vắng mặt lúc mở game (báo cáo offline). */
+  /** Tick đã chạy khi vắng mặt (lúc mở game). */
   offlineTicks: number
   error: string | null
+  /** Lần ghi save gần nhất thất bại (VD hết quota); ghi được thì xóa. Tách khỏi `error` để lệnh chơi không xóa nó. */
+  saveError: string | null
+  /** Khác null = tab này không được ghi save (save hỏng chưa cách ly được, hoặc tab khác đang giữ). */
+  saveBlocked: string | null
   frame: (frameNow: number, wallNow: number) => void
   setSpeed: (speed: Speed, frameNow: number) => void
-  dispatch: (command: Command) => void
-  spendTichThoi: () => void
-  save: (wallNow: number) => void
+  /** Lệnh áp tại `frameNow`: thời gian trước đó được hạch toán trước (đang dừng thì bỏ). */
+  dispatch: (command: Command, frameNow: number) => void
+  spendTichThoi: (frameNow: number) => void
+  /** Hạch toán hết thời gian online tới `frameNow` rồi ghi với mốc `wallNow`. */
+  save: (frameNow: number, wallNow: number) => void
 }
 
-// Tải + offline chạy đúng một lần khi nạp module (không trong useEffect, tránh StrictMode chạy đôi).
-function boot(wallNow: number): {
-  game: GameState
-  offlineTicks: number
-  error: string | null
-} {
-  const r = storage
-    ? bootSave(storage, content, wallNow)
-    : { state: null, offlineTicks: 0, error: null }
-  // ponytail: seed từ đồng hồ khi chơi mới; khởi tạo kiếp 1 theo seed thuộc P1.
+// Hạch toán thời gian nằm ngoài React state.
+// `savedAt`: mốc thời gian thực mà `game` đã được hạch toán tới; chỉ tăng (đồng hồ lùi không cấp lại thời gian).
+let savedAt = 0
+// Mốc clock (đơn điệu) của lần lưu gần nhất: đồng hồ hệ thống lùi không làm ngừng autosave.
+let lastSaveMs = 0
+// null = chưa boot. Một writer cho một save: chỉ đọc, cách ly và ghi save sau khi giữ khóa (N01).
+let clock: ClockState | null = null
+let behind = false // frame gần nhất chạm MAX_TICKS_PER_FRAME, còn tick nợ
+let catchUpFrom: number | null = null // clock.lastMs lúc bắt đầu chạy bù
+// Cặp mốc (đồng hồ hệ thống, clock) lần đo gần nhất, để nhận ra máy ngủ khi `performance.now()` đứng yên.
+let lastWall = 0
+let lastFrame = 0
+const locks = typeof navigator === 'undefined' ? undefined : navigator.locks
+
+/**
+ * Đọc save + mô phỏng vắng mặt. Writer (giữ khóa) còn cách ly bản hỏng;
+ * `readOnly` (không có Web Locks): chơi được nhưng không ghi gì vào storage.
+ */
+function boot(now: number, readOnly = false) {
+  const booted = storage ? bootSave(storage, content, now, readOnly) : null
+  const speed = booted?.speed ?? 1
+  savedAt = booted?.savedAt ?? now
+  // Clock chạy từ lúc boot, không đợi frame đầu: tab tải (hoặc nhận khóa) khi đang ẩn vẫn tính giờ ẩn là online.
+  clock = createClock(performance.now(), speed)
+  lastSaveMs = clock.lastMs
+  behind = false
+  catchUpFrom = null
+  lastWall = now
+  lastFrame = clock.lastMs
   return {
-    game: r.state ?? createInitialState(content, wallNow >>> 0),
-    offlineTicks: r.offlineTicks,
-    error: r.error,
+    game: booted?.state ?? createInitialState(content, now >>> 0),
+    speed,
+    offlineTicks: booted?.offlineTicks ?? 0,
+    error: booted?.error ?? null,
+    saveError: null,
+    saveBlocked: readOnly
+      ? NO_LOCKS
+      : booted && !booted.canWrite
+        ? booted.error
+        : null,
   }
 }
 
-const booted = boot(Date.now())
-let clock: ClockState | null = null
-let lastSaveWall = Date.now()
+/** Chạy tick online đến hạn (tối đa `maxTicks`). */
+function settle(game: GameState, frameNow: number, maxTicks: number) {
+  if (!clock) return game
+  const adv = advanceClock(clock, frameNow, {
+    paused: game.stop !== null,
+    maxTicks,
+  })
+  clock = adv.clock
+  behind = adv.ticks >= maxTicks
+  return adv.ticks > 0 ? runTicks(game, content, adv.ticks).state : game
+}
+
+/**
+ * Máy ngủ trên hệ điều hành dừng `performance.now()`: đồng hồ hệ thống chạy hơn clock.
+ * Phần chênh tính như offline: trần 8 giờ, phần dư thành Tích Thời (quyết định 2026-10-24). Đồng hồ lùi thì bỏ qua.
+ */
+function catchSleep(game: GameState, frameNow: number, wallNow: number) {
+  if (!Number.isFinite(frameNow) || !Number.isFinite(wallNow)) return game
+  const gap = wallNow - lastWall - (frameNow - lastFrame)
+  lastWall = wallNow
+  lastFrame = frameNow
+  return gap > SLEEP_SLACK_MS ? simulateAway(game, content, gap).state : game
+}
+
+// Trình duyệt không có Web Locks: tải ngay, chơi được nhưng không lưu (không phân biệt được tab nào là writer).
+// Có Web Locks: hiển thị game mới tạm thời, chưa chạy gì cho tới khi nhận khóa.
+const initial = locks
+  ? {
+      game: createInitialState(content, Date.now() >>> 0),
+      speed: 1 as Speed,
+      offlineTicks: 0,
+      error: null,
+      saveError: null,
+      saveBlocked: null,
+    }
+  : boot(Date.now(), true)
 
 export const useGameStore = create<GameStore>((set, get) => ({
-  ...booted,
-  speed: 1,
+  ...initial,
 
   frame(frameNow, wallNow) {
-    clock ??= createClock(frameNow, get().speed)
-    let game = get().game
-    const adv = advanceClock(clock, frameNow, {
-      paused: game.stop !== null,
-      maxTicksPerFrame: MAX_TICKS_PER_FRAME,
-      maxBacklogTicks: MAX_BACKLOG_TICKS,
-    })
-    clock = adv.clock
-    if (adv.ticks > 0) game = runTicks(game, content, adv.ticks).state
-    if (adv.droppedMs > 0)
-      game = simulateAway(game, content, adv.droppedMs).state
+    if (!clock) return
+    const game = settle(
+      catchSleep(get().game, frameNow, wallNow),
+      frameNow,
+      MAX_TICKS_PER_FRAME,
+    )
     if (game !== get().game) set({ game })
-    if (wallNow - lastSaveWall >= AUTOSAVE_MS) get().save(wallNow)
+    // Đang chạy bù thì hoãn autosave (save hạch toán hết nợ một lần, vượt trần mỗi frame của SYSTEMS S1),
+    // nhưng không quá MAX_AUTOSAVE_DEFER lần khoảng autosave kể từ lúc bắt đầu bù.
+    catchUpFrom = behind ? (catchUpFrom ?? clock.lastMs) : null
+    const since = clock.lastMs - Math.max(lastSaveMs, catchUpFrom ?? -Infinity)
+    if (since >= (behind ? MAX_AUTOSAVE_DEFER : 1) * AUTOSAVE_MS)
+      get().save(frameNow, wallNow)
   },
 
   setSpeed(speed, frameNow) {
-    clock = createClock(frameNow, speed)
-    set({ speed })
+    if (!clock) return
+    set({ game: settle(get().game, frameNow, Infinity), speed })
+    clock = setClockSpeed(clock, frameNow, speed)
   },
 
-  dispatch(command) {
-    const r = applyCommand(get().game, content, command)
-    set(r.ok ? { game: r.value, error: null } : { error: r.error })
+  dispatch(command, frameNow) {
+    if (!clock) return
+    const game = settle(get().game, frameNow, Infinity)
+    const r = applyCommand(game, content, command)
+    set(r.ok ? { game: r.value, error: null } : { game, error: r.error })
   },
 
-  spendTichThoi() {
-    set({ game: spendTichThoi(get().game, content).state })
+  spendTichThoi(frameNow) {
+    if (!clock) return
+    const game = settle(get().game, frameNow, Infinity)
+    set({ game: spendTichThoi(game, content).state })
   },
 
-  save(wallNow) {
-    lastSaveWall = wallNow
-    if (!storage) return
-    const r = writeSave(storage, get().game, content, wallNow)
-    if (!r.ok) set({ error: r.error })
+  save(frameNow, wallNow) {
+    if (!clock) return
+    const game = catchSleep(get().game, frameNow, wallNow)
+    set({ game: settle(game, frameNow, Infinity) })
+    savedAt = Math.max(savedAt, wallNow)
+    lastSaveMs = clock.lastMs
+    if (!storage || get().saveBlocked) return
+    const r = writeSave(storage, get().game, content, savedAt, get().speed)
+    set({ saveError: r.ok ? null : r.error })
   },
 }))
+
+/**
+ * Thử lấy khóa ngay; tab khác đang giữ thì báo và xếp hàng chờ.
+ * Nhận khóa lúc nào cũng đọc lại save mới nhất, rồi giữ khóa tới khi đóng tab.
+ * ponytail: dev HMR nạp lại module sẽ xếp hàng sau khóa của bản cũ; tải lại trang để nhận khóa.
+ */
+function claimSaveLock(lockManager: LockManager, ifAvailable: boolean) {
+  lockManager
+    .request(SAVE_LOCK, { ifAvailable }, (lock) => {
+      if (!lock) {
+        useGameStore.setState({ saveBlocked: OTHER_TAB })
+        claimSaveLock(lockManager, false)
+        return
+      }
+      useGameStore.setState(boot(Date.now()))
+      return new Promise<never>(() => {})
+    })
+    .catch((e: unknown) =>
+      useGameStore.setState({
+        saveBlocked: `Không lấy được khóa save: ${String(e)}`,
+      }),
+    )
+}
+if (locks) claimSaveLock(locks, true)

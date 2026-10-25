@@ -24,7 +24,10 @@ function applyDue(
   return s
 }
 
-/** Chạy tới `totalDays` hoặc điểm dừng không có lệnh `resume` theo sau. */
+/**
+ * Chạy tới `totalDays` hoặc điểm dừng không có lệnh `resume` theo sau.
+ * Mỗi lệnh áp đúng một lần, kể cả khi ngày không trôi (VD hành động bị chặn).
+ */
 export function runScript(
   content: Content,
   seed: number,
@@ -33,15 +36,23 @@ export function runScript(
   initial: GameState = createInitialState(content, seed),
 ): GameState {
   let s = initial
+  let pending = script.filter((e) => e.day >= s.day)
   while (s.day < totalDays) {
-    s = applyDue(s, content, script)
+    const day = s.day
+    s = applyDue(s, content, pending)
+    pending = pending.filter((e) => e.day > day)
     if (s.stop) break
-    const nextCmd = Math.min(
-      totalDays,
-      ...script.filter((e) => e.day > s.day).map((e) => e.day),
-    )
+    const nextCmd = Math.min(totalDays, ...pending.map((e) => e.day))
+    const before = s
     s = runTicks(s, content, nextCmd - s.day).state
+    if (s === before) break // không còn ngày nào trôi được
   }
+  // Dừng sớm mà còn lệnh chưa áp = kịch bản sai; báo lỗi thay vì trả về một lượt chạy ngắn hơn dự kiến.
+  const missed = pending.filter((e) => e.day < totalDays)
+  if (missed.length > 0)
+    throw new Error(
+      `stopped at day ${s.day}; commands for day ${missed.map((e) => e.day).join(', ')} never applied`,
+    )
   return s
 }
 
@@ -76,8 +87,7 @@ export function runRealtime(
     due()
     const adv = advanceClock(clock, now, {
       paused: s.stop !== null,
-      maxTicksPerFrame: opts.maxTicksPerFrame,
-      maxBacklogTicks: Infinity,
+      maxTicks: opts.maxTicksPerFrame,
     })
     clock = adv.clock
     for (let i = 0; i < adv.ticks && !s.stop && s.day < opts.untilDay; i++) {

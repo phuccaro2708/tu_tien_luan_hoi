@@ -1,3 +1,5 @@
+import { SPEEDS, type Speed } from '../core/clock'
+import { hashState } from '../core/hash'
 import { validateState } from '../core/state'
 import { simulateAway } from '../systems/offline'
 import type { Content, GameState, Result } from '../types/game'
@@ -6,19 +8,24 @@ export const SAVE_VERSION = 1
 export const SAVE_KEY = 'ttlh.save'
 export const SAVE_BACKUP_KEY = 'ttlh.save.bak'
 export const SAVE_TEMP_KEY = 'ttlh.save.tmp'
+export const SAVE_QUARANTINE_PREFIX = 'ttlh.save.corrupt.'
 
 export type SaveStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
 export interface LoadedSave {
   state: GameState
+  /** Mốc thời gian thực mà `state` đã được hạch toán tới. */
   savedAt: number
+  /** Tùy chọn giao diện, ngoài GameState (SYSTEMS S1). Thiếu hoặc sai → 1×. */
+  speed: Speed
 }
 
-/** Chuỗi save `{ version, savedAt, state }`. Từ chối state không hợp lệ (VD NaN thành null khi stringify). */
+/** Chuỗi save `{ version, savedAt, speed, state }`. Từ chối state không hợp lệ (VD NaN thành null khi stringify). */
 export function serializeSave(
   state: GameState,
   content: Content,
   savedAt: number,
+  speed: Speed = 1,
 ): Result<string> {
   const errors = validateState(state, content)
   if (errors.length > 0)
@@ -30,7 +37,7 @@ export function serializeSave(
     return { ok: false, error: 'savedAt must be finite' }
   return {
     ok: true,
-    value: JSON.stringify({ version: SAVE_VERSION, savedAt, state }),
+    value: JSON.stringify({ version: SAVE_VERSION, savedAt, speed, state }),
   }
 }
 
@@ -48,7 +55,7 @@ export function parseSave(
   }
   if (typeof data !== 'object' || data === null)
     return { ok: false, error: 'save is not an object' }
-  const { version, savedAt, state } = data as Record<string, unknown>
+  const { version, savedAt, speed, state } = data as Record<string, unknown>
   // ponytail: chỉ có v1; thêm bảng migrate vN → vN+1 khi có v2.
   if (version !== SAVE_VERSION)
     return { ok: false, error: `unsupported save version ${String(version)}` }
@@ -57,7 +64,14 @@ export function parseSave(
   const errors = validateState(state, content)
   if (errors.length > 0)
     return { ok: false, error: `invalid state: ${errors.join('; ')}` }
-  return { ok: true, value: { state: state as GameState, savedAt } }
+  return {
+    ok: true,
+    value: {
+      state: state as GameState,
+      savedAt,
+      speed: SPEEDS.find((s) => s === speed) ?? 1,
+    },
+  }
 }
 
 /**
@@ -69,8 +83,9 @@ export function writeSave(
   state: GameState,
   content: Content,
   now: number,
+  speed: Speed = 1,
 ): Result<void> {
-  const text = serializeSave(state, content, now)
+  const text = serializeSave(state, content, now, speed)
   if (!text.ok) return text
   try {
     storage.setItem(SAVE_TEMP_KEY, text.value)
@@ -106,51 +121,77 @@ export function readSave(
   }
 }
 
-export const SAVE_QUARANTINE_PREFIX = 'ttlh.save.corrupt.'
+/** Cất `text` dưới tên theo hash; khóa đã giữ nội dung khác (va chạm hash) thì thêm hậu tố, không ghi đè. */
+function quarantine(storage: SaveStorage, text: string) {
+  const base = `${SAVE_QUARANTINE_PREFIX}${hashState(text)}`
+  let key = base
+  for (let i = 1; ; i++) {
+    const existing = storage.getItem(key)
+    if (existing === text) return
+    if (existing === null) break
+    key = `${base}.${i}`
+  }
+  storage.setItem(key, text)
+}
 
 export interface BootResult {
   /** null = không có save dùng được; người gọi tạo game mới. */
   state: GameState | null
+  speed: Speed
+  /** Mốc đã hạch toán: không bao giờ nhỏ hơn `savedAt` cũ, kể cả khi đồng hồ lùi. */
+  savedAt: number
   offlineTicks: number
+  /** false = có save không đọc được mà chưa cách ly được; phải chặn mọi lần ghi để không mất nó. */
+  canWrite: boolean
   error: string | null
 }
 
 /**
- * Mở game: đọc save, mô phỏng thời gian vắng mặt đúng một lần, ghi lại với `savedAt = now`.
- * Save chính hoặc backup không đọc được thì được chép nguyên văn sang khóa cách ly
- * trước mọi lần ghi, để autosave về sau không xóa mất nó (VD dữ liệu đổi giữa các phase).
+ * Mở game: cách ly save không đọc được, đọc save, mô phỏng thời gian vắng mặt.
+ * Không ghi save: mô phỏng tất định nên mở lại trước lần ghi kế tiếp cho cùng kết quả.
+ * Bản cách ly đặt tên theo hash nội dung, mở lại nhiều lần không sinh thêm bản sao.
+ * `readOnly`: tab không được ghi storage (kể cả bản cách ly); người gọi phải chặn mọi lần ghi.
  */
 export function bootSave(
   storage: SaveStorage,
   content: Content,
   now: number,
+  readOnly = false,
 ): BootResult {
-  let quarantineError: string | null = null
+  const errors: string[] = []
+  let canWrite = !readOnly
   try {
-    for (const key of [SAVE_KEY, SAVE_BACKUP_KEY]) {
-      const text = storage.getItem(key)
-      if (text !== null && !parseSave(text, content).ok) {
-        storage.setItem(`${SAVE_QUARANTINE_PREFIX}${key}.${now}`, text)
+    if (!readOnly)
+      for (const key of [SAVE_KEY, SAVE_BACKUP_KEY]) {
+        const text = storage.getItem(key)
+        if (text !== null && !parseSave(text, content).ok)
+          quarantine(storage, text)
       }
-    }
   } catch (e) {
-    quarantineError = `could not quarantine bad save: ${String(e)}`
+    canWrite = false
+    errors.push(`could not quarantine unreadable save: ${String(e)}`)
   }
 
   const loaded = readSave(storage, content)
   if (!loaded.ok) {
-    const error = loaded.error === 'no save' ? quarantineError : loaded.error
-    return { state: null, offlineTicks: 0, error }
+    if (loaded.error !== 'no save') errors.unshift(loaded.error)
+    return {
+      state: null,
+      speed: 1,
+      savedAt: now,
+      offlineTicks: 0,
+      canWrite,
+      error: errors.join('; ') || null,
+    }
   }
-  const away = simulateAway(
-    loaded.value.state,
-    content,
-    now - loaded.value.savedAt,
-  )
-  const written = writeSave(storage, away.state, content, now)
+  const { state, savedAt, speed } = loaded.value
+  const away = simulateAway(state, content, now - savedAt)
   return {
     state: away.state,
+    speed,
+    savedAt: Math.max(savedAt, now),
     offlineTicks: away.ticksRun,
-    error: quarantineError ?? (written.ok ? null : written.error),
+    canWrite,
+    error: errors.join('; ') || null,
   }
 }

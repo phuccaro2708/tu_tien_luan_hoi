@@ -9,7 +9,8 @@ const formatHours = (ticks: number) =>
 
 function App() {
   useGameLoop()
-  const { game, speed, offlineTicks, error } = useGameStore()
+  const { game, speed, offlineTicks, error, saveError, saveBlocked } =
+    useGameStore()
   const { setSpeed, dispatch, spendTichThoi } = useGameStore.getState()
   const day = (game.day % content.calendar.daysPerYear) + 1
 
@@ -33,17 +34,23 @@ function App() {
       {game.stop && (
         <p>
           Tạm dừng ({game.stop.reason}){' '}
-          <button onClick={() => dispatch({ type: 'resume' })}>Tiếp tục</button>
+          <button
+            onClick={() => dispatch({ type: 'resume' }, performance.now())}
+          >
+            Tiếp tục
+          </button>
         </p>
       )}
       {game.tichThoiTicks > 0 && (
-        <button onClick={spendTichThoi}>
+        <button onClick={() => spendTichThoi(performance.now())}>
           Dùng Tích Thời ({formatHours(game.tichThoiTicks)})
         </button>
       )}
       {offlineTicks > 0 && (
         <p>Trong lúc vắng mặt: {offlineTicks} ngày đã trôi qua.</p>
       )}
+      {saveBlocked && <p role="alert">Không lưu được: {saveBlocked}</p>}
+      {saveError && <p role="alert">Lưu thất bại: {saveError}</p>}
       {error && <p role="alert">{error}</p>}
     </main>
   )

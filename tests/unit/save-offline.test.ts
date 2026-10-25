@@ -48,7 +48,22 @@ describe('SaveManager', () => {
     const text = serializeSave(s, fixture, 1_000)
     expect(text.ok).toBe(true)
     const back = text.ok && parseSave(text.value, fixture)
-    expect(back).toEqual({ ok: true, value: { state: s, savedAt: 1_000 } })
+    expect(back).toEqual({
+      ok: true,
+      value: { state: s, savedAt: 1_000, speed: 1 },
+    })
+  })
+
+  it('B09: speed is saved; missing or unknown speed loads as 1×', () => {
+    const s = createInitialState(fixture, 1)
+    const text = serializeSave(s, fixture, 0, 5)
+    const back = text.ok && parseSave(text.value, fixture)
+    expect(back && back.ok && back.value.speed).toBe(5)
+    for (const speed of [undefined, 4, '5', null]) {
+      const old = JSON.stringify({ version: 1, savedAt: 0, speed, state: s })
+      const r = parseSave(old, fixture)
+      expect(r.ok && r.value.speed).toBe(1)
+    }
   })
 
   it('refuses to serialize an invalid state (NaN would become null)', () => {
@@ -119,13 +134,13 @@ describe('SaveManager', () => {
     expect(writeSave(storage, bad, fixture, 3).ok).toBe(false)
     expect(readSave(storage, fixture)).toEqual({
       ok: true,
-      value: { state: b, savedAt: 2 },
+      value: { state: b, savedAt: 2, speed: 1 },
     })
 
     storage.data.set(SAVE_KEY, '{"truncated')
     expect(readSave(storage, fixture)).toEqual({
       ok: true,
-      value: { state: a, savedAt: 1 },
+      value: { state: a, savedAt: 1, speed: 1 },
     })
   })
 

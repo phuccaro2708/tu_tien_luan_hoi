@@ -25,9 +25,9 @@ export interface ActionDef {
   id: ActionId
   name: string
   /** Kiểm tra khi chọn và mỗi tick. */
-  requires: Condition[]
+  requires: readonly Readonly<Condition>[]
   /** Áp dụng nguyên khối mỗi tick (thu nhập và chi phí trong cùng một delta). */
-  effects: Effect[]
+  effects: readonly Readonly<Effect>[]
   /** Chỉ nhận một lần mỗi save; xong thì tự bỏ chọn. */
   once: boolean
 }
@@ -43,10 +43,11 @@ export interface RawContent {
   actions: ActionDef[]
 }
 
+/** Nội dung đã nạp: bất biến sâu (createContent đóng băng mọi cấp). */
 export interface Content {
-  calendar: Calendar
-  resources: Readonly<Record<ResourceId, ResourceDef>>
-  actions: Readonly<Record<ActionId, ActionDef>>
+  readonly calendar: Readonly<Calendar>
+  readonly resources: Readonly<Record<ResourceId, Readonly<ResourceDef>>>
+  readonly actions: Readonly<Record<ActionId, Readonly<ActionDef>>>
 }
 
 export type StopReason = 'actionBlocked' | 'actionCompleted'
