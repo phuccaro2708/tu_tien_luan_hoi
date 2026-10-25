@@ -1,6 +1,8 @@
 # Progression – Tu luyện, Kỹ năng, Thọ nguyên, Luân hồi
 
 > **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt). Bản v0.1 đã Approved 2026-10-23; phần không gắn `[CẦN DUYỆT D17–D26]` giữ nguyên giá trị đã duyệt. Mọi con số là giả thuyết để kiểm chứng bằng mô phỏng và playtest. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
+>
+> **Bổ sung 2026-10-25:** D33 (bảng XP §5), D35 (Tinh lực tối đa và lão hóa §6), D36 (Chất phác bậc II §3) – xem GDD §12.
 
 ## 1. Thang cảnh giới
 
@@ -152,14 +154,14 @@ Thiên phú là dấu vết trên hồn phách (WORLD_LORE R6), đổi một đi
 
 **Khắc vào hồn:** thiên phú có trong một kiếp (bẩm sinh hoặc hồn ấn) được khắc khi kiếp đó **sống tới ≥ 40 tuổi hoặc đạt LK1**. Kiếp kết thúc bằng Tự vẫn không khắc thiên phú mới. **Nâng bậc** ở Vong Xuyên bằng Tàn Niệm (§8.3); bậc III cần từng đạt LK4 ở bất kỳ kiếp nào.
 
-| Thiên phú   | Bậc I                                            | Bậc II                       | Bậc III                        |
-| ----------- | ------------------------------------------------ | ---------------------------- | ------------------------------ |
-| Thiết cốt   | Thể Phách XP ×1,2                                | ×1,3                         | ×1,4                           |
-| Khéo miệng  | Giao Tế XP ×1,2; Thể Phách XP ×0,9               | Giao Tế ×1,3; Thể Phách ×0,9 | Giao Tế ×1,4; Thể Phách ×1,0   |
-| Nhanh nhẹn  | Quyền Cước XP ×1,2                               | ×1,3; bỏ chạy +0,05          | ×1,4; bỏ chạy +0,10            |
-| Chất phác   | Giao Tế XP ×0,9; thiện cảm dân làng khởi đầu +10 | Thiện cảm +15                | Thiện cảm +20; Giao Tế XP ×1,0 |
-| Thể nhược   | Thọ nguyên −4; Văn Tự XP ×1,2                    | Thọ −3; Văn Tự ×1,3          | Thọ −2; Văn Tự ×1,4            |
-| Cường tráng | Thọ nguyên +3; Tinh lực tối đa +10               | Thọ +4; Tinh lực +20         | Thọ +5; Tinh lực +30           |
+| Thiên phú   | Bậc I                                            | Bậc II                                                    | Bậc III                        |
+| ----------- | ------------------------------------------------ | --------------------------------------------------------- | ------------------------------ |
+| Thiết cốt   | Thể Phách XP ×1,2                                | ×1,3                                                      | ×1,4                           |
+| Khéo miệng  | Giao Tế XP ×1,2; Thể Phách XP ×0,9               | Giao Tế ×1,3; Thể Phách ×0,9                              | Giao Tế ×1,4; Thể Phách ×1,0   |
+| Nhanh nhẹn  | Quyền Cước XP ×1,2                               | ×1,3; bỏ chạy +0,05                                       | ×1,4; bỏ chạy +0,10            |
+| Chất phác   | Giao Tế XP ×0,9; thiện cảm dân làng khởi đầu +10 | Giao Tế ×0,9; thiện cảm +15 `[ĐÃ DUYỆT D36 – 2026-10-25]` | Thiện cảm +20; Giao Tế XP ×1,0 |
+| Thể nhược   | Thọ nguyên −4; Văn Tự XP ×1,2                    | Thọ −3; Văn Tự ×1,3                                       | Thọ −2; Văn Tự ×1,4            |
+| Cường tráng | Thọ nguyên +3; Tinh lực tối đa +10               | Thọ +4; Tinh lực +20                                      | Thọ +5; Tinh lực +30           |
 
 **Trần sức mạnh** (kiểm thử tĩnh trên dữ liệu): hệ số XP tối đa ×1,4 (vì XP tăng theo L^1,6 nên tương đương ≈ +14% cấp kỹ năng trong cùng thời gian); thọ nguyên tối đa +5; không cộng dồn hai bản của cùng thiên phú.
 
@@ -209,12 +211,12 @@ Pháp bảo luyện hóa, độ hiếm, luyện khí: Post-MVP.
 
 ## 5. Kỹ năng
 
-Sáu kỹ năng, cấp 0–50. XP để lên cấp tiếp theo: `XP(L → L+1) = 10 × max(1, L)^1.6`.
+Sáu kỹ năng, cấp 0–50. XP để lên cấp tiếp theo: `XP(L → L+1) = round(10 × max(1, L)^1.6)` (làm tròn từng bước). XP lưu dạng cộng dồn; "XP cộng dồn" của cấp N là tổng các bước từ cấp 0 tới N, kể cả bước 0 → 1 `[ĐÃ DUYỆT D33 – 2026-10-25]`.
 
 | Cấp                     | 1      | 5       | 10                 | 20                | 30               |
 | ----------------------- | ------ | ------- | ------------------ | ----------------- | ---------------- |
-| XP lên cấp kế           | 10     | 131     | 398                | 1 206             | 2 305            |
-| XP cộng dồn từ 0        | 10     | 190     | 1 337              | 8 688             | 25 496           |
+| XP lên cấp kế           | 10     | 131     | 398                | 1 207             | 2 309            |
+| XP cộng dồn từ 0        | 10     | 200     | 1 347              | 8 699             | 25 509           |
 | Thời gian ở 2,5 XP/ngày | 4 ngày | 0,2 năm | 1,5 năm (4,5 phút) | 9,7 năm (29 phút) | 28 năm (85 phút) |
 
 ```
@@ -246,6 +248,12 @@ ThọNguyên = 60 + min(6, floor(ThểPhách / 5)) + ThiênPhú + 3 × tầngLuy
 | Kiếp 2: LK9, Thể Phách 30, Cường tráng | 60 + 6 + 3 + 27 = 96                                                  |
 
 - **Lão hóa:** khi tuổi > 80% thọ nguyên, Tinh lực tối đa −2 mỗi năm; chiến lực −1% mỗi năm.
+- **Tinh lực tối đa** `[ĐÃ DUYỆT D35 – 2026-10-25]`:
+  ```
+  TinhLựcTốiĐa = max(0, 100 + min(30, cấp ThểPhách) + ThiênPhú − 2 × max(0, tuổi − floor(0,8 × ThọNguyên)))
+  ```
+  - Tuổi là số năm tròn. Thọ nguyên 60 → mốc 48: tuổi 48 chưa giảm, 49 giảm 2, 55 giảm 14.
+  - Khi mức tối đa giảm (lão hóa, thọ nguyên đổi), Tinh lực hiện có bị kẹp xuống mức mới. Kiếp mới bắt đầu với Tinh lực đầy.
 - **Cảnh báo:** tự động dừng khi còn 10, 5, 1 năm.
 - **Cái chết:** khi tuổi ≥ thọ nguyên (tất định, không ngẫu nhiên); hoặc thua khi chọn "Liều mạng" — chiến thuật này **chỉ có trong trận chiến của sự kiện lớn gắn cả `quanTrong` và `motLan`** (một lần mỗi save), không có ở chạm trán ngẫu nhiên `[CẦN DUYỆT D22]`; hoặc tẩu hỏa nhập ma. Không có cái chết ngẫu nhiên không báo trước, và không có cách chết lặp lại được theo ý muốn ở mỗi kiếp ngoài Tự vẫn (§8.7).
 - **Công thức trên chỉ dành cho người chơi.** NPC có tuổi và thọ nguyên khai báo trong dữ liệu theo dòng thời gian thế giới (`WORLD_LORE.md` §3.1) `[CẦN DUYỆT D18]`.
