@@ -56,7 +56,7 @@ function App() {
   useGameLoop()
   const { game, speed, offlineTicks, error, saveError, saveBlocked } =
     useGameStore()
-  const { setSpeed, dispatch, spendTichThoi } = useGameStore.getState()
+  const { setSpeed, dispatch, spendTichThoi, newLife } = useGameStore.getState()
   const day = (game.day % content.calendar.daysPerYear) + 1
   const identity = game.character.identity
   const reason = game.stop?.reason
@@ -79,16 +79,32 @@ function App() {
           </button>
         ))}
       </div>
-      {game.stop && reason !== 'chooseIdentity' && (
+      {game.stop && reason !== 'chooseIdentity' && reason !== 'death' && (
         <p>
           Tạm dừng ({reason}){' '}
-          {reason !== 'death' && (
-            <button
-              onClick={() => dispatch({ type: 'resume' }, performance.now())}
-            >
-              Tiếp tục
-            </button>
-          )}
+          <button
+            onClick={() => dispatch({ type: 'resume' }, performance.now())}
+          >
+            Tiếp tục
+          </button>
+        </p>
+      )}
+      {reason === 'death' && (
+        <p>
+          Kiếp này đã hết ở tuổi {ageYears(game, content)} (thọ nguyên{' '}
+          {game.stop?.detail}).{' '}
+          <button
+            onClick={() => {
+              if (
+                window.confirm(
+                  'Bắt đầu kiếp mới? Kiếp này và Tích Thời còn lại sẽ mất, không khôi phục được.',
+                )
+              )
+                newLife(performance.now(), Date.now())
+            }}
+          >
+            Bắt đầu kiếp mới
+          </button>
         </p>
       )}
       {game.tichThoiTicks > 0 &&

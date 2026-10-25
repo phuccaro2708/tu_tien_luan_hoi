@@ -392,3 +392,37 @@ describe('store write protection', () => {
     expect(data.has(SAVE_KEY)).toBe(false)
   })
 })
+
+describe('new life after death (D31)', () => {
+  const dead = (): GameState => ({
+    ...startGame(fixture, 1),
+    day: 77,
+    tichThoiTicks: 500,
+    stop: { reason: 'death', detail: '60' },
+  })
+
+  it('does nothing while the character is alive', async () => {
+    const storage = memory()
+    writeSave(storage, startGame(fixture, 1), fixture, 0)
+    const s = await open(storage, 0)
+    const before = s.getState().game
+    s.getState().newLife(0, 0)
+    expect(s.getState().game).toBe(before)
+  })
+
+  it('replaces the dead life with a new seeded life and saves it at once', async () => {
+    const data = new Map<string, string>()
+    const storage = memory(data)
+    writeSave(storage, dead(), fixture, 1_000)
+    const s = await open(storage, 1_000)
+    expect(s.getState().game.stop?.reason).toBe('death')
+    s.getState().newLife(5, 123_456)
+    const game = s.getState().game
+    expect(game.seed).toBe(123_456)
+    expect(game.day).toBe(0)
+    expect(game.tichThoiTicks).toBe(0)
+    expect(game.stop?.reason).toBe('chooseIdentity')
+    const saved = readSave(storage, fixture)
+    expect(saved.ok && saved.value.state).toEqual(game)
+  })
+})

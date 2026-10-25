@@ -45,6 +45,8 @@ interface GameStore {
   /** Lệnh áp tại `frameNow`: thời gian trước đó được hạch toán trước (đang dừng thì bỏ). */
   dispatch: (command: Command, frameNow: number) => void
   spendTichThoi: (frameNow: number) => void
+  /** Sau khi chết: bỏ kiếp cũ, tạo kiếp 1 mới (seed mới) và lưu ngay (D31). Chưa chết thì bỏ qua. */
+  newLife: (frameNow: number, wallNow: number) => void
   /** Hạch toán hết thời gian online tới `frameNow` rồi ghi với mốc `wallNow`. */
   save: (frameNow: number, wallNow: number) => void
 }
@@ -165,6 +167,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!clock) return
     const game = settle(get().game, frameNow, Infinity)
     set({ game: spendTichThoi(game, content).state })
+  },
+
+  // ponytail: lối chơi lại tạm thời (D31); P4 thay bằng Vong Xuyên.
+  newLife(frameNow, wallNow) {
+    if (!clock || get().game.stop?.reason !== 'death') return
+    set({
+      game: createInitialState(content, wallNow >>> 0),
+      offlineTicks: 0,
+      error: null,
+    })
+    get().save(frameNow, wallNow)
   },
 
   save(frameNow, wallNow) {
