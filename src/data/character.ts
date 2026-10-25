@@ -8,6 +8,7 @@ export const characterData: Pick<
   | 'skillRules'
   | 'skills'
   | 'lifespan'
+  | 'stamina'
   | 'elements'
   | 'linhCan'
   | 'ngoTinh'
@@ -37,6 +38,15 @@ export const characterData: Pick<
     levelsPerYear: 5,
     maxSkillYears: 6,
     warnYears: [10, 5, 1],
+  },
+  stamina: {
+    resource: 'tinhLuc',
+    base: 100,
+    skill: 'thePhach',
+    perLevel: 1,
+    maxSkillBonus: 30,
+    agingFromPercent: 80,
+    agingPerYear: 2,
   },
 
   elements: [
@@ -75,7 +85,7 @@ export const characterData: Pick<
     },
   ],
   // Chỉ bậc I (kiếp 1). Bậc II/III thêm cùng nâng bậc ở Vong Xuyên (P6).
-  // Chưa áp: Tinh lực tối đa của Cường tráng (cần Tinh lực tối đa động), thiện cảm của Chất phác (S7).
+  // Chưa áp: thiện cảm của Chất phác (S7).
   traits: [
     {
       id: 'thietCot',
@@ -102,6 +112,10 @@ export const characterData: Pick<
       name: 'Thể nhược',
       tiers: [{ xp: { vanTu: 1.2 }, lifespan: -4 }],
     },
-    { id: 'cuongTrang', name: 'Cường tráng', tiers: [{ xp: {}, lifespan: 3 }] },
+    {
+      id: 'cuongTrang',
+      name: 'Cường tráng',
+      tiers: [{ xp: {}, lifespan: 3, stamina: 10 }],
+    },
   ],
 }

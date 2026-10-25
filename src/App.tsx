@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import { SPEEDS, TICK_MS } from './core/clock'
-import { ageYears } from './core/state'
+import { ageYears } from './systems/lifespan'
 import { content } from './data/content'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useGameStore } from './stores/gameStore'

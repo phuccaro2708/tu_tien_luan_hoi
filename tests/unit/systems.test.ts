@@ -40,7 +40,7 @@ describe('ResourceSystem invariants', () => {
     })
     expect(r).toEqual({
       ok: true,
-      value: { van: 1_000_000, tinhLuc: 100, jar: 0 },
+      value: { van: 1_000_000, tinhLuc: 140, jar: 0 },
     })
   })
 

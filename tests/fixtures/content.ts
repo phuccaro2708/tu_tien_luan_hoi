@@ -13,7 +13,8 @@ export const rawFixture: RawContent = {
   calendar: { daysPerYear: 360, startAgeYears: 14 },
   resources: [
     { id: 'van', name: 'Văn', min: 0, max: 1_000_000, initial: 0 },
-    { id: 'tinhLuc', name: 'Tinh lực', min: 0, max: 100, initial: 100 },
+    // max = trần tuyệt đối; mức tối đa thật thay đổi theo nhân vật (D35, systems/stamina.ts).
+    { id: 'tinhLuc', name: 'Tinh lực', min: 0, max: 140, initial: 100 },
     { id: 'jar', name: 'Hũ', min: 0, max: 10, initial: 0 },
   ],
   actions: [
@@ -72,6 +73,13 @@ export const rawFixture: RawContent = {
       once: false,
     },
     { id: 'idle', name: 'Ngồi', requires: [], effects: [], once: false },
+    {
+      id: 'rest',
+      name: 'Nghỉ',
+      requires: [],
+      effects: [{ type: 'addResource', resource: 'tinhLuc', amount: 50 }],
+      once: false,
+    },
     {
       id: 'train',
       name: 'Rèn thân',

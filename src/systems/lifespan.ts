@@ -14,6 +14,14 @@ export function lifespanYears(state: GameState, content: Content): number {
   return rules.base + fromSkill + innateTraitTier(state, content).lifespan
 }
 
+/** Tuổi tròn (năm). */
+export function ageYears(state: GameState, content: Content): number {
+  return (
+    content.calendar.startAgeYears +
+    Math.floor(state.day / content.calendar.daysPerYear)
+  )
+}
+
 /** Số ngày còn lại tới khi tuổi ≥ thọ nguyên; ≤ 0 = đã tới lúc chết. */
 export function daysLeft(state: GameState, content: Content): number {
   const { daysPerYear, startAgeYears } = content.calendar

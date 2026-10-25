@@ -10,6 +10,7 @@ import {
   lifespanYears,
 } from '../../src/systems/lifespan'
 import { simulateAway, spendTichThoi } from '../../src/systems/offline'
+import { staminaMax } from '../../src/systems/stamina'
 import { gainSkillXp, levelForXp, skillLevel } from '../../src/systems/skills'
 import type { Character, GameState } from '../../src/types/game'
 import { parseSave, SAVE_VERSION, serializeSave } from '../../src/utils/save'
@@ -383,7 +384,11 @@ describe('save v2', () => {
         resources: { van: 0, tinhLuc: 100, jar: 0 },
       }
       const loaded = ok(parseSave(text(1, base), fixture))
-      expect(loaded.state).toEqual(fresh)
+      // Tinh lực v1 giữ nguyên (100), game mới bắt đầu đầy (D35).
+      expect(loaded.state).toEqual({
+        ...fresh,
+        resources: { ...fresh.resources, tinhLuc: 100 },
+      })
       expect(loaded.savedAt).toBe(123)
     }
   })
@@ -417,6 +422,13 @@ describe('save v2', () => {
     expect(away.state.stop?.reason).toBe('death')
     expect(away.state.day).toBe(30_001)
     expect(away.ticksRun).toBe(1)
+  })
+
+  it('an aged v1 save loads with Tinh lực clamped to the aged max, not rejected', () => {
+    const v1 = { ...v1Of(createInitialState(lifeFixture, 3)), day: 45 * 360 }
+    const s = ok(parseSave(text(1, v1), lifeFixture)).state
+    expect(s.resources.tinhLuc).toBeLessThan(100)
+    expect(s.resources.tinhLuc).toBe(staminaMax(s, lifeFixture))
   })
 
   it.each([
@@ -613,5 +625,78 @@ describe('identity (D05, D32)', () => {
     )
     expect(loaded.state.stop?.reason).toBe('chooseIdentity')
     expect(loaded.state.character.identity).toBeNull()
+  })
+})
+
+describe('stamina max (PROGRESSION §6, D35)', () => {
+  const dpy = 360
+  // lifeFixture: thọ nguyên thật. Thiết cốt: thọ nguyên 60 → lão hóa từ tuổi floor(0,8 × 60) = 48.
+  const thiet = { innateTrait: { id: 'thietCot', tier: 1 } }
+  const at = (age: number, patch: Partial<GameState> = {}) =>
+    make({ day: (age - 14) * dpy, ...patch }, thiet, lifeFixture)
+  const tp = (L: number) => ({ ...zeroXp, thePhach: lifeFixture.xpTable[L] })
+  const withTinhLuc = (s: GameState, tinhLuc: number) => ({
+    ...s,
+    resources: { ...s.resources, tinhLuc },
+  })
+
+  it('100 + min(30, Thể Phách) + trait', () => {
+    expect(staminaMax(at(14), lifeFixture)).toBe(100)
+    expect(staminaMax(at(14, { skillXp: tp(10) }), lifeFixture)).toBe(110)
+    expect(staminaMax(at(14, { skillXp: tp(40) }), lifeFixture)).toBe(130)
+    expect(staminaMax(make({}, {}, lifeFixture), lifeFixture)).toBe(110) // Cường tráng
+  })
+
+  it('ages: −2 per full year past 80% of lifespan; never below 0', () => {
+    expect([47, 48, 49, 55].map((a) => staminaMax(at(a), lifeFixture))).toEqual(
+      [100, 100, 98, 86],
+    )
+    const weak = make(
+      { day: 500 * dpy },
+      { innateTrait: { id: 'theNhuoc', tier: 1 } },
+      lifeFixture,
+    )
+    expect(staminaMax(weak, lifeFixture)).toBe(0)
+  })
+
+  it('the birthday tick past the mark clamps current Tinh lực', () => {
+    const s = withTinhLuc(at(48, { day: 35 * dpy - 1 }), 100)
+    const next = step(s, lifeFixture)
+    expect(next.day).toBe(35 * dpy)
+    expect(next.resources.tinhLuc).toBe(98)
+  })
+
+  it('effects cannot push Tinh lực above the current max', () => {
+    let s = withTinhLuc(at(14), 90)
+    s = ok(
+      applyCommand(s, lifeFixture, { type: 'setAction', actionId: 'rest' }),
+    )
+    expect(step(s, lifeFixture).resources.tinhLuc).toBe(100)
+  })
+
+  it('validateState rejects Tinh lực above the current max', () => {
+    expect(validateState(withTinhLuc(at(14), 100), lifeFixture)).toEqual([])
+    expect(validateState(withTinhLuc(at(14), 101), lifeFixture)).toEqual([
+      'resource "tinhLuc" above its current max',
+    ])
+  })
+
+  it('a new game starts full; a fresh Cường tráng character round-trips its save', () => {
+    const seeds = [...Array(60).keys()]
+    for (const seed of seeds) {
+      const s = createInitialState(lifeFixture, seed)
+      expect(s.resources.tinhLuc).toBe(staminaMax(s, lifeFixture))
+    }
+    const seed = seeds.find(
+      (sd) =>
+        createInitialState(lifeFixture, sd).character.innateTrait.id ===
+        'cuongTrang',
+    )
+    expect(seed).toBeDefined()
+    const s = startGame(lifeFixture, seed!)
+    expect(s.resources.tinhLuc).toBeGreaterThanOrEqual(110)
+    expect(
+      ok(parseSave(ok(serializeSave(s, lifeFixture, 0)), lifeFixture)).state,
+    ).toEqual(s)
   })
 })

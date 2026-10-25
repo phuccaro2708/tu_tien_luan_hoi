@@ -65,6 +65,21 @@ export interface LifespanRules {
   warnYears: number[]
 }
 
+/**
+ * Tinh lực tối đa (PROGRESSION §6, D35), không âm:
+ * base + min(maxSkillBonus, cấp `skill` × perLevel) + thiên phú
+ * − agingPerYear × số năm tuổi tròn vượt floor(agingFromPercent × ThọNguyên / 100).
+ */
+export interface StaminaRules {
+  resource: ResourceId
+  base: number
+  skill: SkillId
+  perLevel: number
+  maxSkillBonus: number
+  agingFromPercent: number
+  agingPerYear: number
+}
+
 export interface ElementDef {
   id: string
   name: string
@@ -93,6 +108,8 @@ export interface TraitTier {
   xp: Record<SkillId, number>
   /** Năm thọ nguyên cộng thêm (âm = trừ). */
   lifespan: number
+  /** Tinh lực tối đa cộng thêm; thiếu = 0. */
+  stamina?: number
 }
 
 export interface TraitDef {
@@ -117,6 +134,7 @@ export interface RawContent {
   skillRules: SkillRules
   skills: SkillDef[]
   lifespan: LifespanRules
+  stamina: StaminaRules
   elements: ElementDef[]
   linhCan: LinhCanDef[]
   ngoTinh: { min: number; max: number }
@@ -135,6 +153,7 @@ export interface Content {
   /** xpTable[L] = XP cộng dồn để đạt cấp L; xpTable[0] = 0. */
   readonly xpTable: readonly number[]
   readonly lifespan: Readonly<LifespanRules>
+  readonly stamina: Readonly<StaminaRules>
   /** Mảng: thứ tự cố định cho phép tung RNG tất định. */
   readonly elements: readonly Readonly<ElementDef>[]
   readonly linhCan: Readonly<Record<string, Readonly<LinhCanDef>>>

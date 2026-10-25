@@ -153,11 +153,35 @@ export function validateContent(raw: RawContent): string[] {
     for (const tier of t.tiers) {
       if (!isNum(tier.lifespan))
         errors.push(`trait "${t.id}": non-finite lifespan`)
+      if (tier.stamina !== undefined && !isNum(tier.stamina))
+        errors.push(`trait "${t.id}": non-finite stamina`)
       for (const [id, mult] of Object.entries(tier.xp))
         if (!skillIds.has(id) || !isNum(mult) || mult <= 0)
           errors.push(`trait "${t.id}": bad xp multiplier "${id}"`)
     }
   }
+
+  const st = raw.stamina
+  const stRes = raw.resources.find((r) => r.id === st.resource)
+  const topTrait = Math.max(
+    0,
+    ...raw.traits.flatMap((t) => t.tiers.map((tier) => tier.stamina ?? 0)),
+  )
+  if (!stRes) errors.push(`stamina: unknown resource "${st.resource}"`)
+  if (!skillIds.has(st.skill))
+    errors.push(`stamina: unknown skill "${st.skill}"`)
+  if (
+    ![st.base, st.perLevel, st.maxSkillBonus, st.agingPerYear].every(
+      (n) => isNum(n) && n >= 0,
+    ) ||
+    !Number.isInteger(st.agingFromPercent) ||
+    st.agingFromPercent < 0 ||
+    st.agingFromPercent > 100
+  )
+    errors.push('stamina: bad rules')
+  // Trần tuyệt đối của tài nguyên phải chứa được mức tối đa cao nhất có thể, nếu không save hợp lệ bị từ chối.
+  else if (stRes && stRes.max < st.base + st.maxSkillBonus + topTrait)
+    errors.push('stamina: resource max below the highest stamina max')
   return errors
 }
 
@@ -190,6 +214,7 @@ export function createContent(raw: RawContent): Content {
     skills: byId(copy.skills),
     xpTable: buildXpTable(copy.skillRules),
     lifespan: copy.lifespan,
+    stamina: copy.stamina,
     elements: copy.elements,
     linhCan: byId(copy.linhCan),
     ngoTinh: copy.ngoTinh,

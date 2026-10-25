@@ -1,5 +1,6 @@
 import { applyOrigin, parseIdentity, rollLife1 } from '../systems/character'
 import { isValidAmount } from '../systems/resources'
+import { staminaMax } from '../systems/stamina'
 import type { Content, GameState, ResourceId } from '../types/game'
 import { MAX_AWAY_TICKS } from './clock'
 import { own } from './record'
@@ -28,7 +29,7 @@ export function createInitialState(content: Content, seed: number): GameState {
   const base = Object.fromEntries(
     Object.values(content.resources).map((r) => [r.id, r.initial]),
   )
-  return {
+  const state: GameState = {
     seed: seed >>> 0,
     day: 0,
     flags: {},
@@ -37,13 +38,12 @@ export function createInitialState(content: Content, seed: number): GameState {
     tichThoiTicks: 0,
     ...startLife1(content, seedRng(seed), base),
   }
-}
-
-export function ageYears(state: GameState, content: Content): number {
-  return (
-    content.calendar.startAgeYears +
-    Math.floor(state.day / content.calendar.daysPerYear)
-  )
+  // Kiếp mới bắt đầu với Tinh lực đầy (BALANCE §3).
+  const id = content.stamina.resource
+  return {
+    ...state,
+    resources: { ...state.resources, [id]: staminaMax(state, content) },
+  }
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> =>
@@ -131,6 +131,13 @@ export function validateState(value: unknown, content: Content): string[] {
   }
 
   errors.push(...exactKeys(s, STATE_KEYS, 'field'))
+  // Mức tối đa động chỉ tính được khi mọi trường khác đã hợp lệ.
+  if (errors.length === 0) {
+    const state = s as unknown as GameState
+    const id = content.stamina.resource
+    if ((own(state.resources, id) ?? 0) > staminaMax(state, content))
+      errors.push(`resource "${id}" above its current max`)
+  }
   return errors
 }
 

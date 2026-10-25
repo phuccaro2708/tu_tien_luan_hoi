@@ -8,13 +8,10 @@ import {
 } from '../../src/core/clock'
 import { hashState } from '../../src/core/hash'
 import { nextFloat, seedRng } from '../../src/core/rng'
-import {
-  ageYears,
-  createInitialState,
-  validateState,
-} from '../../src/core/state'
+import { createInitialState, validateState } from '../../src/core/state'
 import { content } from '../../src/data/content'
 import { createContent, validateContent } from '../../src/data/registry'
+import { ageYears } from '../../src/systems/lifespan'
 import { fixture, rawFixture } from '../fixtures/content'
 
 const opts = {
@@ -228,7 +225,7 @@ describe('GameState', () => {
 
 describe('ContentRegistry', () => {
   it('shipped content and fixture are valid', () => {
-    expect(content.resources.tinhLuc.max).toBe(100)
+    expect(content.resources.tinhLuc.max).toBe(140)
     expect(validateContent(rawFixture)).toEqual([])
   })
 
@@ -370,6 +367,35 @@ describe('ContentRegistry', () => {
             { id: 'nam', name: 'Nam' },
           ],
         },
+      },
+    ],
+    [
+      'stamina resource unknown',
+      { stamina: { ...rawFixture.stamina, resource: 'x' } },
+    ],
+    [
+      'stamina skill unknown',
+      { stamina: { ...rawFixture.stamina, skill: 'x' } },
+    ],
+    [
+      'stamina aging 0.8 (must be a percent)',
+      { stamina: { ...rawFixture.stamina, agingFromPercent: 0.8 } },
+    ],
+    ['stamina negative base', { stamina: { ...rawFixture.stamina, base: -1 } }],
+    [
+      'stamina can exceed the resource cap',
+      { stamina: { ...rawFixture.stamina, maxSkillBonus: 31 } },
+    ],
+    [
+      'trait stamina NaN',
+      {
+        traits: [
+          {
+            id: 't',
+            name: 't',
+            tiers: [{ xp: {}, lifespan: 0, stamina: NaN }],
+          },
+        ],
       },
     ],
   ])('rejects content: %s', (_name, patch) => {

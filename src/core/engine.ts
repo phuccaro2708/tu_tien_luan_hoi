@@ -1,6 +1,7 @@
 import { checkAction, runCurrentAction } from '../systems/actions'
 import { parseIdentity } from '../systems/character'
 import { checkLifespan } from '../systems/lifespan'
+import { clampStamina } from '../systems/stamina'
 import type { Command, Content, GameState, Result } from '../types/game'
 
 /**
@@ -57,7 +58,9 @@ export function step(state: GameState, content: Content): GameState {
   const next = runCurrentAction(state, content)
   // Bị chặn trước khi làm gì → ngày chưa trôi.
   if (next.stop?.reason === 'actionBlocked') return next
-  return checkLifespan(state, { ...next, day: next.day + 1 }, content)
+  // Pipeline bước 1: sang ngày mới rồi kẹp Tinh lực theo mức tối đa (có thể giảm vì lão hóa, D35).
+  const aged = clampStamina({ ...next, day: next.day + 1 }, content)
+  return checkLifespan(state, aged, content)
 }
 
 /**

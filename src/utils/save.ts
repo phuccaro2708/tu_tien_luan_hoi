@@ -2,6 +2,7 @@ import { SPEEDS, type Speed } from '../core/clock'
 import { hashState } from '../core/hash'
 import { startLife1, validateState } from '../core/state'
 import { simulateAway } from '../systems/offline'
+import { clampStamina } from '../systems/stamina'
 import type { Content, GameState, Result } from '../types/game'
 
 export const SAVE_VERSION = 2
@@ -55,14 +56,23 @@ function migrateV1(state: unknown, content: Content): Result<unknown> {
     return { ok: false, error: 'v1 state has v2 fields' }
   const rng = v1.rng as number
   // Trường v2 lấy từ một lần tung thử; `stop` của v1 bị thay bằng `chooseIdentity` nên không cần kiểm.
+  // Tinh lực v1 (tối đa 100) có thể vượt mức tối đa đã lão hóa (D35): kẹp, không từ chối.
+  const trial = {
+    ...v1,
+    ...startLife1(content, rng, {}),
+    resources: v1.resources,
+  } as GameState
   const errors = validateState(
-    { ...v1, ...startLife1(content, rng, {}), resources: v1.resources },
+    typeof v1.resources === 'object' && v1.resources !== null
+      ? clampStamina(trial, content)
+      : trial,
     content,
   )
   if (errors.length > 0)
     return { ok: false, error: `invalid v1 state: ${errors.join('; ')}` }
   const resources = v1.resources as Record<string, number>
-  return { ok: true, value: { ...v1, ...startLife1(content, rng, resources) } }
+  const migrated = { ...v1, ...startLife1(content, rng, resources) }
+  return { ok: true, value: clampStamina(migrated as GameState, content) }
 }
 
 /** Bảng migrate tuần tự: MIGRATIONS[n] đưa state vN lên vN+1. Kết quả cuối được validate đầy đủ. */

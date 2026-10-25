@@ -8,7 +8,8 @@ export const rawContent: RawContent = {
   calendar: { daysPerYear: 360, startAgeYears: 14 },
   resources: [
     { id: 'van', name: 'Văn', min: 0, max: 1e12, initial: 0 },
-    { id: 'tinhLuc', name: 'Tinh lực', min: 0, max: 100, initial: 100 },
+    // max = trần tuyệt đối; mức tối đa thật thay đổi theo nhân vật (D35, systems/stamina.ts).
+    { id: 'tinhLuc', name: 'Tinh lực', min: 0, max: 140, initial: 100 },
   ],
   actions: [],
   ...characterData,
