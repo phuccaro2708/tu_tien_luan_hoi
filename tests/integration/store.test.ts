@@ -335,6 +335,29 @@ describe('store write protection', () => {
     expect(savedDay(storage)).toBe(21_600)
   })
 
+  it('sleep that pauses the frame clock counts as offline (capped at 8 h)', async () => {
+    const s = await open(memory(), 0)
+    s.getState().frame(0, 0)
+    s.getState().frame(1_000, HOUR) // performance.now() đứng yên gần hết 1 giờ
+    expect(s.getState().game.day).toBe(7_200)
+    s.getState().frame(2_000, HOUR + 9 * HOUR + 1_000) // ngủ 9 giờ → chỉ 8 giờ
+    expect(s.getState().game.day).toBe(7_200 + 57_600 + 2)
+    s.getState().frame(3_000, HOUR + 9 * HOUR + 4_000) // lệch 2 giây: sai số đo
+    expect(s.getState().game.day).toBe(7_200 + 57_600 + 4)
+  })
+
+  it('autosave during a long catch-up is deferred at most 5 autosave intervals', async () => {
+    const data = new Map<string, string>()
+    const s = await open(memory(data), 0)
+    s.getState().frame(0, 0)
+    s.getState().frame(HOUR, HOUR)
+    expect(data.has(SAVE_KEY)).toBe(false)
+    s.getState().frame(HOUR + 149_000, HOUR + 149_000)
+    expect(data.has(SAVE_KEY)).toBe(false)
+    s.getState().frame(HOUR + 150_000, HOUR + 150_000)
+    expect(savedDay(memory(data))).toBe((HOUR + 150_000) / 500)
+  })
+
   it('autosave keeps running when the system clock is set back', async () => {
     const data = new Map<string, string>()
     const s = await open(memory(data), 0)

@@ -9,13 +9,15 @@ import {
 import { applyCommand, runTicks } from '../core/engine'
 import { createInitialState } from '../core/state'
 import { content } from '../data/content'
-import { spendTichThoi } from '../systems/offline'
+import { simulateAway, spendTichThoi } from '../systems/offline'
 import type { Command, GameState } from '../types/game'
 import { bootSave, writeSave, type SaveStorage } from '../utils/save'
 
 // Store chỉ giữ GameState và gọi engine; không chứa luật chơi.
 const AUTOSAVE_MS = 30_000 // SYSTEMS S14
 const MAX_TICKS_PER_FRAME = 20 // phần còn nợ dồn sang frame sau (SYSTEMS S1)
+const MAX_AUTOSAVE_DEFER = 5 // chạy bù quá 5 × AUTOSAVE_MS chưa lưu thì vẫn lưu (quyết định 2026-10-24)
+const SLEEP_SLACK_MS = 5_000 // chênh đồng hồ hệ thống/clock dưới mức này là sai số đo, không phải máy ngủ
 const SAVE_LOCK = 'ttlh.save'
 const OTHER_TAB =
   'Game đang mở ở tab khác; tab này tạm dừng và sẽ tiếp tục từ save mới nhất khi tab kia đóng.'
@@ -55,6 +57,10 @@ let lastSaveMs = 0
 // null = chưa boot. Một writer cho một save: chỉ đọc, cách ly và ghi save sau khi giữ khóa (N01).
 let clock: ClockState | null = null
 let behind = false // frame gần nhất chạm MAX_TICKS_PER_FRAME, còn tick nợ
+let catchUpFrom: number | null = null // clock.lastMs lúc bắt đầu chạy bù
+// Cặp mốc (đồng hồ hệ thống, clock) lần đo gần nhất, để nhận ra máy ngủ khi `performance.now()` đứng yên.
+let lastWall = 0
+let lastFrame = 0
 const locks = typeof navigator === 'undefined' ? undefined : navigator.locks
 
 /**
@@ -69,6 +75,9 @@ function boot(now: number, readOnly = false) {
   clock = createClock(performance.now(), speed)
   lastSaveMs = clock.lastMs
   behind = false
+  catchUpFrom = null
+  lastWall = now
+  lastFrame = clock.lastMs
   return {
     game: booted?.state ?? createInitialState(content, now >>> 0),
     speed,
@@ -95,6 +104,18 @@ function settle(game: GameState, frameNow: number, maxTicks: number) {
   return adv.ticks > 0 ? runTicks(game, content, adv.ticks).state : game
 }
 
+/**
+ * Máy ngủ trên hệ điều hành dừng `performance.now()`: đồng hồ hệ thống chạy hơn clock.
+ * Phần chênh tính như offline: trần 8 giờ, phần dư thành Tích Thời (quyết định 2026-10-24). Đồng hồ lùi thì bỏ qua.
+ */
+function catchSleep(game: GameState, frameNow: number, wallNow: number) {
+  if (!Number.isFinite(frameNow) || !Number.isFinite(wallNow)) return game
+  const gap = wallNow - lastWall - (frameNow - lastFrame)
+  lastWall = wallNow
+  lastFrame = frameNow
+  return gap > SLEEP_SLACK_MS ? simulateAway(game, content, gap).state : game
+}
+
 // Trình duyệt không có Web Locks: tải ngay, chơi được nhưng không lưu (không phân biệt được tab nào là writer).
 // Có Web Locks: hiển thị game mới tạm thời, chưa chạy gì cho tới khi nhận khóa.
 const initial = locks
@@ -113,10 +134,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   frame(frameNow, wallNow) {
     if (!clock) return
-    const game = settle(get().game, frameNow, MAX_TICKS_PER_FRAME)
+    const game = settle(
+      catchSleep(get().game, frameNow, wallNow),
+      frameNow,
+      MAX_TICKS_PER_FRAME,
+    )
     if (game !== get().game) set({ game })
-    // Đang chạy bù thì hoãn autosave: save hạch toán hết nợ trong một lần, vượt trần mỗi frame (SYSTEMS S1).
-    if (!behind && clock.lastMs - lastSaveMs >= AUTOSAVE_MS)
+    // Đang chạy bù thì hoãn autosave (save hạch toán hết nợ một lần, vượt trần mỗi frame của SYSTEMS S1),
+    // nhưng không quá MAX_AUTOSAVE_DEFER lần khoảng autosave kể từ lúc bắt đầu bù.
+    catchUpFrom = behind ? (catchUpFrom ?? clock.lastMs) : null
+    const since = clock.lastMs - Math.max(lastSaveMs, catchUpFrom ?? -Infinity)
+    if (since >= (behind ? MAX_AUTOSAVE_DEFER : 1) * AUTOSAVE_MS)
       get().save(frameNow, wallNow)
   },
 
@@ -141,7 +169,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   save(frameNow, wallNow) {
     if (!clock) return
-    set({ game: settle(get().game, frameNow, Infinity) })
+    const game = catchSleep(get().game, frameNow, wallNow)
+    set({ game: settle(game, frameNow, Infinity) })
     savedAt = Math.max(savedAt, wallNow)
     lastSaveMs = clock.lastMs
     if (!storage || get().saveBlocked) return
