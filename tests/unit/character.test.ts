@@ -401,6 +401,17 @@ describe('save v2', () => {
     expect(s.character).toEqual(fresh.character)
   })
 
+  it('a v1 save already past the rolled lifespan loads, then dies on its first tick', () => {
+    // Save P0 không có thọ nguyên: chơi lâu (≥ 46 năm game) rồi migrate → chết ngay khi tick (softlock tới P4).
+    const v1 = { ...v1Of(createInitialState(lifeFixture, 3)), day: 30_000 }
+    const loaded = ok(parseSave(text(1, v1), lifeFixture)).state
+    expect(loaded.stop).toBeNull()
+    const away = simulateAway(loaded, lifeFixture, 3_600_000)
+    expect(away.state.stop?.reason).toBe('death')
+    expect(away.state.day).toBe(30_001)
+    expect(away.ticksRun).toBe(1)
+  })
+
   it.each([
     ['v1 with v2 fields', text(1, createInitialState(fixture, 1))],
     [

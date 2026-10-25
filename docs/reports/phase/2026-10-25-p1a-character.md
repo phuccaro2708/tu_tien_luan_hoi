@@ -42,8 +42,8 @@ Ngày: 2026-10-25 · Nhánh: `feat/p1-character` (tách từ `main` 90b0504)
 | Lệnh                   | Kết quả                                                  |
 | ---------------------- | -------------------------------------------------------- |
 | `npm run lint`         | Sạch (0 lỗi, 0 cảnh báo)                                 |
-| `npm run test`         | 184/184 PASS, 8 file (118 cũ + 53 mới + 13 case dữ liệu) |
-| `npm run build`        | OK (`tsc -b` + Vite, 241.77 kB JS)                       |
+| `npm run test`         | 185/185 PASS, 8 file (118 cũ + 54 mới + 13 case dữ liệu) |
+| `npm run build`        | OK (`tsc -b` + Vite, 241.79 kB JS)                       |
 | `npm run format:check` | OK                                                       |
 
 Không có test nào bị bỏ qua hay xóa. Có 3 test cũ phải sửa:
@@ -55,7 +55,15 @@ Không có test nào bị bỏ qua hay xóa. Có 3 test cũ phải sửa:
 ## 4. Vấn đề còn lại
 
 - **Câu hỏi cho người dùng:**
-  - D06 nói "không chết khi offline", nhưng S13 nói offline phải cho kết quả giống online. Bản cài đặt theo S13: chết đúng tick, kể cả khi offline. Phần offline còn lại chuyển thành Tích Thời nhưng không dùng được sau khi chết.
+  - **Softlock sau khi chết:**
+    - Bản build chưa có hành động nào, thọ nguyên 60, nên nhân vật chết sau khoảng 2,3 giờ ở 1× (khoảng 28 phút ở 5×).
+    - Sau đó mọi lệnh bị từ chối, không có đường chơi lại tới P4 (Vong Xuyên). Chỉ thoát được bằng cách xóa localStorage.
+    - Save P0 đã chơi ≥ 46 năm game sẽ chết ngay ở tick đầu sau khi migrate. Đã có test ghim hành vi này.
+    - Câu hỏi: có thêm nút "Chơi lại" tạm thời (xóa save, tạo game mới) trước P4 không? Nút này chưa có trong GDD nên chưa làm.
+  - **D06 ("không chết khi offline") và S13 ("offline giống online"):**
+    - Offline dừng ở điểm dừng đầu tiên, mà cảnh báo 10/5/1 năm là điểm dừng (CORE_LOOP §3). Vì vậy chỉ có thể chết khi offline trong năm cuối, sau khi người chơi đã tự bấm "Tiếp tục" qua cảnh báo 1 năm.
+    - Bản cài đặt hiện tại cho chết đúng tick trong trường hợp đó; phần offline còn lại chuyển thành Tích Thời nhưng không dùng được.
+    - Câu hỏi: có cần thêm một điểm dừng ngay trước khi chết không?
   - Bảng XP trong PROGRESSION §5:
     - Cấp 30 ghi 2305, nhưng công thức cho 2309.
     - Cột cộng dồn không nhất quán: cấp 1 = 10, nhưng các giá trị 190/1337 lại bỏ bước L=0.
@@ -70,6 +78,11 @@ Không có test nào bị bỏ qua hay xóa. Có 3 test cũ phải sửa:
 
 ## 5. Đề xuất bước tiếp theo
 
-1. Codex review nhánh này, tập trung vào migrate v1→v2, thứ tự rút RNG và quy tắc ghi đè điểm dừng.
+1. Codex review nhánh này, tập trung vào:
+   - migrate v1→v2 với giả định `rng` của v1 bằng `seedRng(seed)`;
+   - thứ tự rút RNG (có test golden bảo vệ);
+   - quy tắc ghi đè điểm dừng `death` > `lifespanWarning` > `actionCompleted`;
+   - softlock sau khi chết.
+   - Lưu ý cho Antigravity: playtest dài sẽ chạm cái chết. Khi đó phải xóa localStorage để chơi tiếp.
 2. Người dùng trả lời các câu hỏi ở mục 4 và duyệt D23.
 3. Sau đó làm P1b: kinh tế phàm nhân (S2, Đói, nợ).

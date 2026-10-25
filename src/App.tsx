@@ -43,7 +43,7 @@ function App() {
           )}
         </p>
       )}
-      {game.tichThoiTicks > 0 && (
+      {game.tichThoiTicks > 0 && game.stop?.reason !== 'death' && (
         <button onClick={() => spendTichThoi(performance.now())}>
           Dùng Tích Thời ({formatHours(game.tichThoiTicks)})
         </button>
