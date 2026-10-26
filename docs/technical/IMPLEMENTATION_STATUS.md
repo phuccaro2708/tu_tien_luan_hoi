@@ -10,7 +10,7 @@ Trạng thái:
 - `VERIFIED`: tiêu chí thoát có bằng chứng chạy được.
 - `BLOCKED`: chờ quyết định đang ở Draft.
 
-Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-followup.md` §3.
+Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-qa-fixes.md` §3.
 
 ## P0 – Khung engine + harness
 
@@ -34,7 +34,7 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-foll
 
 ## P1a – Nhân vật kiếp 1, kỹ năng, thọ nguyên (S1 phần thọ nguyên + khởi tạo kiếp 1, S3)
 
-- **Status:** `IMPLEMENTED` (chờ Codex review)
+- **Status:** `IMPLEMENTED` (đã sửa QA-01, QA-02 của lượt review 2026-10-25; chờ review lại)
 - **Dependencies:** D04, PROGRESSION §3/§5/§6 (đã duyệt v0.1); D31, D32, D35 (duyệt 2026-10-25); P0.
 - **Files:**
   - Dữ liệu và kiểu: `src/data/character.ts`, `src/data/content.ts`, `src/data/registry.ts`, `src/types/game.ts`
@@ -47,9 +47,10 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-foll
     - bảng XP, Ngộ/thiên phú, trần cấp 50;
     - unlock `skillAtLeast` qua action; effect nguyên khối;
     - cảnh báo 10/5/1, chết đúng tick, chặn lệnh sau khi chết, offline dừng khi chết;
-    - save v2/migrate, kể cả save v1 đã quá thọ nguyên hoặc đã lão hóa; `validateState`;
+    - save v2/migrate, kể cả save v1 đã quá thọ nguyên hoặc đã lão hóa; save v1 hỏng (thiếu/sai `rng`, Tinh lực sai kiểu hoặc vượt trần v1) bị từ chối, không throw (QA-01); `validateState`;
     - danh tính (D32): chờ `chooseIdentity`, tên hợp lệ/không hợp lệ, không cộng Tích Thời khi chưa chọn;
-    - Tinh lực tối đa (D35): công thức, lão hóa, kẹp ở sinh nhật và khi effect cộng, save Cường tráng.
+    - Tinh lực tối đa (D35): công thức, lão hóa, kẹp ở sinh nhật (trước hành động, QA-02) và khi effect cộng, save Cường tráng.
+  - `tests/unit/save-offline.test.ts`: save v1 hỏng ở khóa chính → boot → autosave, backup tốt vẫn còn và bản hỏng được cách ly (QA-01).
   - `tests/unit/core.test.ts`: case dữ liệu `identity`, `stamina` sai.
   - `tests/integration/store.test.ts`: `newLife` (D31).
   - Smoke test trình duyệt 2026-10-25: chọn danh tính → thời gian chạy; chết → "Bắt đầu kiếp mới" → kiếp mới được lưu.
