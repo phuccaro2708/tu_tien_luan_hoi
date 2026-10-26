@@ -6,11 +6,12 @@ import {
   validateState,
   validateStateExceptStaminaCap,
 } from '../core/state'
+import { startEconomy } from '../systems/economy'
 import { simulateAway } from '../systems/offline'
 import { clampStamina } from '../systems/stamina'
 import type { Content, GameState, Result } from '../types/game'
 
-export const SAVE_VERSION = 2
+export const SAVE_VERSION = 3
 export const SAVE_KEY = 'ttlh.save'
 export const SAVE_BACKUP_KEY = 'ttlh.save.bak'
 export const SAVE_TEMP_KEY = 'ttlh.save.tmp'
@@ -58,15 +59,22 @@ export function serializeSave(
 function migrateV1(state: unknown, content: Content): Result<unknown> {
   if (!isObj(state)) return { ok: false, error: 'v1 state is not an object' }
   const v1 = state
-  if (Object.hasOwn(v1, 'character') || Object.hasOwn(v1, 'skillXp'))
+  if (
+    ['character', 'skillXp', 'resting', 'hungry', 'hanNo'].some((k) =>
+      Object.hasOwn(v1, k),
+    )
+  )
     return { ok: false, error: 'v1 state has v2 fields' }
   // Trường v2 lấy từ một nhân vật giả (RNG 0) chỉ để kiểm trường v1; `stop` của v1 bị thay bằng
   // `chooseIdentity` nên không cần kiểm.
+  // Trường v3 (kinh tế) trung tính để trial chỉ còn kiểm trường v1; v2→v3 thêm giá trị thật.
+  const debt = content.economy?.debtResource
   const trial = {
     ...v1,
     ...startLife1(content, 0, {}),
+    ...V3_NEUTRAL,
     rng: v1.rng,
-    resources: v1.resources,
+    resources: debt ? { ...(v1.resources as object), [debt]: 0 } : v1.resources,
   }
   const errors = validateStateExceptStaminaCap(trial, content)
   if (errors.length > 0)
@@ -82,6 +90,23 @@ function migrateV1(state: unknown, content: Content): Result<unknown> {
   return { ok: true, value: clampStamina(migrated as GameState, content) }
 }
 
+const V3_NEUTRAL = { resting: false, hungry: false, hanNo: null }
+
+/**
+ * v2 → v3 (P1b): thêm Nghỉ/Đói/hạn nợ, rồi nợ và cờ khởi đầu theo xuất thân.
+ * Dữ liệu hỏng không được vá ở đây: validateState cuối chuỗi từ chối.
+ */
+function migrateV2(state: unknown, content: Content): Result<unknown> {
+  if (!isObj(state) || !isObj(state.character))
+    return { ok: false, error: 'v2 state is malformed' }
+  if (['resting', 'hungry', 'hanNo'].some((k) => Object.hasOwn(state, k)))
+    return { ok: false, error: 'v2 state has v3 fields' }
+  return {
+    ok: true,
+    value: startEconomy(content, { ...state, ...V3_NEUTRAL } as GameState),
+  }
+}
+
 /** Trần Tinh lực của bản P0 (save v1); v2 nâng trần tuyệt đối lên 140 (D35). */
 const V1_STAMINA_MAX = 100
 
@@ -89,7 +114,7 @@ const V1_STAMINA_MAX = 100
 const MIGRATIONS: Record<
   number,
   (state: unknown, content: Content) => Result<unknown>
-> = { 1: migrateV1 }
+> = { 1: migrateV1, 2: migrateV2 }
 
 /**
  * Đọc chuỗi save chưa tin cậy (localStorage hoặc import), migrate lên bản hiện tại. Không chạm storage.

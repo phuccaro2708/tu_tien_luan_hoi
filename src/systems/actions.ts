@@ -7,7 +7,7 @@ import type {
 } from '../types/game'
 import { own } from '../core/record'
 import { describeCondition, firstUnmet } from './conditions'
-import { resolveEffects } from './effects'
+import { effectiveActionId, resolveDay } from './economy'
 
 /** Hành động có chọn được không; lỗi kèm lý do. */
 export function checkAction(
@@ -33,18 +33,20 @@ export function runCurrentAction(
   state: GameState,
   content: Content,
 ): GameState {
-  const id = state.currentActionId
-  if (id === null) return state
-  const check = checkAction(state, content, id)
-  const applied = check.ok
-    ? resolveEffects(state, content, check.value.effects)
-    : check
+  const id = effectiveActionId(state, content)
+  // Không chọn gì: không có hiệu ứng, nhưng sinh hoạt phí vẫn tính nếu có dữ liệu kinh tế.
+  if (id === null && !content.economy) return state
+  const check = id === null ? null : checkAction(state, content, id)
+  const applied =
+    check && !check.ok
+      ? check
+      : resolveDay(state, content, check?.value.effects ?? [])
   if (!applied.ok)
     return {
       ...state,
       stop: { reason: 'actionBlocked', detail: `${id}: ${applied.error}` },
     }
-  if (!check.ok || !check.value.once) return applied.value
+  if (id === null || !check?.ok || !check.value.once) return applied.value
   return {
     ...applied.value,
     claimed: { ...applied.value.claimed, [id]: true },

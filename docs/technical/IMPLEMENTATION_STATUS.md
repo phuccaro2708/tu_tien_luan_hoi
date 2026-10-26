@@ -1,6 +1,6 @@
 # Implementation Status
 
-Cập nhật: 2026-10-25 · Nhánh: `feat/p1-character` · Nguồn phase: `IMPLEMENTATION_PLAN.md` §2.
+Cập nhật: 2026-10-25 · Nhánh: `worktree-p2-design` · Nguồn phase: `IMPLEMENTATION_PLAN.md` §2.
 
 Trạng thái:
 
@@ -68,11 +68,19 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-revi
 
 ## P1b – Kinh tế phàm nhân (S2 hành động nhóm phàm, thu nhập trước phí, Đói, nợ)
 
-- **Status:** `NOT_STARTED`
-- **Dependencies:** D23 (đã duyệt 2026-10-25); P1a.
-- **Files:** —
-- **Tests:** —
-- **Known issues:** Phần còn mở của R03 (tick bị chặn có trôi ngày không) sẽ được quyết định cùng phần này.
+- **Status:** `IMPLEMENTED` (chờ review độc lập). Tiêu chí thoát (2) chưa khớp ±10%, xem Known issues.
+- **Dependencies:** D23, D38–D40 (đã duyệt 2026-10-25); P1a. Thiết kế: `P1B_DESIGN.md`.
+- **Files:**
+  - Dữ liệu: `src/data/economy.ts` (4 hành động làng, `economy`), `src/data/content.ts` (tài nguyên `no`)
+  - Hệ thống: `src/systems/economy.ts` (nghỉ theo ngưỡng, thu nhập trước phí, Đói, nợ), `effects.ts` (`scale` theo kỹ năng), `actions.ts`, `src/core/engine.ts`, `src/core/state.ts`, `src/data/registry.ts` (validator)
+  - Save v3: `src/utils/save.ts` (migrate v2→v3); UI: `src/App.tsx` (khối Sinh kế)
+- **Tests:** `tests/unit/economy.test.ts` (23 test): thứ tự D23, Đói ×0,5, nghỉ có trễ, R03, nợ theo xuất thân và `repayDebt`, hồi phục tay trắng 60 ngày, validator Làm thuê ròng > 0, hash tất định, save v3 và migrate v2→v3.
+- **Known issues:**
+  - Tiêu chí thoát (2): engine trả hết nợ 800 sau ~103 ngày đốn củi, mốc BALANCE §3 là ~127 (bỏ qua Thể Phách tăng +2%/cấp). Lệch −19%, chờ người dùng chọn sửa mốc BALANCE hay tiêu chí.
+  - Chưa có tự làm thuê khi hết tiền (không hành động P1b nào cần tiền để chạy); thêm cùng Học chữ/Luyện quyền.
+  - Chưa có địa điểm (S5): chỉ sinh hoạt phí làng; trấn và validator "mọi khu dân cư" mở rộng ở P2.
+  - Chưa smoke test trình duyệt khối Sinh kế.
+  - Rìu là cờ stub `coRiu`; lương khô và giỏ thuốc chờ S10 (P5).
 - **Next recommended module:** P2.
 
 ## P2 – Thế giới, tri thức, sự kiện
@@ -140,4 +148,4 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-revi
 
 ## Module tiếp theo đề xuất
 
-**P1b – Kinh tế phàm nhân**. D23 đã duyệt 2026-10-25 nên không còn bị chặn. Đây là module duy nhất mở được tiêu chí thoát P1 (2)–(4) và đem lại nguồn XP cho kỹ năng.
+**P2 – Thế giới, tri thức, sự kiện** (vẫn `BLOCKED` chờ duyệt D21, D24, D26). P1b đã `IMPLEMENTED`; trước đó xử lý lệch tiêu chí thoát P1b (2) (nợ 800 trả sau ~103 ngày thay vì ~127).

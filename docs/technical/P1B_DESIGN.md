@@ -1,6 +1,6 @@
 # P1b – Thiết kế kỹ thuật kinh tế phàm nhân
 
-**Trạng thái: `Draft`** · Soạn 2026-10-25 · Chờ người dùng duyệt các mục `[CẦN DUYỆT]` trước khi code.
+**Trạng thái: A, F, G `Approved` 2026-10-25 (người dùng duyệt kế hoạch triển khai; ghi GDD §12 D38–D40).** Các mục B–E, H–I làm theo đề xuất, chưa có phản đối. Đã triển khai: xem `IMPLEMENTATION_STATUS.md` P1b.
 
 Nguồn: SYSTEMS S2, BALANCE §3–§4, IMPLEMENTATION_PLAN P1b, D23 (đã duyệt). Tài liệu này chỉ chốt **cơ chế**; mọi con số lấy nguyên từ BALANCE §3, không thêm số mới.
 

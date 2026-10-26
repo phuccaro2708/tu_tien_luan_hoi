@@ -12,7 +12,13 @@ export type Condition =
   | { type: 'skillAtLeast'; skill: SkillId; level: number }
 
 export type Effect =
-  | { type: 'addResource'; resource: ResourceId; amount: number }
+  | {
+      type: 'addResource'
+      resource: ResourceId
+      amount: number
+      /** Nhân `amount` với (1 + perLevel × cấp kỹ năng), VD Đốn củi +2%/Thể Phách (BALANCE §3). */
+      scale?: { skill: SkillId; perLevel: number }
+    }
   | { type: 'setFlag'; flag: FlagId; value: boolean }
   /** XP gốc; nhân hệ số của nhân vật (PROGRESSION §5). */
   | { type: 'addSkillXp'; skill: SkillId; amount: number }
@@ -126,6 +132,30 @@ export interface IdentityRules {
   genders: { id: string; name: string }[]
 }
 
+/**
+ * Kinh tế phàm nhân (SYSTEMS S2, BALANCE §3, D23). Chưa có địa điểm (S5, P2) nên chỉ một mức sinh hoạt phí (làng).
+ * Chưa có tự làm thuê khi hết tiền: hành động P1b nào cũng chạy được với 0 văn, nên chưa có ca cần nó.
+ */
+export interface EconomyRules {
+  moneyResource: ResourceId
+  debtResource: ResourceId
+  /** Hạn trả nợ tính từ đầu kiếp; hậu quả quá hạn thuộc P2 (`hoi0_no`). */
+  debtDueDays: number
+  /** Sinh hoạt phí mỗi ngày, trừ sau khi cộng thu nhập. */
+  livingCost: number
+  /** Hành động tự chạy thay hành động đang chọn khi Tinh lực thấp. */
+  restAction: ActionId
+  /** Hành động dùng để kiểm tra Làm thuê ròng > 0 (validator). */
+  wageAction: ActionId
+  /** Vào nghỉ khi Tinh lực < restBelow, làm lại khi ≥ restUntil (hoặc mức tối đa nếu thấp hơn). */
+  restBelow: number
+  restUntil: number
+  /** Đói: nhân XP và Tinh lực hồi của ngày đó. */
+  hungerMultiplier: number
+  /** Nợ và cờ khởi đầu theo xuất thân; thiếu = không có. */
+  origins: Record<string, { debt: number; flags: FlagId[] }>
+}
+
 export interface RawContent {
   calendar: Calendar
   identity: IdentityRules
@@ -140,6 +170,7 @@ export interface RawContent {
   ngoTinh: { min: number; max: number }
   origins: OriginDef[]
   traits: TraitDef[]
+  economy?: EconomyRules
 }
 
 /** Nội dung đã nạp: bất biến sâu (createContent đóng băng mọi cấp). */
@@ -160,6 +191,7 @@ export interface Content {
   readonly ngoTinh: Readonly<{ min: number; max: number }>
   readonly origins: Readonly<Record<string, Readonly<OriginDef>>>
   readonly traits: Readonly<Record<string, Readonly<TraitDef>>>
+  readonly economy: Readonly<EconomyRules> | null
 }
 
 export type StopReason =
@@ -210,11 +242,19 @@ export interface GameState {
   character: Character
   /** XP cộng dồn của mỗi kỹ năng; cấp suy ra từ Content.xpTable. */
   skillXp: Record<SkillId, number>
+  /** Đang nghỉ theo ngưỡng Tinh lực (có trễ nên không suy ra được từ Tinh lực). */
+  resting: boolean
+  /** Ngày vừa rồi không đủ trả sinh hoạt phí. */
+  hungry: boolean
+  /** Ngày hết hạn trả nợ; null = không có nợ. */
+  hanNo: number | null
 }
 
 export type Command =
   | { type: 'setAction'; actionId: ActionId | null }
   | { type: 'resume' }
   | { type: 'setIdentity'; name: string; gender: string }
+  /** Chuyển `amount` văn trả bớt nợ. */
+  | { type: 'repayDebt'; amount: number }
 
 export type Result<T> = { ok: true; value: T } | { ok: false; error: string }

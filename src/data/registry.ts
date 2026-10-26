@@ -79,6 +79,12 @@ export function validateContent(raw: RawContent): string[] {
         if (!resourceIds.has(item.resource))
           errors.push(`${where}: unknown resource "${item.resource}"`)
         if (!isNum(item.amount)) errors.push(`${where}: non-finite amount`)
+        if (item.type === 'addResource' && item.scale) {
+          if (!skillIds.has(item.scale.skill))
+            errors.push(`${where}: unknown scale skill "${item.scale.skill}"`)
+          if (!isNum(item.scale.perLevel) || item.scale.perLevel < 0)
+            errors.push(`${where}: scale.perLevel must be finite and >= 0`)
+        }
         break
       case 'flag':
       case 'setFlag':
@@ -161,6 +167,8 @@ export function validateContent(raw: RawContent): string[] {
     }
   }
 
+  if (raw.economy) errors.push(...validateEconomy(raw, resourceIds))
+
   const st = raw.stamina
   const stRes = raw.resources.find((r) => r.id === st.resource)
   const topTrait = Math.max(
@@ -182,6 +190,77 @@ export function validateContent(raw: RawContent): string[] {
   // Trần tuyệt đối của tài nguyên phải chứa được mức tối đa cao nhất có thể, nếu không save hợp lệ bị từ chối.
   else if (stRes && stRes.max < st.base + st.maxSkillBonus + topTrait)
     errors.push('stamina: resource max below the highest stamina max')
+  return errors
+}
+
+/** Tổng các addResource dương/âm của một tài nguyên trong hành động, không tính `scale` (cấp 0). */
+const sumResource = (
+  actions: RawContent['actions'],
+  id: string,
+  resource: string,
+) =>
+  (actions.find((a) => a.id === id)?.effects ?? []).reduce(
+    (sum, e) =>
+      e.type === 'addResource' && e.resource === resource
+        ? sum + e.amount
+        : sum,
+    0,
+  )
+
+/** Kiểm dữ liệu kinh tế (BALANCE §3), gồm ràng buộc D23: Làm thuê ròng > 0. */
+function validateEconomy(
+  raw: RawContent,
+  resourceIds: ReadonlySet<string>,
+): string[] {
+  const eco = raw.economy
+  if (!eco) return []
+  const errors: string[] = []
+  for (const [what, id] of [
+    ['moneyResource', eco.moneyResource],
+    ['debtResource', eco.debtResource],
+  ] as const)
+    if (!resourceIds.has(id)) errors.push(`economy.${what}: unknown "${id}"`)
+  for (const [what, id] of [
+    ['restAction', eco.restAction],
+    ['wageAction', eco.wageAction],
+  ] as const)
+    if (!raw.actions.some((a) => a.id === id))
+      errors.push(`economy.${what}: unknown action "${id}"`)
+  if (
+    ![eco.debtDueDays, eco.livingCost, eco.restBelow, eco.restUntil].every(
+      (n) => isNum(n) && n >= 0,
+    ) ||
+    !Number.isInteger(eco.debtDueDays) ||
+    !(eco.restBelow < eco.restUntil) ||
+    !isNum(eco.hungerMultiplier) ||
+    !(eco.hungerMultiplier > 0 && eco.hungerMultiplier <= 1)
+  )
+    errors.push('economy: bad numbers')
+  const originIds = new Set(raw.origins.map((o) => o.id))
+  for (const id of originIds)
+    if (!Object.hasOwn(eco.origins, id))
+      errors.push(`economy.origins: missing origin "${id}"`)
+  for (const [id, o] of Object.entries(eco.origins)) {
+    if (!originIds.has(id)) errors.push(`economy.origins: unknown "${id}"`)
+    if (!isNum(o.debt) || o.debt < 0)
+      errors.push(`economy.origins "${id}": bad debt`)
+    if (o.flags.some((f) => !f))
+      errors.push(`economy.origins "${id}": empty flag`)
+    const def = raw.resources.find((r) => r.id === eco.debtResource)
+    if (def && o.debt > def.max)
+      errors.push(`economy.origins "${id}": debt above resource max`)
+  }
+  // Ràng buộc D23: ở mọi khu dân cư, thu Làm thuê × tỉ lệ làm − sinh hoạt phí > 0.
+  // Tỉ lệ làm = hồi/ngày ÷ (hồi/ngày + chi phí Tinh lực) (BALANCE §3). Hiện chỉ có làng.
+  const rest = sumResource(raw.actions, eco.restAction, raw.stamina.resource)
+  const cost = -sumResource(raw.actions, eco.wageAction, raw.stamina.resource)
+  const wage = sumResource(raw.actions, eco.wageAction, eco.moneyResource)
+  if (
+    rest > 0 &&
+    cost >= 0 &&
+    (wage * rest) / (rest + cost) - eco.livingCost <= 0
+  )
+    errors.push('economy: wage action nets <= 0 per day')
   return errors
 }
 
@@ -220,5 +299,6 @@ export function createContent(raw: RawContent): Content {
     ngoTinh: copy.ngoTinh,
     origins: byId(copy.origins),
     traits: byId(copy.traits),
+    economy: copy.economy ?? null,
   })
 }

@@ -1,5 +1,6 @@
 import { checkAction, runCurrentAction } from '../systems/actions'
 import { parseIdentity } from '../systems/character'
+import { repayDebt, updateResting } from '../systems/economy'
 import { checkLifespan } from '../systems/lifespan'
 import { clampStamina } from '../systems/stamina'
 import type { Command, Content, GameState, Result } from '../types/game'
@@ -43,6 +44,8 @@ export function applyCommand(
         value: { ...state, currentActionId: command.actionId },
       }
     }
+    case 'repayDebt':
+      return repayDebt(state, content, command.amount)
     case 'resume':
       return { ok: true, value: { ...state, stop: null } }
   }
@@ -50,7 +53,7 @@ export function applyCommand(
 
 /**
  * Một tick = một ngày. Thứ tự pipeline cố định (IMPLEMENTATION_PLAN §1);
- * hiện có: ngày +1 và kẹp Tinh lực → hành động hiện tại → cảnh báo thọ nguyên / chết. Đang ở điểm dừng → không chạy.
+ * hiện có: ngày +1 và kẹp Tinh lực → vào/ra nghỉ → hành động hiện tại + sinh hoạt phí/Đói → cảnh báo thọ nguyên / chết. Đang ở điểm dừng → không chạy.
  */
 export function step(state: GameState, content: Content): GameState {
   // Ngày cuối biểu diễn được (thực tế không thể chạm tới): không chạy gì để 1 tick luôn = 1 ngày.
@@ -58,8 +61,8 @@ export function step(state: GameState, content: Content): GameState {
   // Bước 1: sang ngày mới rồi kẹp Tinh lực theo mức tối đa mới (có thể giảm vì lão hóa, D35),
   // để hành động không tiêu được phần Tinh lực vừa mất.
   const aged = clampStamina({ ...state, day: state.day + 1 }, content)
-  const next = runCurrentAction(aged, content)
-  // Bị chặn → bỏ cả tick, ngày chưa trôi (R03 chờ P1b).
+  const next = runCurrentAction(updateResting(aged, content), content)
+  // Bị chặn → bỏ cả tick, ngày chưa trôi (R03 đã chốt: tick bị chặn không làm ngày trôi).
   if (next.stop?.reason === 'actionBlocked')
     return { ...state, stop: next.stop }
   // Effect có thể cộng Tinh lực quá mức tối đa (applyResourceDeltas chỉ kẹp theo trần tuyệt đối).

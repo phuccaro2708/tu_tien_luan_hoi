@@ -1,4 +1,5 @@
 import { applyOrigin, parseIdentity, rollLife1 } from '../systems/character'
+import { startEconomy } from '../systems/economy'
 import { isValidAmount } from '../systems/resources'
 import { staminaMax } from '../systems/stamina'
 import type { Content, GameState, ResourceId } from '../types/game'
@@ -36,13 +37,20 @@ export function createInitialState(content: Content, seed: number): GameState {
     claimed: {},
     currentActionId: null,
     tichThoiTicks: 0,
+    resting: false,
+    hungry: false,
+    hanNo: null,
     ...startLife1(content, seedRng(seed), base),
   }
-  // Kiếp mới bắt đầu với Tinh lực đầy (BALANCE §3).
+  // Kiếp mới bắt đầu với Tinh lực đầy (BALANCE §3), mang nợ và cờ theo xuất thân (P1b).
   const id = content.stamina.resource
+  const withEconomy = startEconomy(content, state)
   return {
-    ...state,
-    resources: { ...state.resources, [id]: staminaMax(state, content) },
+    ...withEconomy,
+    resources: {
+      ...withEconomy.resources,
+      [id]: staminaMax(withEconomy, content),
+    },
   }
 }
 
@@ -127,6 +135,11 @@ export function validateStateExceptStaminaCap(
     }
   }
 
+  if (typeof s.resting !== 'boolean') errors.push('resting must be boolean')
+  if (typeof s.hungry !== 'boolean') errors.push('hungry must be boolean')
+  if (s.hanNo !== null && !isTickCount(s.hanNo))
+    errors.push('hanNo must be null or a non-negative integer')
+
   errors.push(...validateCharacter(s.character, content))
   const identity = isObj(s.character) ? s.character.identity : undefined
   const choosing = isObj(s.stop) && s.stop.reason === 'chooseIdentity'
@@ -169,6 +182,9 @@ const STATE_KEYS = [
   'tichThoiTicks',
   'character',
   'skillXp',
+  'resting',
+  'hungry',
+  'hanNo',
 ]
 
 /** Thiếu hoặc thừa khóa → lỗi; giữ save round-trip chính xác. */

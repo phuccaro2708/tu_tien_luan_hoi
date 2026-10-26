@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react'
 import { SPEEDS, TICK_MS } from './core/clock'
+import { checkAction } from './systems/actions'
 import { ageYears } from './systems/lifespan'
 import { content } from './data/content'
 import { useGameLoop } from './hooks/useGameLoop'
@@ -81,6 +82,52 @@ function App() {
           </button>
         ))}
       </div>
+      {identity && reason !== 'death' && content.economy && (
+        <section aria-label="Sinh kế">
+          <p>
+            Văn {Math.floor(game.resources.van)} · Nợ{' '}
+            {Math.ceil(game.resources.no)}
+            {game.hungry && ' · Đói'}
+            {game.resting && ' · Đang nghỉ'}
+          </p>
+          <div>
+            {Object.values(content.actions).map((a) => (
+              <button
+                key={a.id}
+                aria-pressed={a.id === game.currentActionId}
+                disabled={!checkAction(game, content, a.id).ok}
+                onClick={() =>
+                  dispatch(
+                    { type: 'setAction', actionId: a.id },
+                    performance.now(),
+                  )
+                }
+              >
+                {a.name}
+              </button>
+            ))}
+          </div>
+          {game.resources.no > 0 && (
+            <button
+              disabled={game.resources.van < 1}
+              onClick={() =>
+                dispatch(
+                  {
+                    type: 'repayDebt',
+                    amount: Math.min(
+                      Math.floor(game.resources.van),
+                      game.resources.no,
+                    ),
+                  },
+                  performance.now(),
+                )
+              }
+            >
+              Trả nợ
+            </button>
+          )}
+        </section>
+      )}
       {game.stop && reason !== 'chooseIdentity' && reason !== 'death' && (
         <p>
           {reason === 'lifespanWarning'

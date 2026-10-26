@@ -364,16 +364,19 @@ describe('save v2', () => {
     const rest: Partial<GameState> = { ...s }
     delete rest.character
     delete rest.skillXp
+    delete rest.resting
+    delete rest.hungry
+    delete rest.hanNo
     return { ...rest, stop: null, rng: seedRng(s.seed) }
   }
   const text = (version: unknown, state: unknown) =>
     JSON.stringify({ version, savedAt: 123, speed: 2, state })
 
-  it('round-trips a v2 save', () => {
+  it('round-trips a current-version save', () => {
     const s = runTicks(make({ currentActionId: 'work' }), fixture, 50).state
     const loaded = ok(parseSave(ok(serializeSave(s, fixture, 9, 3)), fixture))
     expect(loaded.state).toEqual(s)
-    expect(SAVE_VERSION).toBe(2)
+    expect(SAVE_VERSION).toBe(3)
   })
 
   it('migrates v1 → v2: rolls the same life a new game with that seed gets', () => {
@@ -440,7 +443,7 @@ describe('save v2', () => {
     ['v1 not an object', text(1, [1])],
     ['v2 missing character', text(2, v1Of(createInitialState(fixture, 1)))],
     ['version 0', text(0, createInitialState(fixture, 1))],
-    ['version 3', text(3, createInitialState(fixture, 1))],
+    ['version 4', text(4, createInitialState(fixture, 1))],
     ['version "2"', text('2', createInitialState(fixture, 1))],
     ['version 1.5', text(1.5, createInitialState(fixture, 1))],
     // QA-01: trường v1 phải được kiểm trước khi dùng hay kẹp.
@@ -646,6 +649,9 @@ describe('identity (D05, D32)', () => {
     const v1: Partial<GameState> = { ...fresh(), stop: null }
     delete v1.character
     delete v1.skillXp
+    delete v1.resting
+    delete v1.hungry
+    delete v1.hanNo
     const loaded = ok(
       parseSave(JSON.stringify({ version: 1, savedAt: 0, state: v1 }), fixture),
     )

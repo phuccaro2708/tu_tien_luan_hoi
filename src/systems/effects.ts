@@ -1,7 +1,7 @@
 import type { Content, Effect, GameState, Result } from '../types/game'
 import { own } from '../core/record'
 import { applyResourceDeltas } from './resources'
-import { gainSkillXp } from './skills'
+import { gainSkillXp, skillLevel } from './skills'
 
 /**
  * Áp danh sách hiệu ứng nguyên khối: hoặc tất cả, hoặc không gì.
@@ -19,7 +19,12 @@ export function resolveEffects(
   for (const effect of effects) {
     switch (effect.type) {
       case 'addResource': {
-        const sum = (own(deltas, effect.resource) ?? 0) + effect.amount
+        const factor = effect.scale
+          ? 1 +
+            effect.scale.perLevel *
+              skillLevel(state, content, effect.scale.skill)
+          : 1
+        const sum = (own(deltas, effect.resource) ?? 0) + effect.amount * factor
         deltas = { ...deltas, [effect.resource]: sum }
         break
       }
