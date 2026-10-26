@@ -619,6 +619,8 @@ describe('identity (D05, D32)', () => {
     ['17 characters', 'a'.repeat(17)],
     ['control character', 'A\u0007B'],
     ['newline', 'A\nB'],
+    ['only a zero-width space', '​'],
+    ['right-to-left override', '‮AB'],
     ['not a string', 5],
   ])('rejects a name: %s', (_n, name) => {
     expect(setId(fresh(), name).ok).toBe(false)

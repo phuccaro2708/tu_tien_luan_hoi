@@ -26,12 +26,8 @@ function IdentityForm() {
     <form onSubmit={onSubmit}>
       <label>
         Tên{' '}
-        <input
-          name="name"
-          required
-          maxLength={content.identity.nameMaxLength}
-          autoComplete="off"
-        />
+        {/* Không đặt maxLength: trình duyệt đếm đơn vị UTF-16 của chuỗi thô, cắt cả tên hợp lệ có dấu tổ hợp. */}
+        <input name="name" required autoComplete="off" />
       </label>
       <fieldset>
         <legend>Giới tính</legend>
@@ -54,7 +50,7 @@ function IdentityForm() {
 
 function App() {
   useGameLoop()
-  const { game, speed, offlineTicks, error, saveError, saveBlocked } =
+  const { game, ready, speed, offlineTicks, error, saveError, saveBlocked } =
     useGameStore()
   const { setSpeed, dispatch, spendTichThoi, newLife } = useGameStore.getState()
   const day = (game.day % content.calendar.daysPerYear) + 1
@@ -64,7 +60,13 @@ function App() {
   return (
     <main className="setup">
       <h1>Tu Tiên Luân Hồi</h1>
-      {identity ? <p>{identity.name}</p> : <IdentityForm />}
+      {identity ? (
+        <p>{identity.name}</p>
+      ) : ready ? (
+        <IdentityForm />
+      ) : (
+        <p>Đang mở save…</p>
+      )}
       <p>
         Tuổi {ageYears(game, content)} · ngày {day}
       </p>
@@ -81,7 +83,9 @@ function App() {
       </div>
       {game.stop && reason !== 'chooseIdentity' && reason !== 'death' && (
         <p>
-          Tạm dừng ({reason}){' '}
+          {reason === 'lifespanWarning'
+            ? `Còn ${game.stop?.detail} năm thọ nguyên.`
+            : `Tạm dừng (${reason}).`}{' '}
           <button
             onClick={() => dispatch({ type: 'resume' }, performance.now())}
           >

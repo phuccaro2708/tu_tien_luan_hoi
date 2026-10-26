@@ -10,6 +10,7 @@ import {
   writeSave,
   type SaveStorage,
 } from '../../src/utils/save'
+import { createInitialState } from '../../src/core/state'
 import { fixture, named, startGame } from '../fixtures/content'
 
 vi.mock('../../src/data/content', async () => ({
@@ -292,6 +293,7 @@ describe('store write protection', () => {
     const storage = memory(data)
     const s = await open(storage, 0, busy)
     await vi.waitFor(() => expect(s.getState().saveBlocked).toMatch(/tab khác/))
+    expect(s.getState().ready).toBe(false)
     s.getState().frame(0, 0)
     s.getState().save(60_000, 60_000)
     expect(data.has(SAVE_KEY)).toBe(false)
@@ -300,9 +302,32 @@ describe('store write protection', () => {
     await vi.waitFor(() => expect(queue).toHaveLength(1))
     queue[0]() // tab kia đóng
     await vi.waitFor(() => expect(s.getState().saveBlocked).toBeNull())
+    expect(s.getState().ready).toBe(true)
     expect(s.getState().game.day).toBe(50)
     s.getState().save(0, 0)
     expect(savedDay(storage)).toBe(50)
+  })
+
+  it('choosing an identity is saved at once, so a reload keeps the rolled character', async () => {
+    const data = new Map<string, string>()
+    const storage = memory(data)
+    const s = await open(storage, 0)
+    const fresh = createInitialState(fixture, 7)
+    s.setState({ game: fresh })
+    s.getState().dispatch(
+      { type: 'setIdentity', name: 'Lan', gender: 'nu' },
+      0,
+      1_000,
+    )
+    const loaded = readSave(storage, fixture)
+    expect(loaded.ok && loaded.value.state.character).toEqual({
+      ...fresh.character,
+      identity: { name: 'Lan', gender: 'nu' },
+    })
+    // Lệnh bị từ chối thì không ghi.
+    data.clear()
+    s.getState().dispatch({ type: 'resume' }, 0, 2_000)
+    expect(data.size).toBe(0)
   })
 
   it('R01: without Web Locks the tab plays but never writes, not even a quarantine', async () => {

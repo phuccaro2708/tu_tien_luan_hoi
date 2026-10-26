@@ -32,6 +32,8 @@ const storage: SaveStorage | null =
 
 interface GameStore {
   game: GameState
+  /** false = chưa boot (đang chờ khóa save): `game` chỉ là bản tạm, mọi action bị bỏ qua. */
+  ready: boolean
   speed: Speed
   /** Tick đã chạy khi vắng mặt (lúc mở game). */
   offlineTicks: number
@@ -42,8 +44,11 @@ interface GameStore {
   saveBlocked: string | null
   frame: (frameNow: number, wallNow: number) => void
   setSpeed: (speed: Speed, frameNow: number) => void
-  /** Lệnh áp tại `frameNow`: thời gian trước đó được hạch toán trước (đang dừng thì bỏ). */
-  dispatch: (command: Command, frameNow: number) => void
+  /**
+   * Lệnh áp tại `frameNow`: thời gian trước đó được hạch toán trước (đang dừng thì bỏ).
+   * Chọn danh tính xong thì lưu ngay với mốc `wallNow`, như `newLife`: tải lại trang không tung lại nhân vật.
+   */
+  dispatch: (command: Command, frameNow: number, wallNow?: number) => void
   spendTichThoi: (frameNow: number) => void
   /** Sau khi chết: bỏ kiếp cũ, tạo kiếp 1 mới (seed mới) và lưu ngay (D31). Chưa chết thì bỏ qua. */
   newLife: (frameNow: number, wallNow: number) => void
@@ -82,6 +87,7 @@ function boot(now: number, readOnly = false) {
   lastFrame = clock.lastMs
   return {
     game: booted?.state ?? createInitialState(content, now >>> 0),
+    ready: true,
     speed,
     offlineTicks: booted?.offlineTicks ?? 0,
     error: booted?.error ?? null,
@@ -123,6 +129,7 @@ function catchSleep(game: GameState, frameNow: number, wallNow: number) {
 const initial = locks
   ? {
       game: createInitialState(content, Date.now() >>> 0),
+      ready: false,
       speed: 1 as Speed,
       offlineTicks: 0,
       error: null,
@@ -156,11 +163,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     clock = setClockSpeed(clock, frameNow, speed)
   },
 
-  dispatch(command, frameNow) {
+  dispatch(command, frameNow, wallNow = Date.now()) {
     if (!clock) return
     const game = settle(get().game, frameNow, Infinity)
     const r = applyCommand(game, content, command)
     set(r.ok ? { game: r.value, error: null } : { game, error: r.error })
+    if (r.ok && command.type === 'setIdentity') get().save(frameNow, wallNow)
   },
 
   spendTichThoi(frameNow) {

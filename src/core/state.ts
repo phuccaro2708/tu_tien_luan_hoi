@@ -46,7 +46,7 @@ export function createInitialState(content: Content, seed: number): GameState {
   }
 }
 
-const isObj = (v: unknown): v is Record<string, unknown> =>
+export const isObj = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 const isUint32 = (v: unknown) =>
   Number.isInteger(v) && (v as number) >= 0 && (v as number) <= 0xffffffff
