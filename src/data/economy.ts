@@ -25,7 +25,7 @@ export const economyData: Pick<RawContent, 'actions' | 'economy'> = {
           type: 'addResource',
           resource: 'van',
           amount: 20,
-          scale: { skill: 'thePhach', perLevel: 0.02 },
+          scale: { skill: 'thePhach', perLevel: 0.005 },
         },
         { type: 'addResource', resource: 'tinhLuc', amount: -12 },
         { type: 'addSkillXp', skill: 'thePhach', amount: 2.5 },

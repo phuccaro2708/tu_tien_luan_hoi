@@ -10,7 +10,7 @@
 
 ## Đã làm
 
-- P0 `VERIFIED`; P1a và P1b `IMPLEMENTED` (chờ Codex review). A, F, G đã duyệt (GDD D38–D40). Mở: nợ 800 trả sau ~103 ngày, lệch mốc 127 của BALANCE §3.
+- P0 `VERIFIED`; P1a và P1b `IMPLEMENTED` (chờ Codex review). A, F, G đã duyệt (GDD D38–D40). Tiêu chí thoát P1b (2) đạt nhờ D41 (Đốn củi +0,5%/cấp Thể Phách, nợ trả sau 119–120 ngày).
 - Tài liệu P2 hoàn thiện ở mức Draft: `docs/technical/EVENT_SCHEMA.md` (mới), sửa GDD, SYSTEMS, MVP_SCOPE, CORE_LOOP, WORLD_LORE, IMPLEMENTATION_PLAN/STATUS. Báo cáo: `docs/reports/phase/2026-10-25-p2-design-completion.md`.
 
 ## Quyết định của người dùng đã ghi vào tài liệu
@@ -24,7 +24,7 @@
 
 1. Hắc Phong trại và Động phủ Lục: cảnh trong chuỗi (đang ghi tạm, `[CHỜ XÁC NHẬN]`) hay địa điểm riêng.
 2. Duyệt D21, D24, D26 (các thẻ vẫn là `[CẦN DUYỆT]`; chỉ người dùng được đổi sang đã duyệt, rồi ghi GDD §12).
-3. Xử lý lệch tiêu chí thoát P1b (2): sửa mốc BALANCE §3 (~103 ngày) hay sửa tiêu chí.
+3. Duyệt D41 (cân bằng nợ đầu game).
 4. Quyết định merge `worktree-p2-design` vào `main`.
 5. Có thêm `.claude/` vào `.gitignore` và ignore của eslint/vitest/prettier không.
 

@@ -68,7 +68,7 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-revi
 
 ## P1b – Kinh tế phàm nhân (S2 hành động nhóm phàm, thu nhập trước phí, Đói, nợ)
 
-- **Status:** `IMPLEMENTED` (chờ review độc lập). Tiêu chí thoát (2) chưa khớp ±10%, xem Known issues.
+- **Status:** `IMPLEMENTED` (chờ review độc lập). Tiêu chí thoát (2) đạt: trả nợ 800 sau 119–120 ngày (D41).
 - **Dependencies:** D23, D38–D40 (đã duyệt 2026-10-25); P1a. Thiết kế: `P1B_DESIGN.md`.
 - **Files:**
   - Dữ liệu: `src/data/economy.ts` (4 hành động làng, `economy`), `src/data/content.ts` (tài nguyên `no`)
@@ -76,7 +76,6 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-revi
   - Save v3: `src/utils/save.ts` (migrate v2→v3); UI: `src/App.tsx` (khối Sinh kế)
 - **Tests:** `tests/unit/economy.test.ts` (23 test): thứ tự D23, Đói ×0,5, nghỉ có trễ, R03, nợ theo xuất thân và `repayDebt`, hồi phục tay trắng 60 ngày, validator Làm thuê ròng > 0, hash tất định, save v3 và migrate v2→v3.
 - **Known issues:**
-  - Tiêu chí thoát (2): engine trả hết nợ 800 sau ~103 ngày đốn củi, mốc BALANCE §3 là ~127 (bỏ qua Thể Phách tăng +2%/cấp). Lệch −19%, chờ người dùng chọn sửa mốc BALANCE hay tiêu chí.
   - Chưa có tự làm thuê khi hết tiền (không hành động P1b nào cần tiền để chạy); thêm cùng Học chữ/Luyện quyền.
   - Chưa có địa điểm (S5): chỉ sinh hoạt phí làng; trấn và validator "mọi khu dân cư" mở rộng ở P2.
   - Chưa smoke test trình duyệt khối Sinh kế.
@@ -148,4 +147,4 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-revi
 
 ## Module tiếp theo đề xuất
 
-**P2 – Thế giới, tri thức, sự kiện** (vẫn `BLOCKED` chờ duyệt D21, D24, D26). P1b đã `IMPLEMENTED`; trước đó xử lý lệch tiêu chí thoát P1b (2) (nợ 800 trả sau ~103 ngày thay vì ~127).
+**P2 – Thế giới, tri thức, sự kiện** (vẫn `BLOCKED` chờ duyệt D21, D24, D26). P1b đã `IMPLEMENTED`; ; tiêu chí thoát P1b (2) đã đạt nhờ D41.

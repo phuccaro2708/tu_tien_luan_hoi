@@ -84,7 +84,7 @@ Tối đa 100 (+1 mỗi cấp Thể Phách, trần +30; Cường tráng +10/+20/
 | Hành động             | Nơi            | Yêu cầu             | TL/ngày                 | Thu (văn/ngày)          | XP/ngày                       | Tỉ lệ làm | Ròng ở làng* |
 | --------------------- | -------------- | ------------------- | ----------------------- | ----------------------- | ----------------------------- | --------- | ------------ |
 | Làm thuê              | Mọi khu dân cư | –                   | 10                      | Làng 15 · Trấn 25       | Thể Phách 1,5                 | 75%       | +3,3         |
-| Đốn củi               | Làng/Rừng      | Rìu                 | 12                      | 20 (+2%/Thể Phách)      | Thể Phách 2,5                 | 71%       | +6,3         |
+| Đốn củi               | Làng/Rừng      | Rìu                 | 12                      | 20 (+0,5%/Thể Phách)    | Thể Phách 2,5                 | 71%       | +6,3         |
 | Học việc hiệu thuốc   | Làng           | –                   | 6                       | 5                       | Thảo Dược 3                   | 83%       | −3,8         |
 | Hái thuốc             | Rừng           | Thảo Dược 3         | 9                       | 12 + 1,5 × Thảo Dược    | Thảo Dược 2                   | 77%       | —            |
 | Học chữ               | Làng           | Tô tiên sinh mở lớp | 4                       | −10 (học phí)           | Văn Tự 3                      | 88%       | −16,8        |
