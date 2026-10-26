@@ -15,9 +15,12 @@ export function updateResting(state: GameState, content: Content): GameState {
   const eco = content.economy
   if (!eco) return state
   const stamina = own(state.resources, content.stamina.resource) ?? 0
-  const until = Math.min(eco.restUntil, staminaMax(state, content))
+  const max = staminaMax(state, content)
+  const until = Math.min(eco.restUntil, max)
+  // Tinh lực tối đa thấp hơn ngưỡng nghỉ (lão hóa) thì không thể "đủ" để thôi nghỉ: giữ ngưỡng nghỉ dưới mức tối đa.
+  const below = Math.min(eco.restBelow, max)
   const resting =
-    stamina < eco.restBelow ? true : stamina >= until ? false : state.resting
+    stamina < below ? true : stamina >= until ? false : state.resting
   return resting === state.resting ? state : { ...state, resting }
 }
 

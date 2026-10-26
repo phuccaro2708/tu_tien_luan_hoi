@@ -5,6 +5,8 @@ import { applyCommand, runTicks, step } from '../../src/core/engine'
 import { createInitialState, validateState } from '../../src/core/state'
 import { content as real, rawContent } from '../../src/data/content'
 import { createContent } from '../../src/data/registry'
+import { updateResting } from '../../src/systems/economy'
+import { staminaMax } from '../../src/systems/stamina'
 import type { GameState } from '../../src/types/game'
 import { parseSave, serializeSave } from '../../src/utils/save'
 import { named } from '../fixtures/content'
@@ -239,6 +241,31 @@ describe('validator dữ liệu kinh tế', () => {
     expect(() =>
       createContent({ ...rawContent, economy: { ...eco, restBelow: 95 } }),
     ).toThrow(/bad numbers/)
+  })
+
+  it('hành động nghỉ có requires hoặc once bị từ chối', () => {
+    for (const patch of [
+      { once: true },
+      { requires: [{ type: 'flag' as const, flag: 'coRiu', value: true }] },
+    ])
+      expect(() =>
+        createContent({
+          ...rawContent,
+          actions: rawContent.actions.map((a) =>
+            a.id === 'nghiNgoi' ? { ...a, ...patch } : a,
+          ),
+        }),
+      ).toThrow(/restAction/)
+  })
+
+  it('Tinh lực tối đa thấp hơn ngưỡng nghỉ không kẹt ở trạng thái nghỉ', () => {
+    const s = lifeOf('tieuPhu')
+    const max = staminaMax(s, real)
+    // Tinh lực đúng bằng mức tối đa (< restBelow giả định): không được ép nghỉ.
+    const low = { ...real.economy!, restBelow: max + 10 }
+    const c = { ...real, economy: low }
+    const full = { ...s, resources: { ...s.resources, tinhLuc: max } }
+    expect(updateResting(full, c).resting).toBe(false)
   })
 })
 

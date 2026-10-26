@@ -16,7 +16,7 @@ export type Effect =
       type: 'addResource'
       resource: ResourceId
       amount: number
-      /** Nhân `amount` với (1 + perLevel × cấp kỹ năng), VD Đốn củi +2%/Thể Phách (BALANCE §3). */
+      /** Nhân `amount` với (1 + perLevel × cấp kỹ năng), VD Đốn củi +0,5%/Thể Phách (BALANCE §3, D41). */
       scale?: { skill: SkillId; perLevel: number }
     }
   | { type: 'setFlag'; flag: FlagId; value: boolean }

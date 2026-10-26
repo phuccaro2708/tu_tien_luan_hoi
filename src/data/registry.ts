@@ -226,6 +226,10 @@ function validateEconomy(
   ] as const)
     if (!raw.actions.some((a) => a.id === id))
       errors.push(`economy.${what}: unknown action "${id}"`)
+  // Nghỉ ngơi được ép chạy khi Tinh lực thấp: phải luôn chọn được, nếu không tick nào cũng bị chặn.
+  const restDef = raw.actions.find((a) => a.id === eco.restAction)
+  if (restDef && (restDef.requires.length > 0 || restDef.once))
+    errors.push('economy.restAction: must have no requires and not be once')
   if (
     ![eco.debtDueDays, eco.livingCost, eco.restBelow, eco.restUntil].every(
       (n) => isNum(n) && n >= 0,
