@@ -28,9 +28,9 @@ src/
 
 ### Pipeline một tick (thứ tự cố định)
 
-1. Thời gian: ngày +1, tuổi, năm thế giới, hết hạn trạng thái.
+1. Thời gian: ngày +1, tuổi, năm thế giới, hết hạn trạng thái; tính lại Tinh lực tối đa (lão hóa) và kẹp Tinh lực hiện có `[ĐÃ DUYỆT D35 – 2026-10-25]`.
 2. Hành động hiện tại (gồm quy tắc nghỉ và tự làm thuê): **cộng thu nhập trước**.
-3. Sinh hoạt phí / lương khô: trừ sau thu nhập; không đủ → trạng thái Đói, không ghi nợ `[CẦN DUYỆT D23]`.
+3. Sinh hoạt phí / lương khô: trừ sau thu nhập; không đủ → trạng thái Đói, không ghi nợ `[ĐÃ DUYỆT D23 – 2026-10-25]`.
 4. Tu luyện / đột phá đang diễn ra; đột phá xong → cộng thọ nguyên ngay `[CẦN DUYỆT D25]`.
 5. Đan Độc, hồi phục thương, hồi Khí huyết ngoài trận.
 6. NPC (tuổi, chết theo `namSinh + thoNguyen` trong dữ liệu, D18).
@@ -57,7 +57,7 @@ Sửa F13 `[CẦN DUYỆT D26]`: harness headless dựng **từ P0** và lớn d
 | **P7 – Offline, cân bằng, nội dung**         | S13 offline + Tích Thời; bổ sung sự kiện tới 30–40 (hoặc 60–80 nếu D24 bị từ chối)                                                                                                                                   | (1) Test S13. (2) 8 giờ offline < 1 giây. (3) Harness: mốc tuổi ±15% BALANCE §10.2; trung vị thử Trúc Cơ ≤ 10 giờ ở 1×.                                                                                                                                                                                      |
 | **P8 – QA & hoàn thiện**                     | Sửa lỗi từ Codex/Antigravity, kiểm tra MVP_SCOPE §4, build preview Cloudflare Pages                                                                                                                                  | Toàn bộ checklist MVP_SCOPE §4                                                                                                                                                                                                                                                                               |
 
-**Phụ thuộc vào phần Draft:** P0 không dùng con số hay quy tắc nào đang chờ duyệt (D17–D26), nên có thể bắt đầu ngay khi kế hoạch phase được duyệt. P1 cần D23; P2 cần D21, D24; P3 cần D18, D25; P5 cần D20; P6 cần D17, D19.
+**Phụ thuộc vào phần Draft:** P0 không dùng con số hay quy tắc nào đang chờ duyệt (D17–D26), nên có thể bắt đầu ngay khi kế hoạch phase được duyệt. P1 cần D23 (đã duyệt 2026-10-25); P2 cần D21, D24; P3 cần D18, D25; P5 cần D20; P6 cần D17, D19.
 
 ## 3. Chiến lược kiểm thử
 

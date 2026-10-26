@@ -19,7 +19,7 @@ export function checkAction(
   if (!action) return { ok: false, error: `unknown action "${id}"` }
   if (action.once && own(state.claimed, id))
     return { ok: false, error: `already claimed "${id}"` }
-  const unmet = firstUnmet(state, action.requires)
+  const unmet = firstUnmet(state, content, action.requires)
   if (unmet) return { ok: false, error: `requires ${describeCondition(unmet)}` }
   return { ok: true, value: action }
 }

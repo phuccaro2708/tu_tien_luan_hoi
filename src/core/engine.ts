@@ -1,12 +1,37 @@
 import { checkAction, runCurrentAction } from '../systems/actions'
+import { parseIdentity } from '../systems/character'
+import { checkLifespan } from '../systems/lifespan'
+import { clampStamina } from '../systems/stamina'
 import type { Command, Content, GameState, Result } from '../types/game'
 
-/** Mọi thay đổi state từ người chơi đi qua đây. */
+/**
+ * Mọi thay đổi state từ người chơi đi qua đây. Hết kiếp thì không lệnh nào áp được (chờ Vong Xuyên, P4).
+ * Chưa có danh tính thì chỉ nhận `setIdentity`; có rồi thì không đổi được (D32).
+ */
 export function applyCommand(
   state: GameState,
   content: Content,
   command: Command,
 ): Result<GameState> {
+  if (state.stop?.reason === 'death')
+    return { ok: false, error: 'this life has ended' }
+  const { character } = state
+  if (command.type === 'setIdentity') {
+    if (character.identity !== null)
+      return { ok: false, error: 'identity already chosen' }
+    const identity = parseIdentity(content, command.name, command.gender)
+    if (!identity.ok) return identity
+    return {
+      ok: true,
+      value: {
+        ...state,
+        character: { ...character, identity: identity.value },
+        stop: null,
+      },
+    }
+  }
+  if (character.identity === null)
+    return { ok: false, error: 'choose a name and gender first' }
   switch (command.type) {
     case 'setAction': {
       if (command.actionId === null)
@@ -25,15 +50,20 @@ export function applyCommand(
 
 /**
  * Một tick = một ngày. Thứ tự pipeline cố định (IMPLEMENTATION_PLAN §1);
- * P0 chỉ có: hành động hiện tại → ngày +1. Đang ở điểm dừng → không chạy.
+ * hiện có: ngày +1 và kẹp Tinh lực → hành động hiện tại → cảnh báo thọ nguyên / chết. Đang ở điểm dừng → không chạy.
  */
 export function step(state: GameState, content: Content): GameState {
   // Ngày cuối biểu diễn được (thực tế không thể chạm tới): không chạy gì để 1 tick luôn = 1 ngày.
   if (state.stop || state.day >= Number.MAX_SAFE_INTEGER) return state
-  const next = runCurrentAction(state, content)
-  // Bị chặn trước khi làm gì → ngày chưa trôi.
-  if (next.stop?.reason === 'actionBlocked') return next
-  return { ...next, day: next.day + 1 }
+  // Bước 1: sang ngày mới rồi kẹp Tinh lực theo mức tối đa mới (có thể giảm vì lão hóa, D35),
+  // để hành động không tiêu được phần Tinh lực vừa mất.
+  const aged = clampStamina({ ...state, day: state.day + 1 }, content)
+  const next = runCurrentAction(aged, content)
+  // Bị chặn → bỏ cả tick, ngày chưa trôi (R03 chờ P1b).
+  if (next.stop?.reason === 'actionBlocked')
+    return { ...state, stop: next.stop }
+  // Effect có thể cộng Tinh lực quá mức tối đa (applyResourceDeltas chỉ kẹp theo trần tuyệt đối).
+  return checkLifespan(state, clampStamina(next, content), content)
 }
 
 /**

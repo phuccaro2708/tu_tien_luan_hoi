@@ -1,6 +1,8 @@
 # Balance
 
 > **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt). Bản v0.1 đã Approved 2026-10-23; phần không gắn `[CẦN DUYỆT D17–D26]` giữ nguyên. **Trước playtest:** mọi số liệu là giả thuyết, đã kiểm bằng mô phỏng Monte Carlo (§10); sẽ chỉnh lại bằng harness headless (từ P0) và playtest. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
+>
+> **Bổ sung 2026-10-25:** D23 đã duyệt (§3); D35 Tinh lực tối đa (§3); D34 chết khi vắng mặt (§7). Xem GDD §12.
 
 ## 1. Thang thời gian `[ĐÃ DUYỆT D02]`
 
@@ -67,7 +69,7 @@ Kiểm tra pacing tự động: §10.
 
 Đói: XP ×0.5, tu vi ×0.5, Tinh lực hồi ×0.5; không gây chết. Luôn có Làm thuê (khu dân cư) hoặc Hái quả rừng (nơi hoang) để thoát.
 
-**Quy tắc thanh toán** `[CẦN DUYỆT D23]` (sửa F05):
+**Quy tắc thanh toán** `[ĐÃ DUYỆT D23 – 2026-10-25]` (sửa F05):
 
 - Trong một tick, **thu nhập của hành động được cộng trước**, sinh hoạt phí trừ sau (IMPLEMENTATION_PLAN §1).
 - Nếu tiền (hoặc lương khô) không đủ trả phí ngày đó: không trừ gì, không phát sinh nợ, nhân vật bị **Đói** đúng ngày đó.
@@ -75,7 +77,7 @@ Kiểm tra pacing tự động: §10.
 
 ### Tinh lực
 
-Tối đa 100 (+Thể Phách, thiên phú). Nghỉ ngơi +30/ngày. Quy tắc mặc định: nghỉ khi < 20, làm lại khi ≥ 90. Tỉ lệ ngày làm việc ≈ `30 / (30 + chiPhíTL)`.
+Tối đa 100 (+1 mỗi cấp Thể Phách, trần +30; Cường tráng +10/+20/+30; lão hóa −2 mỗi năm tuổi sau 80% thọ nguyên – công thức PROGRESSION §6) `[ĐÃ DUYỆT D35 – 2026-10-25]`. Kiếp mới bắt đầu với Tinh lực đầy. Nghỉ ngơi +30/ngày. Quy tắc mặc định: nghỉ khi < 20, làm lại khi ≥ 90. Tỉ lệ ngày làm việc ≈ `30 / (30 + chiPhíTL)`.
 
 ### Bảng hành động (giá trị gốc, cấp kỹ năng 0)
 
@@ -206,6 +208,7 @@ TíchThời  = min(8 giờ, TíchThời + phầnVắngMặtChưaDùng)
 - Điểm dừng như online (CORE_LOOP §3). Bế quan có ít điểm dừng nhất → hợp với offline dài.
 - Không có hiệu suất giảm khi offline: offline vẫn tiêu thọ nguyên như online, nên không có lợi thế khi đóng game (không khai thác được).
 - Vì 8 giờ = 160 năm game, gần như mọi lần offline dài đều dừng ở điểm dừng sớm; Tích Thời bảo đảm người chơi không mất phần còn lại.
+- **Chết khi vắng mặt** `[ĐÃ DUYỆT D34 – 2026-10-25]`: cảnh báo 10/5/1 năm là điểm dừng, nên vắng mặt chỉ có thể kết thúc bằng cái chết khi người chơi đã tự bấm qua cảnh báo 1 năm. Không thêm điểm dừng riêng cho offline.
 
 ## 8. Giảm grind vô nghĩa
 

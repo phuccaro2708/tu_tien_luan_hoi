@@ -1,6 +1,7 @@
 import type { Content, Effect, GameState, Result } from '../types/game'
 import { own } from '../core/record'
 import { applyResourceDeltas } from './resources'
+import { gainSkillXp } from './skills'
 
 /**
  * Áp danh sách hiệu ứng nguyên khối: hoặc tất cả, hoặc không gì.
@@ -14,6 +15,7 @@ export function resolveEffects(
 ): Result<GameState> {
   let deltas: Record<string, number> = {}
   let flags = state.flags
+  const xp: Extract<Effect, { type: 'addSkillXp' }>[] = []
   for (const effect of effects) {
     switch (effect.type) {
       case 'addResource': {
@@ -24,6 +26,9 @@ export function resolveEffects(
       case 'setFlag':
         flags = { ...flags, [effect.flag]: effect.value }
         break
+      case 'addSkillXp':
+        xp.push(effect)
+        break
     }
   }
   const resources = applyResourceDeltas(
@@ -32,5 +37,8 @@ export function resolveEffects(
     deltas,
   )
   if (!resources.ok) return resources
-  return { ok: true, value: { ...state, resources: resources.value, flags } }
+  // XP chỉ cộng khi phần tài nguyên đã áp được (nguyên khối).
+  let next: GameState = { ...state, resources: resources.value, flags }
+  for (const e of xp) next = gainSkillXp(next, content, e.skill, e.amount)
+  return { ok: true, value: next }
 }

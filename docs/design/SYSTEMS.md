@@ -4,6 +4,8 @@
 >
 > **Bổ sung 2026-10-24:** D27–D30 (S1, S13, S14: thời gian khi tab ẩn hoặc máy ngủ, autosave khi chạy bù, nhiều tab) do người dùng quyết định trong lượt xử lý review P0. Nguồn: `docs/reports/phase/2026-10-24-p0-audit-n01-n09.md`, `docs/reports/phase/2026-10-24-code-review-round3.md`.
 >
+> **Bổ sung 2026-10-25:** D23 đã duyệt (S2); D31, D32 (S1: chết trước P4, tên/giới tính), D34 (S13: chết khi vắng mặt). Xem GDD §12.
+>
 > Mỗi hệ thống theo mẫu: **Mục đích gameplay · Input/Output · Điều kiện · Tương tác · Tiêu chí kiểm thử**. Công thức chi tiết ở `PROGRESSION.md` và `BALANCE.md`; ở đây chỉ nêu hợp đồng của hệ thống.
 
 ## 0. Đánh giá sự cần thiết của các hệ RPG
@@ -44,6 +46,11 @@
   - Tốc độ là tùy chọn giao diện: lưu cùng save nhưng nằm ngoài `GameState`, không ảnh hưởng replay. **Engine không bao giờ đọc tốc độ.**
   - **Chính sách sự kiện nhỏ** `[CẦN DUYỆT D21]` (sửa F04): `GameState.chinhSachSuKienNho ∈ { hoi, tuDong }`, chỉ đổi bằng lệnh `datChinhSachSuKienNho`; lệnh này được ghi vào nhật ký lệnh như mọi lệnh khác. `hoi`: sự kiện nhỏ tạm dừng và hỏi. `tuDong`: lấy `macDinhAnToan` và ghi vào Nhật ký. UI có tùy chọn "tự xử lý sự kiện nhỏ khi tua ≥ 3×"; khi người chơi đổi tốc độ, UI gửi lệnh tương ứng **tại tick hiện tại**, nên replay chỉ cần nhật ký lệnh.
   - **Game mới:** sinh seed, rồi tung kiếp 1 theo `PROGRESSION.md` §3 (linh căn, ngộ tính, xuất thân, thiên phú bẩm sinh) `[ĐÃ DUYỆT D04]`.
+  - **Tên và giới tính** `[ĐÃ DUYỆT D32 – 2026-10-25]` (chi tiết D05):
+    - Game mới (và save cũ chưa có danh tính) dừng ở điểm dừng `chooseIdentity`; thời gian không chạy cho tới khi người chơi chọn.
+    - Tên: cắt khoảng trắng hai đầu, còn 1–16 ký tự, không có ký tự điều khiển. Giới tính: Nam hoặc Nữ (dữ liệu).
+    - Đã chọn thì không đổi trong kiếp. Lệnh nào khác lệnh chọn danh tính đều bị từ chối khi chưa chọn.
+  - **Sau khi chết, trước P4** `[ĐÃ DUYỆT D31 – 2026-10-25]`: màn "Kiếp này đã hết" (tuổi, thọ nguyên) và nút **Bắt đầu kiếp mới**. Xác nhận xong thì tạo game mới với seed mới; kiếp cũ và Tích Thời mất hẳn. Đây là lối thoát tạm; P4 thay bằng Vong Xuyên (S12).
 - **Tương tác:** mọi hệ đều chạy theo tick; S9 cộng thọ nguyên; S12 kích hoạt khi chết; S13 dùng cùng bước tick.
 - **Tiêu chí kiểm thử:**
   - 360 tick = +1 tuổi; 2 tick/giây chính xác với fake clock.
@@ -60,7 +67,7 @@
 
 - **Mục đích:** lựa chọn cơ bản nhất – dùng ngày hôm nay vào việc gì.
 - **Input:** hành động đang chọn, địa điểm, Tinh lực, kỹ năng, vật phẩm, tri thức; quy tắc lịch trình (ngưỡng nghỉ, tự làm thuê khi hết tiền).
-- **Output mỗi tick:** thay đổi văn/vật phẩm, XP kỹ năng, Tinh lực, tiến độ thám hiểm/tu vi, cơ hội sự kiện; sinh hoạt phí bị trừ **sau** khi cộng thu nhập. Không đủ trả → không trừ, không nợ, Đói ngày đó (BALANCE §3) `[CẦN DUYỆT D23]`.
+- **Output mỗi tick:** thay đổi văn/vật phẩm, XP kỹ năng, Tinh lực, tiến độ thám hiểm/tu vi, cơ hội sự kiện; sinh hoạt phí bị trừ **sau** khi cộng thu nhập. Không đủ trả → không trừ, không nợ, Đói ngày đó (BALANCE §3) `[ĐÃ DUYỆT D23 – 2026-10-25]`.
 - **Điều kiện:** mỗi hành động định nghĩa trong dữ liệu: địa điểm hợp lệ, yêu cầu (kỹ năng, vật phẩm, tri thức, cờ), chi phí Tinh lực, sản lượng, XP. Khi Tinh lực < ngưỡng nghỉ → tự Nghỉ ngơi đến ngưỡng làm lại. **"Làm thuê" luôn có ở mọi khu dân cư, không yêu cầu gì, và có ròng dương ở mọi nơi (validator dữ liệu). "Hái quả rừng" luôn có ở mọi nơi hoang.**
 - **Tương tác:** S3 (XP), S4 (mở hành động), S5 (địa điểm), S6 (cơ hội sự kiện), S9 (Tu luyện/Đột phá là hành động), S11 (tạp dịch chiếm thời gian).
 - **Danh sách MVP:** Làm thuê, Hái quả rừng, Đốn củi, Học việc hiệu thuốc, Hái thuốc, Học chữ, Bổ củi đổi chữ, Tiểu nhị, Khuân vác, Luyện quyền (võ quán), Tự luyện quyền, Nghỉ ngơi, Thám hiểm, Tu luyện, Đột phá, Bế quan, Đào linh thạch vụn, Hái linh thảo, Hấp thu linh thạch, Đi đường. Số liệu: `BALANCE.md` §3.
@@ -229,6 +236,8 @@
 - **Điều kiện:** `vắngMặt = min(now − lastSave, 8 giờ)`. Mô phỏng bằng chính engine, từng tick, tới khi hết `vắngMặt` hoặc gặp điểm dừng. Phần còn lại cộng vào Tích Thời (trần 8 giờ). Đồng hồ hệ thống chạy lùi → vắng mặt = 0. "Dùng Tích Thời" `[ĐÃ DUYỆT D06]` chạy cùng đường mô phỏng ngay lập tức với lượng Tích Thời đang có, dừng ở điểm dừng đầu tiên, trừ phần đã chạy.
   - Cùng quy tắc áp cho khoảng máy ngủ mà clock khung hình đứng yên (S1, D28).
   - Tab ẩn **không** phải vắng mặt (S1, D27): không bị trần 8 giờ, và không sinh Tích Thời khi gặp điểm dừng.
+  - Chưa chọn danh tính (S1, D32): vắng mặt không sinh Tích Thời.
+  - **Chết khi vắng mặt** `[ĐÃ DUYỆT D34 – 2026-10-25]`: giữ offline ≡ online. Cảnh báo 10/5/1 năm là điểm dừng nên vắng mặt luôn dừng trước đó; chỉ chết khi vắng mặt nếu người chơi đã tự bấm qua cảnh báo 1 năm. Phần thời gian còn lại vẫn vào Tích Thời nhưng không dùng được sau khi chết.
 - **Tương tác:** S1 (bước tick, tab ẩn, máy ngủ), S6 (điểm dừng), lưu game.
 - **Tiêu chí kiểm thử:**
   - Offline N giờ ≡ online N giờ với cùng seed và không có tương tác.
@@ -238,6 +247,7 @@
   - Thời gian âm → không làm gì.
   - Máy ngủ 9 giờ mà clock khung hình đứng yên → chỉ 8 giờ được xử lý (D28).
   - Tab ẩn gặp điểm dừng → Tích Thời không tăng (D27).
+  - Vắng mặt khi chưa chọn danh tính → Tích Thời không tăng (D32).
   - 8 giờ (57 600 tick) mô phỏng dưới 1 giây trên máy tầm trung.
 
 ## S14. Lưu game

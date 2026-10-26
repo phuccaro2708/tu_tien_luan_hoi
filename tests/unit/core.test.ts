@@ -8,13 +8,10 @@ import {
 } from '../../src/core/clock'
 import { hashState } from '../../src/core/hash'
 import { nextFloat, seedRng } from '../../src/core/rng'
-import {
-  ageYears,
-  createInitialState,
-  validateState,
-} from '../../src/core/state'
+import { createInitialState, validateState } from '../../src/core/state'
 import { content } from '../../src/data/content'
 import { createContent, validateContent } from '../../src/data/registry'
+import { ageYears } from '../../src/systems/lifespan'
 import { fixture, rawFixture } from '../fixtures/content'
 
 const opts = {
@@ -228,7 +225,7 @@ describe('GameState', () => {
 
 describe('ContentRegistry', () => {
   it('shipped content and fixture are valid', () => {
-    expect(content.resources.tinhLuc.max).toBe(100)
+    expect(content.resources.tinhLuc.max).toBe(140)
     expect(validateContent(rawFixture)).toEqual([])
   })
 
@@ -269,5 +266,139 @@ describe('ContentRegistry', () => {
 
   it('content is frozen', () => {
     expect(Object.isFrozen(fixture.actions)).toBe(true)
+    expect(Object.isFrozen(fixture.xpTable)).toBe(true)
+    expect(Object.isFrozen(fixture.origins.tieuPhu.skills)).toBe(true)
+  })
+
+  it.each<[string, Partial<typeof rawFixture>]>([
+    [
+      'unknown skill in condition',
+      {
+        actions: [
+          {
+            id: 'a',
+            name: 'a',
+            requires: [{ type: 'skillAtLeast', skill: 'bay', level: 1 }],
+            effects: [],
+            once: false,
+          },
+        ],
+      },
+    ],
+    [
+      'skill level above max',
+      {
+        actions: [
+          {
+            id: 'a',
+            name: 'a',
+            requires: [{ type: 'skillAtLeast', skill: 'vanTu', level: 51 }],
+            effects: [],
+            once: false,
+          },
+        ],
+      },
+    ],
+    [
+      'negative XP effect',
+      {
+        actions: [
+          {
+            id: 'a',
+            name: 'a',
+            requires: [],
+            effects: [{ type: 'addSkillXp', skill: 'vanTu', amount: -1 }],
+            once: false,
+          },
+        ],
+      },
+    ],
+    [
+      'duplicate skill',
+      { skills: [...rawFixture.skills, { id: 'vanTu', name: 'x', ngo: true }] },
+    ],
+    [
+      'lifespan skill unknown',
+      { lifespan: { ...rawFixture.lifespan, skill: 'bay' } },
+    ],
+    [
+      'linh căn with more elements than exist',
+      { linhCan: [{ id: 'x', name: 'x', elements: 6, weightLife1: 1 }] },
+    ],
+    [
+      'all life-1 weights zero',
+      { linhCan: [{ id: 'x', name: 'x', elements: 3, weightLife1: 0 }] },
+    ],
+    ['ngộ min > max', { ngoTinh: { min: 1.2, max: 1 } }],
+    [
+      'origin gives unknown skill',
+      { origins: [{ id: 'o', name: 'o', resources: {}, skills: { bay: 1 } }] },
+    ],
+    [
+      'origin gives unknown resource',
+      { origins: [{ id: 'o', name: 'o', resources: { gold: 1 }, skills: {} }] },
+    ],
+    ['no origins', { origins: [] }],
+    [
+      'trait XP factor 0',
+      {
+        traits: [
+          { id: 't', name: 't', tiers: [{ xp: { vanTu: 0 }, lifespan: 0 }] },
+        ],
+      },
+    ],
+    ['trait without tiers', { traits: [{ id: 't', name: 't', tiers: [] }] }],
+    [
+      'name length 0',
+      { identity: { ...rawFixture.identity, nameMaxLength: 0 } },
+    ],
+    [
+      'name length 1.5',
+      { identity: { ...rawFixture.identity, nameMaxLength: 1.5 } },
+    ],
+    ['no genders', { identity: { nameMaxLength: 16, genders: [] } }],
+    [
+      'duplicate gender',
+      {
+        identity: {
+          nameMaxLength: 16,
+          genders: [
+            { id: 'nam', name: 'Nam' },
+            { id: 'nam', name: 'Nam' },
+          ],
+        },
+      },
+    ],
+    [
+      'stamina resource unknown',
+      { stamina: { ...rawFixture.stamina, resource: 'x' } },
+    ],
+    [
+      'stamina skill unknown',
+      { stamina: { ...rawFixture.stamina, skill: 'x' } },
+    ],
+    [
+      'stamina aging 0.8 (must be a percent)',
+      { stamina: { ...rawFixture.stamina, agingFromPercent: 0.8 } },
+    ],
+    ['stamina negative base', { stamina: { ...rawFixture.stamina, base: -1 } }],
+    [
+      'stamina can exceed the resource cap',
+      { stamina: { ...rawFixture.stamina, maxSkillBonus: 31 } },
+    ],
+    [
+      'trait stamina NaN',
+      {
+        traits: [
+          {
+            id: 't',
+            name: 't',
+            tiers: [{ xp: {}, lifespan: 0, stamina: NaN }],
+          },
+        ],
+      },
+    ],
+  ])('rejects content: %s', (_name, patch) => {
+    expect(validateContent({ ...rawFixture, ...patch })).not.toEqual([])
   })
 })

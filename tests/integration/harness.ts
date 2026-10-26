@@ -1,8 +1,8 @@
 // Harness headless: chạy engine thật với seed + nhật ký lệnh, không React.
 import { advanceClock, createClock, type Speed } from '../../src/core/clock'
 import { applyCommand, runTicks, step } from '../../src/core/engine'
-import { createInitialState } from '../../src/core/state'
 import type { Command, Content, GameState } from '../../src/types/game'
+import { startGame } from '../fixtures/content'
 
 export interface ScriptEntry {
   day: number
@@ -33,7 +33,7 @@ export function runScript(
   seed: number,
   script: readonly ScriptEntry[],
   totalDays: number,
-  initial: GameState = createInitialState(content, seed),
+  initial: GameState = startGame(content, seed),
 ): GameState {
   let s = initial
   let pending = script.filter((e) => e.day >= s.day)
@@ -71,7 +71,7 @@ export function runRealtime(
     maxTicksPerFrame: number
   },
 ): GameState {
-  let s = createInitialState(content, seed)
+  let s = startGame(content, seed)
   let appliedDay = -1
   const due = () => {
     if (s.day === appliedDay) return

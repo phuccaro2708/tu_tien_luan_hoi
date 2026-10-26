@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { applyCommand, runTicks } from '../../src/core/engine'
-import { createInitialState } from '../../src/core/state'
 import { checkAction } from '../../src/systems/actions'
 import { evaluateCondition, firstUnmet } from '../../src/systems/conditions'
 import { resolveEffects } from '../../src/systems/effects'
 import { applyResourceDeltas } from '../../src/systems/resources'
 import type { GameState } from '../../src/types/game'
-import { fixture } from '../fixtures/content'
+import { fixture, startGame } from '../fixtures/content'
 
 const fresh = (patch: Partial<GameState> = {}): GameState => ({
-  ...createInitialState(fixture, 1),
+  ...startGame(fixture, 1),
   ...patch,
 })
 const withAction = (s: GameState, id: string): GameState => {
@@ -41,7 +40,7 @@ describe('ResourceSystem invariants', () => {
     })
     expect(r).toEqual({
       ok: true,
-      value: { van: 1_000_000, tinhLuc: 100, jar: 0 },
+      value: { van: 1_000_000, tinhLuc: 140, jar: 0 },
     })
   })
 
@@ -74,33 +73,33 @@ describe('ConditionEvaluator', () => {
       flags: { a: true },
     })
     expect(
-      evaluateCondition(s, {
+      evaluateCondition(s, fixture, {
         type: 'resourceAtLeast',
         resource: 'van',
         amount: 5,
       }),
     ).toBe(true)
     expect(
-      evaluateCondition(s, {
+      evaluateCondition(s, fixture, {
         type: 'resourceAtLeast',
         resource: 'van',
         amount: 5.01,
       }),
     ).toBe(false)
-    expect(evaluateCondition(s, { type: 'flag', flag: 'a', value: true })).toBe(
-      true,
-    )
     expect(
-      evaluateCondition(s, { type: 'flag', flag: 'b', value: false }),
+      evaluateCondition(s, fixture, { type: 'flag', flag: 'a', value: true }),
+    ).toBe(true)
+    expect(
+      evaluateCondition(s, fixture, { type: 'flag', flag: 'b', value: false }),
     ).toBe(true)
   })
 
   it('reports the first unmet condition', () => {
     const conds = fixture.actions.study.requires
-    expect(firstUnmet(fresh(), conds)).toEqual(conds[0])
-    expect(firstUnmet(fresh({ flags: { canStudy: true } }), conds)).toEqual(
-      conds[1],
-    )
+    expect(firstUnmet(fresh(), fixture, conds)).toEqual(conds[0])
+    expect(
+      firstUnmet(fresh({ flags: { canStudy: true } }), fixture, conds),
+    ).toEqual(conds[1])
   })
 })
 

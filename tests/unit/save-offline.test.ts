@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { MAX_AWAY_MS, MAX_AWAY_TICKS, TICK_MS } from '../../src/core/clock'
 import { applyCommand, runTicks } from '../../src/core/engine'
 import { hashState } from '../../src/core/hash'
-import { createInitialState } from '../../src/core/state'
 import {
   awayTicks,
   simulateAway,
@@ -11,14 +10,17 @@ import {
 import type { GameState } from '../../src/types/game'
 import {
   parseSave,
+  bootSave,
   readSave,
   SAVE_BACKUP_KEY,
   SAVE_KEY,
+  SAVE_QUARANTINE_PREFIX,
+  SAVE_VERSION,
   serializeSave,
   writeSave,
   type SaveStorage,
 } from '../../src/utils/save'
-import { fixture } from '../fixtures/content'
+import { fixture, startGame } from '../fixtures/content'
 
 const HOUR = 3_600_000
 
@@ -34,7 +36,7 @@ function memoryStorage(): SaveStorage & { data: Map<string, string> } {
 
 function spending(van: number): GameState {
   const s = {
-    ...createInitialState(fixture, 9),
+    ...startGame(fixture, 9),
     resources: { van, tinhLuc: 100, jar: 0 },
   }
   const r = applyCommand(s, fixture, { type: 'setAction', actionId: 'spend' })
@@ -55,12 +57,17 @@ describe('SaveManager', () => {
   })
 
   it('B09: speed is saved; missing or unknown speed loads as 1×', () => {
-    const s = createInitialState(fixture, 1)
+    const s = startGame(fixture, 1)
     const text = serializeSave(s, fixture, 0, 5)
     const back = text.ok && parseSave(text.value, fixture)
     expect(back && back.ok && back.value.speed).toBe(5)
     for (const speed of [undefined, 4, '5', null]) {
-      const old = JSON.stringify({ version: 1, savedAt: 0, speed, state: s })
+      const old = JSON.stringify({
+        version: SAVE_VERSION,
+        savedAt: 0,
+        speed,
+        state: s,
+      })
       const r = parseSave(old, fixture)
       expect(r.ok && r.value.speed).toBe(1)
     }
@@ -68,7 +75,7 @@ describe('SaveManager', () => {
 
   it('refuses to serialize an invalid state (NaN would become null)', () => {
     const s = {
-      ...createInitialState(fixture, 1),
+      ...startGame(fixture, 1),
       resources: { van: NaN, tinhLuc: 100, jar: 0 },
     }
     expect(serializeSave(s, fixture, 0).ok).toBe(false)
@@ -82,17 +89,17 @@ describe('SaveManager', () => {
       JSON.stringify({
         version: 99,
         savedAt: 0,
-        state: createInitialState(fixture, 1),
+        state: startGame(fixture, 1),
       }),
     ],
-    ['missing state', JSON.stringify({ version: 1, savedAt: 0 })],
+    ['missing state', JSON.stringify({ version: SAVE_VERSION, savedAt: 0 })],
     [
       'negative resource',
       JSON.stringify({
-        version: 1,
+        version: SAVE_VERSION,
         savedAt: 0,
         state: {
-          ...createInitialState(fixture, 1),
+          ...startGame(fixture, 1),
           resources: { van: -5, tinhLuc: 0, jar: 0 },
         },
       }),
@@ -100,10 +107,10 @@ describe('SaveManager', () => {
     [
       'null resource (NaN)',
       JSON.stringify({
-        version: 1,
+        version: SAVE_VERSION,
         savedAt: 0,
         state: {
-          ...createInitialState(fixture, 1),
+          ...startGame(fixture, 1),
           resources: { van: null, tinhLuc: 0, jar: 0 },
         },
       }),
@@ -111,9 +118,9 @@ describe('SaveManager', () => {
     [
       'bad savedAt',
       JSON.stringify({
-        version: 1,
+        version: SAVE_VERSION,
         savedAt: 'x',
-        state: createInitialState(fixture, 1),
+        state: startGame(fixture, 1),
       }),
     ],
   ])('rejects corrupted save: %s', (_, text) => {
@@ -122,7 +129,7 @@ describe('SaveManager', () => {
 
   it('corrupted main save falls back to backup; a good save is never overwritten by a bad one', () => {
     const storage = memoryStorage()
-    const a = createInitialState(fixture, 1)
+    const a = startGame(fixture, 1)
     const b = { ...a, day: 50 }
     expect(writeSave(storage, a, fixture, 1).ok).toBe(true)
     expect(writeSave(storage, b, fixture, 2).ok).toBe(true)
@@ -146,7 +153,7 @@ describe('SaveManager', () => {
 
   it('storage quota error leaves the existing save intact', () => {
     const storage = memoryStorage()
-    const a = createInitialState(fixture, 1)
+    const a = startGame(fixture, 1)
     writeSave(storage, a, fixture, 1)
     const before = storage.data.get(SAVE_KEY)
     const throwing: SaveStorage = {
@@ -159,8 +166,50 @@ describe('SaveManager', () => {
     expect(storage.data.get(SAVE_KEY)).toBe(before)
   })
 
+  // QA-01: save v1 hỏng từng được nhận là hợp lệ, rồi lần ghi kế tiếp đè mất backup tốt.
+  it.each([
+    ['without rng', {}],
+    ['with an rng that throws on conversion', { rng: { toString: null } }],
+  ])(
+    'a corrupt v1 primary (%s) is quarantined and the good backup survives the next autosave',
+    (_name, patch) => {
+      const storage = memoryStorage()
+      const good = { ...startGame(fixture, 5), day: 123 }
+      const goodText = serializeSave(good, fixture, 1)
+      if (!goodText.ok) throw new Error(goodText.error)
+      const corrupt = JSON.stringify({
+        version: 1,
+        savedAt: 1,
+        state: {
+          seed: 1,
+          day: 0,
+          tichThoiTicks: 0,
+          resources: { van: 0, tinhLuc: 100, jar: 0 },
+          flags: {},
+          claimed: {},
+          currentActionId: null,
+          stop: null,
+          ...patch,
+        },
+      })
+      storage.data.set(SAVE_KEY, corrupt)
+      storage.data.set(SAVE_BACKUP_KEY, goodText.value)
+
+      const boot = bootSave(storage, fixture, 1)
+      expect(boot.canWrite).toBe(true)
+      expect(boot.state).toEqual(good)
+      expect(writeSave(storage, boot.state!, fixture, 2).ok).toBe(true)
+      expect(storage.data.get(SAVE_BACKUP_KEY)).toBe(goodText.value)
+      expect(
+        [...storage.data].some(
+          ([k, v]) => k.startsWith(SAVE_QUARANTINE_PREFIX) && v === corrupt,
+        ),
+      ).toBe(true)
+    },
+  )
+
   it('no-duplicate reward survives save/load', () => {
-    const s0 = applyCommand(createInitialState(fixture, 1), fixture, {
+    const s0 = applyCommand(startGame(fixture, 1), fixture, {
       type: 'setAction',
       actionId: 'treasure',
     })
