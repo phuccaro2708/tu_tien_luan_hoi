@@ -29,7 +29,7 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-qa-f
   - (5) ESLint chặn React trong engine → `engine.test.ts` "architecture guard"
   - (6) 10 000 tick < 1 giây → "harness runs 10 000 ticks…"
   - Đã merge vào `main` (PR #1) sau 3 vòng `/code-review` và audit N01–N09 (`docs/reports/phase/2026-10-24-*.md`).
-- **Known issues:** R03 (thứ tự hành động → ngày) còn mở, chờ P1b.
+- **Known issues:** R03: thứ tự đã theo pipeline (ngày +1 → hành động) từ bản sửa QA-02; còn mở việc tick bị chặn có trôi ngày không, chờ P1b.
 - **Next recommended module:** P1a.
 
 ## P1a – Nhân vật kiếp 1, kỹ năng, thọ nguyên (S1 phần thọ nguyên + khởi tạo kiếp 1, S3)
@@ -71,7 +71,7 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-qa-f
 - **Dependencies:** D23 (đã duyệt 2026-10-25); P1a.
 - **Files:** —
 - **Tests:** —
-- **Known issues:** R03 sẽ được quyết định cùng phần này.
+- **Known issues:** Phần còn mở của R03 (tick bị chặn có trôi ngày không) sẽ được quyết định cùng phần này.
 - **Next recommended module:** P2.
 
 ## P2 – Thế giới, tri thức, sự kiện
