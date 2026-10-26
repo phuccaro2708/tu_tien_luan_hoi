@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import { SPEEDS, TICK_MS } from './core/clock'
 import { checkAction } from './systems/actions'
 import { ageYears } from './systems/lifespan'
+import { staminaMax } from './systems/stamina'
 import { content } from './data/content'
 import { useGameLoop } from './hooks/useGameLoop'
 import { useGameStore } from './stores/gameStore'
@@ -86,45 +87,66 @@ function App() {
         <section aria-label="Sinh kế">
           <p>
             Văn {Math.floor(game.resources.van)} · Nợ{' '}
-            {Math.ceil(game.resources.no)}
+            {Math.ceil(game.resources.no)} · Tinh lực{' '}
+            {Math.floor(game.resources[content.stamina.resource] ?? 0)}/
+            {Math.floor(staminaMax(game, content))}
             {game.hungry && ' · Đói'}
             {game.resting && ' · Đang nghỉ'}
           </p>
           <div>
-            {Object.values(content.actions).map((a) => (
-              <button
-                key={a.id}
-                aria-pressed={a.id === game.currentActionId}
-                disabled={!checkAction(game, content, a.id).ok}
-                onClick={() =>
-                  dispatch(
-                    { type: 'setAction', actionId: a.id },
-                    performance.now(),
-                  )
-                }
-              >
-                {a.name}
-              </button>
-            ))}
+            {Object.values(content.actions).map((a) => {
+              const check = checkAction(game, content, a.id)
+              return (
+                <button
+                  key={a.id}
+                  aria-pressed={a.id === game.currentActionId}
+                  disabled={!check.ok}
+                  title={
+                    check.ok ? undefined : `Chưa chọn được: ${check.error}`
+                  }
+                  onClick={() =>
+                    dispatch(
+                      { type: 'setAction', actionId: a.id },
+                      performance.now(),
+                    )
+                  }
+                >
+                  {a.name}
+                </button>
+              )
+            })}
           </div>
           {game.resources.no > 0 && (
-            <button
-              disabled={game.resources.van < 1}
-              onClick={() =>
-                dispatch(
-                  {
-                    type: 'repayDebt',
-                    amount: Math.min(
-                      Math.floor(game.resources.van),
-                      game.resources.no,
-                    ),
-                  },
-                  performance.now(),
+            <div>
+              {[
+                { label: 'Trả hết', keep: 0, share: 1 },
+                {
+                  label: `Trả, giữ ${content.economy.livingCost * 5} văn`,
+                  keep: content.economy.livingCost * 5,
+                  share: 1,
+                },
+                { label: 'Trả 50%', keep: 0, share: 0.5 },
+              ].map(({ label, keep, share }) => {
+                const amount = Math.min(
+                  Math.floor((game.resources.van - keep) * share),
+                  game.resources.no,
                 )
-              }
-            >
-              Trả nợ
-            </button>
+                return (
+                  <button
+                    key={label}
+                    disabled={amount < 1}
+                    title={
+                      amount < 1 ? 'Chưa đủ văn để trả mức này' : undefined
+                    }
+                    onClick={() =>
+                      dispatch({ type: 'repayDebt', amount }, performance.now())
+                    }
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
           )}
         </section>
       )}

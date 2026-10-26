@@ -78,7 +78,7 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-revi
 - **Known issues:**
   - Chưa có tự làm thuê khi hết tiền (không hành động P1b nào cần tiền để chạy); thêm cùng Học chữ/Luyện quyền.
   - Chưa có địa điểm (S5): chỉ sinh hoạt phí làng; trấn và validator "mọi khu dân cư" mở rộng ở P2.
-  - Chưa smoke test trình duyệt khối Sinh kế.
+  - Smoke test trình duyệt do Antigravity (11/11 đạt, `docs/reports/qa/2026-10-25-p1b-economy.md`). Đã xử lý UX-P1b-01..03: hiện Tinh lực, tooltip nút khóa, 3 mức trả nợ (hết / giữ 40 văn / 50%).
   - Rìu là cờ stub `coRiu`; lương khô và giỏ thuốc chờ S10 (P5).
 - **Next recommended module:** P2.
 

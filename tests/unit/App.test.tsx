@@ -76,4 +76,28 @@ describe('App shell', () => {
     expect(html).toContain('Còn 5 năm thọ nguyên.')
     expect(html).not.toContain('lifespanWarning')
   })
+
+  // QA UX-P1b-01..03: hiện Tinh lực, giải thích nút bị khóa, chọn mức trả nợ.
+  it('shows stamina, explains disabled actions and offers debt presets', async () => {
+    let s = createInitialState(content, 1)
+    // Chọn kiếp không có rìu để nút Đốn củi bị khóa.
+    for (let seed = 1; s.character.originId === 'tieuPhu'; seed++)
+      s = createInitialState(content, seed)
+    const named = applyCommand(s, content, {
+      type: 'setIdentity',
+      name: 'Thử',
+      gender: 'nam',
+    })
+    if (!named.ok) throw new Error(named.error)
+    const storage = memory()
+    writeSave(storage, named.value, content, Date.now())
+    const html = await render({}, storage)
+    expect(html).toMatch(/Tinh lực \d+\/\d+/)
+    expect(html).toContain('Chưa chọn được: requires')
+    expect(html).toContain('Trả hết')
+    expect(html).toContain('Trả, giữ 40 văn')
+    expect(html).toContain('Trả 50%')
+    // Tay trắng (0 văn): mọi mức trả đều khóa và nói lý do.
+    expect(html).toContain('Chưa đủ văn để trả mức này')
+  })
 })
