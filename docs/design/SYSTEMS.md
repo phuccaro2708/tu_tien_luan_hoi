@@ -13,7 +13,7 @@
 | Hệ                | Cần không?         | Lý do                                                                                   | Phạm vi                                                                       |
 | ----------------- | ------------------ | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Actions & Jobs    | **Bắt buộc**       | Là core loop: cách người chơi tiêu thời gian                                            | MVP đầy đủ                                                                    |
-| Exploration       | **Cần**            | Đưa cơ duyên vào không gian; gắn tri thức với nơi chốn                                  | MVP: bản đồ 7 địa điểm (5 + 2 điểm con nếu D24 được duyệt), tiến độ thám hiểm |
+| Exploration       | **Cần**            | Đưa cơ duyên vào không gian; gắn tri thức với nơi chốn                                  | MVP: bản đồ 7 địa điểm (5 + 3 điểm con nếu D24 được duyệt), tiến độ thám hiểm |
 | Combat            | Cần, tối giản      | Rủi ro của thám hiểm, giải quyết xung đột cốt truyện; không phải trọng tâm              | MVP: tự động, có chiến thuật; Post-MVP: pháp thuật sâu hơn                    |
 | Equipment         | Tối giản           | Công cụ nghề có ý nghĩa; pháp khí là mốc cảm xúc; loot ngẫu nhiên sẽ kéo game sang ARPG | MVP: 2 ô, 7 vật phẩm cố định; Post-MVP: pháp bảo, luyện hóa                   |
 | Alchemy           | Chưa               | Hệ crafting riêng đủ lớn để thành một game con; MVP chỉ cần đan dược để mua/nhận        | Post-MVP (Thảo Dược đã chuẩn bị chỗ móc vào)                                  |
@@ -44,7 +44,7 @@
     - Nếu clock khung hình vẫn chạy khi máy ngủ, thời gian đó là online như tab ẩn.
     - Hệ quả đã chấp nhận: chỉnh đồng hồ hệ thống tiến lên khi đang chơi cũng chỉ được tối đa 8 giờ, như khi đóng tab.
   - Tốc độ là tùy chọn giao diện: lưu cùng save nhưng nằm ngoài `GameState`, không ảnh hưởng replay. **Engine không bao giờ đọc tốc độ.**
-  - **Chính sách sự kiện nhỏ** `[CẦN DUYỆT D21]` (sửa F04): `GameState.chinhSachSuKienNho ∈ { hoi, tuDong }`, chỉ đổi bằng lệnh `datChinhSachSuKienNho`; lệnh này được ghi vào nhật ký lệnh như mọi lệnh khác. `hoi`: sự kiện nhỏ tạm dừng và hỏi. `tuDong`: lấy `macDinhAnToan` và ghi vào Nhật ký. UI có tùy chọn "tự xử lý sự kiện nhỏ khi tua ≥ 3×"; khi người chơi đổi tốc độ, UI gửi lệnh tương ứng **tại tick hiện tại**, nên replay chỉ cần nhật ký lệnh.
+  - **Chính sách sự kiện nhỏ** `[CẦN DUYỆT D21]` (sửa F04): `GameState.chinhSachSuKienNho ∈ { hoi, tuDong }`, giá trị ban đầu `hoi`, chỉ đổi bằng lệnh `datChinhSachSuKienNho` (ghi vào nhật ký lệnh, nhận cả khi `stop` đang mở, hiệu lực từ tick kế tiếp). `hoi`: sự kiện nhỏ tạm dừng và hỏi. `tuDong`: lấy `macDinhAnToan` và ghi vào Nhật ký. Sự kiện nhỏ đang chờ mà đổi sang `tuDong` thì được giải ngay bằng `macDinhAnToan`. Offline và Tích Thời dùng đúng giá trị đang lưu (offline ≡ online, D34). UI có tùy chọn "tự xử lý sự kiện nhỏ khi tua ≥ 3×"; khi người chơi đổi tốc độ, UI gửi lệnh tương ứng **tại tick hiện tại**, nên replay chỉ cần nhật ký lệnh. Thêm trường vào `GameState` nên tăng version save (v2 → v3). Chi tiết: `docs/technical/EVENT_SCHEMA.md` §4.
   - **Game mới:** sinh seed, rồi tung kiếp 1 theo `PROGRESSION.md` §3 (linh căn, ngộ tính, xuất thân, thiên phú bẩm sinh) `[ĐÃ DUYỆT D04]`.
   - **Tên và giới tính** `[ĐÃ DUYỆT D32 – 2026-10-25]` (chi tiết D05):
     - Game mới (và save cũ chưa có danh tính) dừng ở điểm dừng `chooseIdentity`; thời gian không chạy cho tới khi người chơi chọn.
@@ -98,7 +98,7 @@
 - **Điều kiện:** mọi hành động, địa điểm, văn bản, trường giao diện có thể khai báo `yeuCauTriThuc`. Văn bản có thể có biến thể "góc nhìn phàm nhân".
 - **Tương tác:** gần như mọi hệ đọc S4; S6 và S12 ghi vào S4. **Nhật ký** là giao diện của S4 (manh mối đang theo, điều đã biết).
 - **Tiêu chí kiểm thử:**
-  - Snapshot giao diện ở state ban đầu không chứa từ khóa bị khóa (linh khí, linh căn, tu vi, Luyện Khí, linh thạch).
+  - Snapshot giao diện ở state ban đầu không chứa từ khóa bị khóa (linh khí, linh căn, tu vi, Luyện Khí, linh thạch, cảnh giới, Trúc Cơ; danh sách đầy đủ ở `EVENT_SCHEMA.md` §9).
   - **Kiểm thử khả đạt** `[CẦN DUYỆT D19]` (sửa F03): mỗi mốc then chốt dưới đây có ≥ 2 nguồn trong dữ liệu, trong đó **≥ 1 nguồn không phụ thuộc cờ thế giới hay NPC còn sống**. Chạy cho ba cấu hình: kiếp 1; kiếp 2 xấu nhất (mọi cờ tùy chọn tắt, mọi NPC có thể chết đều đã chết, không giữ ký ức); kiếp 3 xấu nhất (năm thế giới ~200: mọi NPC gốc kể cả Đỗ đã mất, kiếp 2 chết sớm bằng Tự vẫn). Từ kiếp 3 trở đi không còn NPC gốc nào nên cấu hình kiếp 3 đại diện cho mọi kiếp sau.
 
     | Mốc                    | Nguồn không phụ thuộc cờ                           | Nguồn khác                                                            |
@@ -117,7 +117,7 @@
 
 - **Mục đích:** gắn cơ duyên với không gian; tạo lựa chọn "ở đâu" (mật độ linh khí, chi phí, rủi ro, sự kiện).
 - **Input:** địa điểm hiện tại, tri thức đường đi, hành động Đi đường / Thám hiểm.
-- **Output:** đổi địa điểm sau số ngày đi đường; tiến độ thám hiểm 0–100% mỗi nơi; mở điểm con (hang Lục, mỏ linh thạch, chỗ Diên Thọ Quả); bảng sự kiện theo nơi.
+- **Output:** đổi địa điểm sau số ngày đi đường; tiến độ thám hiểm 0–100% mỗi nơi; mở điểm con `[CẦN DUYỆT D24]` (đúng 3: hang Lục, mỏ linh thạch, chỗ Diên Thọ Quả; Hắc Phong trại và Động phủ Lục chỉ là cảnh trong chuỗi, không phải địa điểm); bảng sự kiện theo nơi.
 - **Điều kiện:** đi đường tốn ngày và sinh hoạt phí, có thể gặp sự kiện đường. Mỗi điểm con mở ở một mốc thám hiểm và/hoặc tri thức. Sinh hoạt phí theo nơi (BALANCE §3). Thám hiểm: **+1% tiến độ mỗi ngày làm việc** (ngày nghỉ không tính) `[CẦN DUYỆT D25]`.
 - **Tương tác:** S1, S2, S6, S8 (chạm trán), S9 (D), S4.
 - **Tiêu chí kiểm thử:**
@@ -130,7 +130,7 @@
 - **Mục đích:** nơi lựa chọn và câu chuyện xảy ra; nối hành động với hậu quả.
 - **Input:** state hiện tại; RNG có seed; bảng sự kiện dữ liệu.
 - **Output:** sự kiện được kích hoạt (tạm dừng nếu là sự kiện lớn); lựa chọn; hệ quả (tài nguyên, cờ, tri thức, thiện cảm, chiến đấu, đổi địa điểm, thọ nguyên).
-- **Điều kiện:** sự kiện nhỏ xử lý theo `chinhSachSuKienNho` (S1); lựa chọn tự động được ghi vào Nhật ký kèm tên lựa chọn. Mỗi sự kiện khai báo: `trigger` (địa điểm, hành động, khoảng tuổi, ngày cố định, cờ, kỹ năng, thiện cảm, tri thức), `trongSo`, `hoiChieu`, `motLan`, `quanTrong` (lớn/nhỏ), `luaChon[]` (yêu cầu, hệ quả, `macDinhAnToan`). Mỗi tick: lọc sự kiện hợp lệ → xác suất kích hoạt theo hành động (VD Thám hiểm 4%/ngày, Đốn củi 1%/ngày) → chọn theo trọng số. Sự kiện cố định theo lịch (hội tuyển) bỏ qua xác suất.
+- **Điều kiện:** sự kiện nhỏ xử lý theo `chinhSachSuKienNho` (S1); lựa chọn tự động được ghi vào Nhật ký kèm tên lựa chọn. Mỗi sự kiện khai báo: `trigger` (địa điểm, hành động, khoảng tuổi, `lich {tuoi, ngayTrongNam}` cho sự kiện cố định, cờ, kỹ năng, thiện cảm, tri thức; định nghĩa kiểu: `docs/technical/EVENT_SCHEMA.md`), `trongSo`, `hoiChieu`, `motLan`, `quanTrong` (lớn/nhỏ), `luaChon[]` (yêu cầu, hệ quả, `macDinhAnToan`). Mỗi tick: lọc sự kiện hợp lệ → xác suất kích hoạt theo hành động (VD Thám hiểm 4%/ngày, Đốn củi 1%/ngày) → chọn theo trọng số. Sự kiện cố định theo lịch (hội tuyển) bỏ qua xác suất.
 - **Tương tác:** đọc mọi hệ; ghi vào S2–S12.
 - **Tiêu chí kiểm thử:**
   - Cùng seed + cùng chuỗi lựa chọn → cùng chuỗi sự kiện.

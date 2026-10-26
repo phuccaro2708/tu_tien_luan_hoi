@@ -23,15 +23,15 @@ Các quy luật dưới đây là "hiến pháp" của thế giới. Mọi sự 
 
 **Vạn Hà Giới** › **Tề Quốc** (vương quốc phàm nhân) › **quận Lạc Thủy**, thuộc vùng bảo hộ của **Thanh Vân Môn** (môn phái nhỏ, do các Trúc Cơ quản lý, một lão tổ Kết Đan bế quan).
 
-| Địa điểm                  | D   | Đặc trưng                                                                                | Mở khi                                                                          |
-| ------------------------- | --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Làng Thạch Khê            | 0.2 | Nhà, miếu Thổ Địa (Tàn Bia), lớp học Tô tiên sinh, hiệu thuốc Mộc bá                     | Khởi đầu                                                                        |
-| Rừng Thanh Mộc            | 0.4 | Đốn củi sâu, hái thuốc, sói, hang Lục                                                    | Khởi đầu (bìa rừng); vào sâu cần Thể Phách 10 hoặc sự kiện                      |
-| Trấn Lạc Thủy             | 0.2 | Quán trà, bến sông, võ quán, chợ, **Thư xá** (lớp chữ luôn mở), hội tuyển đệ tử, chợ đêm | Khởi đầu (đi 2 ngày)                                                            |
-| Hắc Thạch Cốc             | 1.0 | Mạch linh khí yếu, linh thạch vụn, linh thảo, Thiết Bối Lang, hài cốt Lý Viễn            | Tri thức "Đường tới Hắc Thạch Cốc" (Mộc bá / bút ký Lý Viễn / ký ức kiếp trước) |
-| Thanh Vân Môn – ngoại môn | 1.5 | Tạp dịch, Tàng Kinh Các, cửa hàng cống hiến                                              | Được nhận làm tạp dịch hoặc đệ tử                                               |
-| Hắc Phong trại            | 0.3 | Sào huyệt thổ phỉ trong núi                                                              | Chuỗi Hắc Phong                                                                 |
-| Động phủ Lục Thanh Phong  | 0.8 | Có từ kiếp 2 nếu cờ "Lục để lại động phủ"                                                | Ký ức địa điểm hoặc thư của Lục                                                 |
+| Địa điểm                              | D   | Đặc trưng                                                                                                      | Mở khi                                                                          |
+| ------------------------------------- | --- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Làng Thạch Khê                        | 0.2 | Nhà, miếu Thổ Địa (Tàn Bia), lớp học Tô tiên sinh, hiệu thuốc Mộc bá                                           | Khởi đầu                                                                        |
+| Rừng Thanh Mộc                        | 0.4 | Đốn củi sâu, hái thuốc, sói, hang Lục                                                                          | Khởi đầu (bìa rừng); vào sâu cần Thể Phách 10 hoặc sự kiện                      |
+| Trấn Lạc Thủy                         | 0.2 | Quán trà, bến sông, võ quán, chợ, **Thư xá** (lớp chữ luôn mở), hội tuyển đệ tử, chợ đêm                       | Khởi đầu (đi 2 ngày)                                                            |
+| Hắc Thạch Cốc                         | 1.0 | Mạch linh khí yếu, linh thạch vụn, linh thảo, Thiết Bối Lang, hài cốt Lý Viễn                                  | Tri thức "Đường tới Hắc Thạch Cốc" (Mộc bá / bút ký Lý Viễn / ký ức kiếp trước) |
+| Thanh Vân Môn – ngoại môn             | 1.5 | Tạp dịch, Tàng Kinh Các, cửa hàng cống hiến                                                                    | Được nhận làm tạp dịch hoặc đệ tử                                               |
+| Hắc Phong trại (cảnh chuỗi)           | 0.3 | Sào huyệt thổ phỉ trong núi; không phải địa điểm trên bản đồ nếu D24 được duyệt `[CHỜ XÁC NHẬN]`               | Chuỗi Hắc Phong                                                                 |
+| Động phủ Lục Thanh Phong (cảnh chuỗi) | 0.8 | Có từ kiếp 2 nếu cờ "Lục để lại động phủ"; không phải địa điểm trên bản đồ nếu D24 được duyệt `[CHỜ XÁC NHẬN]` | Ký ức địa điểm hoặc thư của Lục                                                 |
 
 Thời gian đi lại: Làng↔Rừng 1 ngày · Làng↔Trấn 2 · Rừng↔Hắc Thạch Cốc 3 · Trấn↔Thanh Vân Môn 5 · Rừng↔Hắc Phong trại 2.
 

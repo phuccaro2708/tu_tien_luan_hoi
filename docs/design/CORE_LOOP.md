@@ -109,7 +109,7 @@ Nguyên tắc: **không có cơ chế thưởng cho việc click**. Chơi chủ 
 
 - Điểm dừng vẫn tạm dừng ở mọi tốc độ; sau điểm dừng, tốc độ giữ nguyên mức đã chọn.
 - Cách xử lý sự kiện nhỏ là trường `chinhSachSuKienNho` trong state, chỉ đổi bằng lệnh có ghi log, không suy ra từ tốc độ `[CẦN DUYỆT D21]`. Mặc định UI: khi người chơi chuyển lên 3×/5×, UI gửi lệnh `tuDong`; khi về 1×/2×, gửi lệnh `hoi`. Người chơi có thể tắt hành vi tự động này. Engine không đọc tốc độ, nên replay chỉ cần seed + nhật ký lệnh (SYSTEMS S1).
-- Khi đứng lại ở điểm dừng sau khi chạy 3×/5×, hiện bản tóm tắt "trong năm qua" để người chơi không bỏ lỡ diễn biến.
+- Khi đứng lại ở điểm dừng sau khi chạy 3×/5×, hiện bản tóm tắt "trong năm qua" (các dòng Nhật ký trong 360 ngày gần nhất, tối đa 200 dòng lưu trong state; `EVENT_SCHEMA.md` §5) để người chơi không bỏ lỡ diễn biến.
 
 ## 4. Lựa chọn có ý nghĩa
 

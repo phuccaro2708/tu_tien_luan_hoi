@@ -78,10 +78,10 @@ Kết quả kiểm tra mới nhất: xem `docs/reports/phase/2026-10-25-p1a-revi
 ## P2 – Thế giới, tri thức, sự kiện
 
 - **Status:** `BLOCKED`
-- **Dependencies:** D21, D24; P1.
+- **Dependencies:** D21, D24, D26 (tài liệu hoàn thiện ở `docs/technical/EVENT_SCHEMA.md` và `docs/reports/phase/2026-10-25-p2-design-completion.md`, đang Draft chờ duyệt); P1a, P1b.
 - **Files:** —
 - **Tests:** —
-- **Known issues:** —
+- **Known issues:** Còn một câu hỏi mở: Hắc Phong trại và Động phủ Lục là cảnh trong chuỗi hay địa điểm riêng (đã ghi `[CHỜ XÁC NHẬN]`).
 - **Next recommended module:** P3.
 
 ## P3 – NPC, chiến đấu, tới LK1
