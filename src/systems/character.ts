@@ -45,7 +45,7 @@ export function rollLife1(
     (lc) => lc.weightLife1,
   )
 
-  // [GIẢ ĐỊNH] Các hệ chọn đều theo tổ hợp (Fisher–Yates từng phần), lưu theo thứ tự trong dữ liệu.
+  // [ĐÃ DUYỆT D37] Các hệ chọn đều theo tổ hợp (Fisher–Yates từng phần), lưu theo thứ tự trong dữ liệu.
   const order = content.elements.map((e) => e.id)
   const pool = [...order]
   for (let i = 0; i < linhCan.elements; i++) {
@@ -100,7 +100,7 @@ export function applyOrigin(
 
 /**
  * Chuẩn hóa và kiểm tra danh tính (D32): tên NFC, cắt khoảng trắng hai đầu, 1..nameMaxLength ký tự
- * (đếm theo code point), không có ký tự điều khiển; giới tính có trong dữ liệu.
+ * (đếm theo code point), không có ký tự điều khiển hay ký tự định dạng vô hình; giới tính có trong dữ liệu.
  */
 export function parseIdentity(
   content: Content,
@@ -115,8 +115,9 @@ export function parseIdentity(
       ok: false,
       error: `name must be 1–${content.identity.nameMaxLength} characters`,
     }
-  if (/\p{Cc}/u.test(clean))
-    return { ok: false, error: 'name has control characters' }
+  // Cf (VD U+200B, U+202E) vô hình hoặc đảo chiều chữ: tên chỉ gồm chúng trông như rỗng.
+  if (/[\p{Cc}\p{Cf}]/u.test(clean))
+    return { ok: false, error: 'name has control or invisible characters' }
   if (!content.identity.genders.some((g) => g.id === gender))
     return { ok: false, error: 'unknown gender' }
   return { ok: true, value: { name: clean, gender: gender as string } }

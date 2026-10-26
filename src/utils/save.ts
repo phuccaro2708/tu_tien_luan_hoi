@@ -1,6 +1,7 @@
 import { SPEEDS, type Speed } from '../core/clock'
 import { hashState } from '../core/hash'
 import {
+  isObj,
   startLife1,
   validateState,
   validateStateExceptStaminaCap,
@@ -55,9 +56,8 @@ export function serializeSave(
  * đã lão hóa (D35): Tinh lực v1 hợp lệ mà vượt trần thì kẹp, không từ chối.
  */
 function migrateV1(state: unknown, content: Content): Result<unknown> {
-  if (typeof state !== 'object' || state === null || Array.isArray(state))
-    return { ok: false, error: 'v1 state is not an object' }
-  const v1 = state as Record<string, unknown>
+  if (!isObj(state)) return { ok: false, error: 'v1 state is not an object' }
+  const v1 = state
   if (Object.hasOwn(v1, 'character') || Object.hasOwn(v1, 'skillXp'))
     return { ok: false, error: 'v1 state has v2 fields' }
   // Trường v2 lấy từ một nhân vật giả (RNG 0) chỉ để kiểm trường v1; `stop` của v1 bị thay bằng
