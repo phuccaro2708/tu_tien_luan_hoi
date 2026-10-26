@@ -91,6 +91,13 @@ export const rawFixture: RawContent = {
       once: false,
     },
     {
+      id: 'exhaust',
+      name: 'Kiệt sức',
+      requires: [],
+      effects: [{ type: 'addResource', resource: 'tinhLuc', amount: -100 }],
+      once: false,
+    },
+    {
       id: 'haul',
       name: 'Khuân vác',
       requires: [{ type: 'skillAtLeast', skill: 'thePhach', level: 5 }],

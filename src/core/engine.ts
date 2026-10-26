@@ -50,17 +50,20 @@ export function applyCommand(
 
 /**
  * Một tick = một ngày. Thứ tự pipeline cố định (IMPLEMENTATION_PLAN §1);
- * hiện có: hành động hiện tại → ngày +1 → cảnh báo thọ nguyên / chết. Đang ở điểm dừng → không chạy.
+ * hiện có: ngày +1 và kẹp Tinh lực → hành động hiện tại → cảnh báo thọ nguyên / chết. Đang ở điểm dừng → không chạy.
  */
 export function step(state: GameState, content: Content): GameState {
   // Ngày cuối biểu diễn được (thực tế không thể chạm tới): không chạy gì để 1 tick luôn = 1 ngày.
   if (state.stop || state.day >= Number.MAX_SAFE_INTEGER) return state
-  const next = runCurrentAction(state, content)
-  // Bị chặn trước khi làm gì → ngày chưa trôi.
-  if (next.stop?.reason === 'actionBlocked') return next
-  // Pipeline bước 1: sang ngày mới rồi kẹp Tinh lực theo mức tối đa (có thể giảm vì lão hóa, D35).
-  const aged = clampStamina({ ...next, day: next.day + 1 }, content)
-  return checkLifespan(state, aged, content)
+  // Bước 1: sang ngày mới rồi kẹp Tinh lực theo mức tối đa mới (có thể giảm vì lão hóa, D35),
+  // để hành động không tiêu được phần Tinh lực vừa mất.
+  const aged = clampStamina({ ...state, day: state.day + 1 }, content)
+  const next = runCurrentAction(aged, content)
+  // Bị chặn → bỏ cả tick, ngày chưa trôi (R03 chờ P1b).
+  if (next.stop?.reason === 'actionBlocked')
+    return { ...state, stop: next.stop }
+  // Effect có thể cộng Tinh lực quá mức tối đa (applyResourceDeltas chỉ kẹp theo trần tuyệt đối).
+  return checkLifespan(state, clampStamina(next, content), content)
 }
 
 /**

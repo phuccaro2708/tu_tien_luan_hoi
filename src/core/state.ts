@@ -58,6 +58,21 @@ const isTickCount = (v: unknown) =>
  * Trả về danh sách lỗi; rỗng = hợp lệ.
  */
 export function validateState(value: unknown, content: Content): string[] {
+  const errors = validateStateExceptStaminaCap(value, content)
+  // Mức tối đa động chỉ tính được khi mọi trường khác đã hợp lệ.
+  if (errors.length > 0) return errors
+  const state = value as GameState
+  const id = content.stamina.resource
+  return (own(state.resources, id) ?? 0) > staminaMax(state, content)
+    ? [`resource "${id}" above its current max`]
+    : []
+}
+
+/** Như `validateState` nhưng bỏ qua trần Tinh lực động (migrate v1 kẹp Tinh lực đã lão hóa thay vì từ chối). */
+export function validateStateExceptStaminaCap(
+  value: unknown,
+  content: Content,
+): string[] {
   if (!isObj(value)) return ['state is not an object']
   const errors: string[] = []
   const s = value
@@ -131,13 +146,6 @@ export function validateState(value: unknown, content: Content): string[] {
   }
 
   errors.push(...exactKeys(s, STATE_KEYS, 'field'))
-  // Mức tối đa động chỉ tính được khi mọi trường khác đã hợp lệ.
-  if (errors.length === 0) {
-    const state = s as unknown as GameState
-    const id = content.stamina.resource
-    if ((own(state.resources, id) ?? 0) > staminaMax(state, content))
-      errors.push(`resource "${id}" above its current max`)
-  }
   return errors
 }
 

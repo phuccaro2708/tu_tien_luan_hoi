@@ -443,6 +443,30 @@ describe('save v2', () => {
     ['version 3', text(3, createInitialState(fixture, 1))],
     ['version "2"', text('2', createInitialState(fixture, 1))],
     ['version 1.5', text(1.5, createInitialState(fixture, 1))],
+    // QA-01: trường v1 phải được kiểm trước khi dùng hay kẹp.
+    ...(
+      [
+        ['v1 without rng', { rng: undefined }],
+        ['v1 rng "garbage"', { rng: 'garbage' }],
+        [
+          'v1 rng object without toString',
+          { rng: { toString: null, valueOf: null } },
+        ],
+        [
+          'v1 tinhLuc "999999"',
+          { resources: { van: 0, tinhLuc: '999999', jar: 0 } },
+        ],
+        ['v1 tinhLuc 1e300', { resources: { van: 0, tinhLuc: 1e300, jar: 0 } }],
+        [
+          'v1 tinhLuc above the v1 max',
+          { resources: { van: 0, tinhLuc: 101, jar: 0 } },
+        ],
+      ] as const
+    ).map(([name, patch]) => [
+      name,
+      text(1, { ...v1Of(createInitialState(fixture, 1)), ...patch }),
+    ]),
+    ['version object without toString', text({ toString: null }, {})],
   ])('rejects %s', (_name, saveText) => {
     expect(parseSave(saveText, fixture).ok).toBe(false)
   })
@@ -664,6 +688,26 @@ describe('stamina max (PROGRESSION §6, D35)', () => {
     const next = step(s, lifeFixture)
     expect(next.day).toBe(35 * dpy)
     expect(next.resources.tinhLuc).toBe(98)
+  })
+
+  it('the birthday clamp happens before the action, so aged-away Tinh lực cannot be spent (QA-02)', () => {
+    const exhaust = (s: GameState) =>
+      ok(
+        applyCommand(s, lifeFixture, {
+          type: 'setAction',
+          actionId: 'exhaust',
+        }),
+      )
+    // Chưa tới mốc: tiêu đủ 100.
+    const young = step(exhaust(withTinhLuc(at(30), 100)), lifeFixture)
+    expect(young.resources.tinhLuc).toBe(0)
+    expect(young.stop).toBeNull()
+    // Sinh nhật 49: trần mới 98 < 100 → bị chặn, ngày không trôi, state cũ giữ nguyên.
+    const before = exhaust(withTinhLuc(at(48, { day: 35 * dpy - 1 }), 100))
+    const next = step(before, lifeFixture)
+    expect(next.stop?.reason).toBe('actionBlocked')
+    expect({ ...next, stop: null }).toEqual(before)
+    expect(validateState(next, lifeFixture)).toEqual([])
   })
 
   it('effects cannot push Tinh lực above the current max', () => {

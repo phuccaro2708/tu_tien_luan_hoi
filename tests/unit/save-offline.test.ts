@@ -10,9 +10,11 @@ import {
 import type { GameState } from '../../src/types/game'
 import {
   parseSave,
+  bootSave,
   readSave,
   SAVE_BACKUP_KEY,
   SAVE_KEY,
+  SAVE_QUARANTINE_PREFIX,
   SAVE_VERSION,
   serializeSave,
   writeSave,
@@ -163,6 +165,48 @@ describe('SaveManager', () => {
     expect(writeSave(throwing, { ...a, day: 9 }, fixture, 2).ok).toBe(false)
     expect(storage.data.get(SAVE_KEY)).toBe(before)
   })
+
+  // QA-01: save v1 hỏng từng được nhận là hợp lệ, rồi lần ghi kế tiếp đè mất backup tốt.
+  it.each([
+    ['without rng', {}],
+    ['with an rng that throws on conversion', { rng: { toString: null } }],
+  ])(
+    'a corrupt v1 primary (%s) is quarantined and the good backup survives the next autosave',
+    (_name, patch) => {
+      const storage = memoryStorage()
+      const good = { ...startGame(fixture, 5), day: 123 }
+      const goodText = serializeSave(good, fixture, 1)
+      if (!goodText.ok) throw new Error(goodText.error)
+      const corrupt = JSON.stringify({
+        version: 1,
+        savedAt: 1,
+        state: {
+          seed: 1,
+          day: 0,
+          tichThoiTicks: 0,
+          resources: { van: 0, tinhLuc: 100, jar: 0 },
+          flags: {},
+          claimed: {},
+          currentActionId: null,
+          stop: null,
+          ...patch,
+        },
+      })
+      storage.data.set(SAVE_KEY, corrupt)
+      storage.data.set(SAVE_BACKUP_KEY, goodText.value)
+
+      const boot = bootSave(storage, fixture, 1)
+      expect(boot.canWrite).toBe(true)
+      expect(boot.state).toEqual(good)
+      expect(writeSave(storage, boot.state!, fixture, 2).ok).toBe(true)
+      expect(storage.data.get(SAVE_BACKUP_KEY)).toBe(goodText.value)
+      expect(
+        [...storage.data].some(
+          ([k, v]) => k.startsWith(SAVE_QUARANTINE_PREFIX) && v === corrupt,
+        ),
+      ).toBe(true)
+    },
+  )
 
   it('no-duplicate reward survives save/load', () => {
     const s0 = applyCommand(startGame(fixture, 1), fixture, {
