@@ -2,7 +2,7 @@
 
 > **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt). Bản v0.1 đã Approved 2026-10-23; phần không gắn `[CẦN DUYỆT D17–D26]` giữ nguyên giá trị đã duyệt. Mọi con số là giả thuyết để kiểm chứng bằng mô phỏng và playtest. Đối chiếu: `docs/reports/GDD_REVIEW_RESOLUTION.md`.
 >
-> **Bổ sung 2026-10-25:** D33 (bảng XP §5), D35 (Tinh lực tối đa và lão hóa §6), D36 (Chất phác bậc II §3) – xem GDD §12.
+> **Bổ sung 2026-10-25:** D33 (bảng XP §5), D35 (Tinh lực tối đa và lão hóa §6), D36 (Chất phác bậc II §3), D37 (hệ linh căn kiếp 1 §3) – xem GDD §12.
 
 ## 1. Thang cảnh giới
 
@@ -117,7 +117,7 @@ Không softlock: thất bại luôn cho phép thử lại; chi phí thật là *
 
 - Linh căn là thuộc tính ẩn. Nhân vật chỉ biết khi được đo bằng Trắc Linh Thạch (Lục, hội tuyển Thanh Vân Môn, hoặc mua lượt đo ở chợ đêm). Trước đó giao diện ghi "Chưa rõ".
 - Hệ của linh căn (Kim/Mộc/Thủy/Hỏa/Thổ) quyết định công pháp có hệ (E) và pháp thuật dùng được.
-- Kiếp 1 **ngẫu nhiên theo seed** `[ĐÃ DUYỆT D04]`: Ngũ 35% · Tứ 50% · Tam 15%; **không bao giờ Song/Thiên** ở kiếp 1 (giữ trụ cột "phàm nhân, không thiên tài"). Các hệ cụ thể cũng ngẫu nhiên.
+- Kiếp 1 **ngẫu nhiên theo seed** `[ĐÃ DUYỆT D04]`: Ngũ 35% · Tứ 50% · Tam 15%; **không bao giờ Song/Thiên** ở kiếp 1 (giữ trụ cột "phàm nhân, không thiên tài"). Các hệ cụ thể cũng ngẫu nhiên: mọi tổ hợp hệ có xác suất như nhau `[ĐÃ DUYỆT D37 – 2026-10-25]`.
 - Các kiếp sau: theo quy luật "Hồn dưỡng căn" (§8.4).
 
 ### Kiếp 1 – khởi tạo ngẫu nhiên `[ĐÃ DUYỆT D04]`

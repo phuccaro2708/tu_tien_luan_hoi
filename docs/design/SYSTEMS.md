@@ -48,7 +48,7 @@
   - **Game mới:** sinh seed, rồi tung kiếp 1 theo `PROGRESSION.md` §3 (linh căn, ngộ tính, xuất thân, thiên phú bẩm sinh) `[ĐÃ DUYỆT D04]`.
   - **Tên và giới tính** `[ĐÃ DUYỆT D32 – 2026-10-25]` (chi tiết D05):
     - Game mới (và save cũ chưa có danh tính) dừng ở điểm dừng `chooseIdentity`; thời gian không chạy cho tới khi người chơi chọn.
-    - Tên: cắt khoảng trắng hai đầu, còn 1–16 ký tự, không có ký tự điều khiển. Giới tính: Nam hoặc Nữ (dữ liệu).
+    - Tên: cắt khoảng trắng hai đầu, còn 1–16 ký tự, không có ký tự điều khiển hay ký tự định dạng vô hình (VD U+200B). Giới tính: Nam hoặc Nữ (dữ liệu).
     - Đã chọn thì không đổi trong kiếp. Lệnh nào khác lệnh chọn danh tính đều bị từ chối khi chưa chọn.
   - **Sau khi chết, trước P4** `[ĐÃ DUYỆT D31 – 2026-10-25]`: màn "Kiếp này đã hết" (tuổi, thọ nguyên) và nút **Bắt đầu kiếp mới**. Xác nhận xong thì tạo game mới với seed mới; kiếp cũ và Tích Thời mất hẳn. Đây là lối thoát tạm; P4 thay bằng Vong Xuyên (S12).
 - **Tương tác:** mọi hệ đều chạy theo tick; S9 cộng thọ nguyên; S12 kích hoạt khi chết; S13 dùng cùng bước tick.

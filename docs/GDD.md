@@ -2,7 +2,7 @@
 
 > **Trạng thái: Draft v0.2 – 2026-10-23** (sửa theo review Codex, chờ duyệt D17–D26). Bản v0.1 đã Approved 2026-10-23; D01–D16 giữ nguyên hiệu lực trừ chỗ ghi rõ. Đối chiếu từng finding: `reports/GDD_REVIEW_RESOLUTION.md`.
 >
-> **Bổ sung 2026-10-25:** D23 đã duyệt; D31–D36 (chết trước P4, chi tiết tên/giới tính, bảng XP, chết khi offline, Tinh lực tối đa, Chất phác bậc II) do người dùng quyết định trong lượt xử lý vấn đề còn lại của P1a. Xem §12.
+> **Bổ sung 2026-10-25:** D23 đã duyệt; D31–D36 (chết trước P4, chi tiết tên/giới tính, bảng XP, chết khi offline, Tinh lực tối đa, Chất phác bậc II) do người dùng quyết định trong lượt xử lý vấn đề còn lại của P1a; D37 (cách tung hệ linh căn kiếp 1) duyệt sau lượt code review. Xem §12.
 >
 > Ký hiệu: `[GIẢ ĐỊNH]` = điều tôi tự giả định, có thể sai, sẽ kiểm bằng playtest. `[ĐÃ DUYỆT Dxx]` = quyết định thiết kế đã được người dùng phê duyệt. `[CẦN DUYỆT Dxx]` = thay đổi v0.2 đang chờ duyệt. Mã `Dxx` tra ở bảng cuối file.
 >
@@ -137,11 +137,12 @@ Phát sinh từ review Codex (báo cáo được dán trong phiên, không có t
 
 Phát sinh khi triển khai P1a. Người dùng chốt trong phiên ngày 2026-10-25; nguồn: `docs/reports/phase/2026-10-25-p1a-followup.md`.
 
-| Mã  | Quyết định                                                                                                                                                                                          | Tài liệu                   |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| D31 | Trước khi có Vong Xuyên (P4): chết → màn "Kiếp này đã hết" và nút **Bắt đầu kiếp mới** (seed mới, có xác nhận; kiếp cũ mất). P4 thay bằng luân hồi thật                                             | SYSTEMS S1                 |
-| D32 | Chi tiết D05: tên 1–16 ký tự sau khi cắt khoảng trắng hai đầu, không có ký tự điều khiển; giới tính Nam/Nữ. Chọn trước khi thời gian bắt đầu chạy; khi chưa chọn, vắng mặt không sinh Tích Thời     | SYSTEMS S1, S13            |
-| D33 | Bảng XP sửa theo công thức có làm tròn từng bước; "XP cộng dồn" tính cả bước từ cấp 0                                                                                                               | PROGRESSION §5             |
-| D34 | Giữ offline ≡ online: chỉ có thể chết khi vắng mặt trong năm cuối, sau khi người chơi đã tự bấm qua cảnh báo 1 năm                                                                                  | SYSTEMS S13                |
-| D35 | Tinh lực tối đa = `100 + min(30, cấp Thể Phách) + thiên phú − 2 × max(0, tuổi − floor(0,8 × thọ nguyên))`, không âm; Tinh lực hiện có bị kẹp khi mức tối đa giảm; kiếp mới bắt đầu với Tinh lực đầy | PROGRESSION §6, BALANCE §3 |
-| D36 | Chất phác bậc II: Giao Tế XP ×0,9                                                                                                                                                                   | PROGRESSION §3             |
+| Mã  | Quyết định                                                                                                                                                                                                                  | Tài liệu                   |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| D31 | Trước khi có Vong Xuyên (P4): chết → màn "Kiếp này đã hết" và nút **Bắt đầu kiếp mới** (seed mới, có xác nhận; kiếp cũ mất). P4 thay bằng luân hồi thật                                                                     | SYSTEMS S1                 |
+| D32 | Chi tiết D05: tên 1–16 ký tự sau khi cắt khoảng trắng hai đầu, không có ký tự điều khiển hay ký tự định dạng vô hình; giới tính Nam/Nữ. Chọn trước khi thời gian bắt đầu chạy; khi chưa chọn, vắng mặt không sinh Tích Thời | SYSTEMS S1, S13            |
+| D33 | Bảng XP sửa theo công thức có làm tròn từng bước; "XP cộng dồn" tính cả bước từ cấp 0                                                                                                                                       | PROGRESSION §5             |
+| D34 | Giữ offline ≡ online: chỉ có thể chết khi vắng mặt trong năm cuối, sau khi người chơi đã tự bấm qua cảnh báo 1 năm                                                                                                          | SYSTEMS S13                |
+| D35 | Tinh lực tối đa = `100 + min(30, cấp Thể Phách) + thiên phú − 2 × max(0, tuổi − floor(0,8 × thọ nguyên))`, không âm; Tinh lực hiện có bị kẹp khi mức tối đa giảm; kiếp mới bắt đầu với Tinh lực đầy                         | PROGRESSION §6, BALANCE §3 |
+| D36 | Chất phác bậc II: Giao Tế XP ×0,9                                                                                                                                                                                           | PROGRESSION §3             |
+| D37 | Hệ linh căn kiếp 1: mọi tổ hợp hệ (đúng số hệ của loại linh căn đã tung) có xác suất như nhau; lưu theo thứ tự hệ trong dữ liệu                                                                                             | PROGRESSION §3             |
